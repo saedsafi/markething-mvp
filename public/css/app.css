@@ -1016,38 +1016,6 @@ body{
     color: #ef4444;
 }
 
-.usage-list {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-}
-
-.usage-row {
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 16px;
-    border-radius: 16px;
-    background: var(--light);
-}
-
-.usage-row span {
-    color: var(--gray);
-    font-size: 14px;
-}
-
-.usage-row strong {
-    font-size: 14px;
-}
-
-.usage-row.total {
-    background: linear-gradient(
-        135deg,
-        rgba(124,77,255,0.12),
-        rgba(74,108,247,0.12)
-    );
-}
-
 .shortcut-list {
     display: flex;
     flex-direction: column;
@@ -1773,11 +1741,6 @@ body{
     gap: 18px;
 }
 
-.brand-assets-placeholder {
-    opacity: 0.75;
-    border: 1px dashed rgba(124,77,255,0.3);
-}
-
 .builder-actions {
     display: flex;
     justify-content: flex-end;
@@ -2486,14 +2449,6 @@ body{
     color: #10b981;
 }
 
-.post-indicator.regenerated {
-    background: linear-gradient(
-        135deg,
-        rgba(124,77,255,0.12),
-        rgba(74,108,247,0.12)
-    );
-    color: var(--primary);
-}
 
 .post-chevron {
     font-size: 22px;
@@ -2606,8 +2561,7 @@ body{
 .admin-detail-page,
 .admin-prompts-page,
 .admin-settings-page,
-.admin-logs-page,
-.admin-usage-page {
+.admin-logs-page{
     display: flex;
     flex-direction: column;
     gap: 28px;
@@ -2855,14 +2809,6 @@ body{
     align-items: end;
 }
 
-/* USAGE */
-
-.usage-dashboard-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1.3fr) minmax(320px, 0.7fr);
-    gap: 28px;
-}
-
 .cost-chart-demo {
     display: flex;
     flex-direction: column;
@@ -2899,8 +2845,7 @@ body{
 
 @media(max-width: 1150px) {
     .admin-user-grid,
-    .prompt-layout,
-    .usage-dashboard-grid {
+    .prompt-layout {
         grid-template-columns: 1fr;
     }
 
@@ -3221,4 +3166,255 @@ select:focus-visible {
     .profile-dropdown {
         right: 0;
     }
+}
+
+/* V2 PATCH 1 */
+
+.inactive-status {
+    background: rgba(107,114,128,0.12);
+    color: #6b7280;
+}
+
+.single-config-grid {
+    grid-template-columns: 1fr;
+    max-width: 760px;
+}
+
+.shortcut-card {
+    text-decoration: none;
+    color: var(--dark);
+}
+
+.shortcut-card:hover {
+    color: var(--primary);
+}
+
+
+/* V2 PATCH 2 — AI ASSIST POPUP FLOW */
+
+.ai-modal-content {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.ai-modal-target {
+    padding: 16px;
+    border-radius: 18px;
+    background: linear-gradient(
+        135deg,
+        rgba(124,77,255,0.1),
+        rgba(74,108,247,0.1)
+    );
+}
+
+.ai-modal-target span {
+    display: block;
+    color: var(--gray);
+    font-size: 13px;
+    margin-bottom: 6px;
+}
+
+.ai-modal-target strong {
+    color: var(--primary);
+    font-size: 16px;
+}
+
+.ai-modal-helper {
+    color: var(--gray);
+    line-height: 1.7;
+}
+
+.ai-soft-warning {
+    margin-top: 10px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: #fff7ed;
+    color: #9a3412;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.ai-soft-warning.hidden {
+    display: none;
+}
+
+.ai-field.is-drafting .form-textarea {
+    background:
+        linear-gradient(
+            90deg,
+            #ffffff,
+            #f5f7ff,
+            #ffffff
+        );
+    background-size: 200% 100%;
+    animation: skeletonMove 1.2s linear infinite;
+}
+
+.ai-assist-btn.is-loading {
+    opacity: 0.75;
+    cursor: wait;
+}
+
+/* V2 PATCH 4 — CLIENT DEACTIVATION */
+
+.client-card.deactivated {
+    opacity: 0.72;
+    border: 1px solid rgba(107,114,128,0.22);
+    background:
+        linear-gradient(135deg, rgba(107,114,128,0.06), rgba(255,255,255,1));
+}
+
+.client-card.deactivated .client-logo {
+    background: linear-gradient(135deg, #9ca3af, #6b7280);
+}
+
+.btn-danger {
+    background: rgba(239,68,68,0.12);
+    color: #ef4444;
+}
+
+.btn-danger:hover {
+    transform: translateY(-2px);
+}
+
+/* V2 PATCH 5 — CAMPAIGN GENERATION TIMING */
+
+.generation-timer {
+    margin: 0 auto 24px;
+    padding: 16px;
+    border-radius: 18px;
+    background: var(--light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 18px;
+    max-width: 420px;
+}
+
+.generation-timer strong {
+    color: var(--dark);
+    font-size: 14px;
+}
+
+.generation-timer span {
+    color: var(--primary);
+    font-weight: 900;
+}
+
+.generation-error {
+    margin-top: 22px;
+    padding: 15px 18px;
+    border-radius: 16px;
+    background: rgba(239,68,68,0.1);
+    color: #ef4444;
+    font-weight: 800;
+    font-size: 14px;
+}
+
+.generation-error.hidden,
+#closeGenerationError.hidden {
+    display: none;
+}
+
+#closeGenerationError {
+    margin-top: 18px;
+}
+
+/* FINAL POLISH PATCH */
+
+.test-prompt-textarea {
+    min-height: 160px;
+}
+
+.version-drawer-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.version-drawer {
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    overflow: hidden;
+    background: white;
+}
+
+.version-drawer-header {
+    width: 100%;
+    border: none;
+    background: var(--light);
+    padding: 16px 18px;
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    cursor: pointer;
+    font-weight: 800;
+    color: var(--dark);
+}
+
+.version-drawer-header strong {
+    color: var(--primary);
+    font-size: 13px;
+}
+
+.version-drawer-body {
+    display: none;
+    padding: 18px;
+}
+
+.version-drawer.open .version-drawer-body {
+    display: block;
+}
+
+.version-drawer-body pre {
+    margin-top: 14px;
+    background: var(--light);
+    padding: 16px;
+    border-radius: 14px;
+    white-space: pre-wrap;
+    line-height: 1.7;
+}
+
+/* Optional: hide old removed topbar styles if still present */
+.global-search,
+.notification-wrapper,
+.notification-dropdown {
+    display: none !important;
+}
+
+.agency-single-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 720px;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: none;
+    border-radius: 18px;
+    padding: 14px 22px;
+    font-size: 15px;
+    font-weight: 800;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(
+        135deg,
+        #7c4dff,
+        #4a6cf7
+    );
+    color: white;
+    box-shadow: 0 12px 24px rgba(124,77,255,0.24);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 28px rgba(124,77,255,0.32);
 }

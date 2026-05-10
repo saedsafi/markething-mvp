@@ -70,6 +70,6 @@ Route::get('/admin/logs', function () {
     return view('admin.logs.index');
 });
 
-Route::get('/admin/usage', function () {
-    return view('admin.usage.index');
-});
+Route::get('/admin/prompts', fn () => view('admin.prompts.index'));
+Route::get('/admin/settings', fn () => view('admin.settings.index'));
+Route::get('/admin/logs', fn () => view('admin.logs.index'));

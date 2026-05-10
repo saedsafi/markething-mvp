@@ -18,7 +18,7 @@
             <div class="client-logo large">B</div>
 
             <div>
-                <span class="hero-badge">Ready for Campaigns</span>
+                <span class="hero-badge">Active Client</span>
 
                 <h2>Bloom Café</h2>
 
@@ -30,12 +30,16 @@
         </div>
 
         <div class="hero-actions">
-            <button class="btn btn-primary" type="button">
+            <button class="btn btn-primary" type="button" data-create-campaign>
                 + Create Campaign
             </button>
 
-            <button class="btn btn-secondary" type="button">
+            <button class="btn btn-secondary" type="button" data-edit-profile>
                 Edit Profile
+            </button>
+
+            <button class="btn btn-danger" type="button" data-deactivate-client>
+                Deactivate
             </button>
         </div>
 
@@ -56,9 +60,9 @@
         />
 
         <x-stats-card
-            label="Last Updated"
-            value="May"
-            hint="2026"
+            label="Status"
+            value="Active"
+            hint="Available for new campaigns"
         />
 
     </div>
@@ -188,6 +192,15 @@
             </div>
 
             <div class="table-card">
+                <h2 class="section-title">Snapshot Behavior</h2>
+
+                <p class="profile-text">
+                    Existing campaigns keep the client, brand, persona, and Business Context snapshot from the moment they were generated.
+                    Later edits or deactivation do not change previous campaigns.
+                </p>
+            </div>
+
+            <div class="table-card">
                 <h2 class="section-title">Recent Campaigns</h2>
 
                 <div class="mini-campaign-list">
@@ -213,5 +226,11 @@
     </div>
 
 </div>
+
+<x-toast
+    id="appToast"
+    title="Action Completed"
+    message="The client profile action was completed successfully."
+/>
 
 @endsection

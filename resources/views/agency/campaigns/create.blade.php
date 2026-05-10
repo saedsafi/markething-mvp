@@ -325,7 +325,7 @@
                     <div class="generation-warning">
                         <strong>Before generating:</strong>
                         Campaign creation must be completed in one session. If you leave this page,
-                        your current progress may be discarded.
+                        your current progress may be discarded. During generation, MARKETHING will show a loading state for up to 60 seconds.
                     </div>
 
                     <div class="campaign-section-actions">
@@ -357,16 +357,29 @@
         <h2>Generating Your Campaign</h2>
 
         <p>
-            MARKETHING is creating your campaign posts, captions, hashtags,
-            creative directions, and schedule.
+            MARKETHING is generating your campaign. This may take up to 60 seconds.
+            If generation takes too long, your inputs will remain here so you can try again.
         </p>
 
-        <div class="generation-steps">
-            <span class="active">Preparing prompt</span>
-            <span>Calling AI engine</span>
-            <span>Validating schedule</span>
-            <span>Building post cards</span>
+        <div class="generation-timer">
+            <strong id="generationTimerText">Preparing generation...</strong>
+            <span id="generationTimerCount">0s</span>
         </div>
+
+        <div class="generation-steps">
+            <span class="active">Preparing campaign data</span>
+            <span>Generating content</span>
+            <span>Validating output</span>
+            <span>Preparing campaign view</span>
+        </div>
+
+        <div class="generation-error hidden" id="generationError">
+            network error, please try again later
+        </div>
+
+        <button class="btn btn-secondary hidden" type="button" id="closeGenerationError">
+            Back To Form
+        </button>
 
     </div>
 

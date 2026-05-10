@@ -15,7 +15,7 @@
     <div class="clients-header-card">
 
         <div>
-            <span class="hero-badge">6 of 10 profiles used</span>
+            <span class="hero-badge">6 client profiles used</span>
 
             <h2>Your Client Workspace</h2>
 
@@ -36,21 +36,21 @@
     <div class="stats-grid">
 
         <x-stats-card
-            label="Client Profiles"
-            value="6/10"
-            hint="Plan limit: 10 clients"
+            label="Active Clients"
+            value="5"
+            hint="Available for campaigns"
+        />
+
+        <x-stats-card
+            label="Inactive Clients"
+            value="1"
+            hint="Deactivated profiles"
         />
 
         <x-stats-card
             label="Total Personas"
             value="14"
-            hint="Across all clients"
-        />
-
-        <x-stats-card
-            label="AI Assists Used"
-            value="18/50"
-            hint="Today"
+            hint="Across active clients"
         />
 
     </div>
@@ -81,14 +81,14 @@
 
                 <div>
                     <span>Status</span>
-                    <strong>Ready</strong>
+                    <strong>Active</strong>
                 </div>
             </div>
 
             <div class="client-actions">
                 <a href="{{ url('/agency/clients/show') }}" class="mini-btn">View Profile</a>
-                <button class="mini-btn">Edit</button>
-                <button class="mini-btn danger">Delete</button>
+                <button class="mini-btn" type="button" data-edit-profile>Edit</button>
+                <button class="mini-btn danger" type="button" data-deactivate-client>Deactivate</button>
             </div>
 
         </div>
@@ -117,14 +117,14 @@
 
                 <div>
                     <span>Status</span>
-                    <strong>Ready</strong>
+                    <strong>Active</strong>
                 </div>
             </div>
 
             <div class="client-actions">
                 <a href="{{ url('/agency/clients/show') }}" class="mini-btn">View Profile</a>
-                <button class="mini-btn">Edit</button>
-                <button class="mini-btn danger">Delete</button>
+                <button class="mini-btn" type="button" data-edit-profile>Edit</button>
+                <button class="mini-btn danger" type="button" data-deactivate-client>Deactivate</button>
             </div>
 
         </div>
@@ -159,7 +159,41 @@
 
             <div class="client-actions">
                 <a href="{{ url('/agency/clients/show') }}" class="mini-btn">Continue Setup</a>
-                <button class="mini-btn danger">Delete</button>
+                <button class="mini-btn danger" type="button" data-deactivate-client>Deactivate</button>
+            </div>
+
+        </div>
+
+        <div class="client-card deactivated">
+
+            <div class="client-card-top">
+                <div class="client-logo">O</div>
+
+                <div>
+                    <h3>Old Studio</h3>
+                    <p>Inactive profile · Previous campaigns preserved</p>
+                </div>
+            </div>
+
+            <div class="client-info-list">
+                <div>
+                    <span>Personas</span>
+                    <strong>2</strong>
+                </div>
+
+                <div>
+                    <span>Campaigns</span>
+                    <strong>4</strong>
+                </div>
+
+                <div>
+                    <span>Status</span>
+                    <strong>Inactive</strong>
+                </div>
+            </div>
+
+            <div class="client-actions">
+                <button class="mini-btn success" type="button" data-reactivate-client>Reactivate</button>
             </div>
 
         </div>
@@ -169,7 +203,7 @@
     <div class="capacity-card">
         <div>
             <h3>Client Capacity</h3>
-            <p>You can create up to 10 client profiles on your current plan.</p>
+            <p>Your client limit is set by the founder when your account is created.</p>
         </div>
 
         <div class="capacity-bar">

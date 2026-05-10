@@ -9,39 +9,54 @@
 
     <nav class="sidebar-menu">
 
-        <a href="{{ url('/agency/dashboard') }}" class="sidebar-link" data-route="/agency/dashboard">
-            Dashboard
-        </a>
+        @if(request()->is('admin*'))
 
-        <a href="{{ url('/agency/clients') }}" class="sidebar-link" data-route="/agency/clients">
-            Clients
-        </a>
+            <a href="{{ url('/admin/dashboard') }}" class="sidebar-link" data-route="/admin/dashboard">
+                Admin Dashboard
+            </a>
 
-        <a href="{{ url('/agency/campaigns/create') }}" class="sidebar-link" data-route="/agency/campaigns/create">
-            Create Campaign
-        </a>
+            <a href="{{ url('/admin/prompts') }}" class="sidebar-link" data-route="/admin/prompts">
+                Prompt Editor
+            </a>
 
-        <a href="{{ url('/agency/campaigns/show') }}" class="sidebar-link" data-route="/agency/campaigns/show">
-            Campaign Output
-        </a>
+            <a href="{{ url('/admin/settings') }}" class="sidebar-link" data-route="/admin/settings">
+                Settings
+            </a>
 
-        <a href="{{ url('/admin/dashboard') }}" class="sidebar-link" data-route="/admin/dashboard">
-            Admin
-        </a>
+            <a href="{{ url('/admin/logs') }}" class="sidebar-link" data-route="/admin/logs">
+                LLM Logs
+            </a>
 
-        <a href="{{ url('/admin/prompts') }}" class="sidebar-link" data-route="/admin/prompts">
-            Prompt Editor
-        </a>
+        @else
 
-        <a href="{{ url('/admin/settings') }}" class="sidebar-link" data-route="/admin/settings">
-            Settings
-        </a>
+            <a href="{{ url('/agency/dashboard') }}" class="sidebar-link" data-route="/agency/dashboard">
+                Dashboard
+            </a>
+
+            <a href="{{ url('/agency/clients') }}" class="sidebar-link" data-route="/agency/clients">
+                Clients
+            </a>
+
+            <a href="{{ url('/agency/campaigns/create') }}" class="sidebar-link" data-route="/agency/campaigns/create">
+                Create Campaign
+            </a>
+
+            <a href="{{ url('/agency/campaigns/show') }}" class="sidebar-link" data-route="/agency/campaigns/show">
+                Campaign Output
+            </a>
+
+        @endif
 
     </nav>
 
     <div class="sidebar-plan">
-        <span>Basic Plan</span>
-        <p>10 clients · 50 AI assists/day</p>
+        @if(request()->is('admin*'))
+            <span>Founder Admin</span>
+            <p>Admin-only tools and configuration.</p>
+        @else
+            <span>Client Limit</span>
+            <p>Limit is set per agency by the founder.</p>
+        @endif
     </div>
 
 </aside>

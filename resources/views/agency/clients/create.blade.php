@@ -27,8 +27,8 @@
                     <span>Step 1</span>
                     <h2>Business Context</h2>
                     <p>
-                        Paste a short business description, bio, captions, or “about us” text.
-                        AI Assist will use this as the source context for profile answers.
+                        Paste a business description, bio, captions, “about us” text,
+                        or any useful background. AI Assist will use this as the context source.
                     </p>
                 </div>
 
@@ -90,6 +90,7 @@
                     label="What does this business offer?"
                     placeholder="Describe the products, services, or experience..."
                     max="700"
+                    helper="Tell us what kind of answer you want: simple, premium, playful, detailed, or short."
                 />
 
             </div>
@@ -119,12 +120,14 @@
                     label="Describe the brand personality"
                     placeholder="Example: elegant, warm, youthful, premium..."
                     max="700"
+                    helper="Add notes about the desired tone, audience, or brand feeling before generating."
                 />
 
                 <x-ai-assist-field
                     label="What values should the brand communicate?"
                     placeholder="Example: quality, comfort, creativity, trust..."
                     max="700"
+                    helper="Mention the values or emotional message you want the brand to communicate."
                 />
 
             </div>
@@ -158,6 +161,7 @@
                     label="Describe this persona"
                     placeholder="Describe interests, needs, buying motivations..."
                     max="700"
+                    helper="Add extra details about the target audience, their lifestyle, pain points, or buying motivations."
                 />
 
                 <button class="btn btn-secondary" type="button" data-add-persona>
@@ -166,24 +170,12 @@
 
             </div>
 
-            <div class="table-card brand-assets-placeholder">
-
-                <div class="builder-section-header">
-                    <span>Coming Soon</span>
-                    <h2>Brand Assets</h2>
-                    <p>
-                        Logo, colors, files, and visual references will be supported in a future version.
-                    </p>
-                </div>
-
-            </div>
-
             <div class="builder-actions">
-                <button class="btn btn-secondary" type="button">
+                <button class="btn btn-secondary" type="button" data-save-draft>
                     Save Draft
                 </button>
 
-                <button class="btn btn-primary" type="button">
+                <button class="btn btn-primary" type="button" data-save-client>
                     Save Client Profile
                 </button>
             </div>
@@ -196,12 +188,12 @@
                 <h2 class="section-title">Profile Checklist</h2>
 
                 <div class="checklist">
-                    <div class="checklist-item done">
-                        <span>✓</span>
-                        Business context added
+                    <div class="checklist-item active">
+                        <span>1</span>
+                        Business context
                     </div>
 
-                    <div class="checklist-item active">
+                    <div class="checklist-item">
                         <span>2</span>
                         Business info
                     </div>
@@ -224,8 +216,7 @@
                 <h3>AI Assist Tip</h3>
 
                 <p>
-                    Add a strong Business Context first. The better the context,
-                    the better the AI drafts for free-text fields.
+                    Add a strong Business Context first. AI Assist stays disabled until this field has text.
                 </p>
             </div>
 
@@ -234,5 +225,58 @@
     </div>
 
 </div>
+
+<x-modal
+    id="aiAssistModal"
+    title="Help Me Answer This"
+    subtitle="Add extra guidance for this specific answer."
+>
+
+    <div class="ai-modal-content">
+
+        <div class="ai-modal-target">
+            <span>Field</span>
+            <strong id="aiAssistFieldLabel">Selected field</strong>
+        </div>
+
+        <p class="ai-modal-helper" id="aiAssistHelperText">
+            Add any details that can help MARKETHING draft a better answer.
+        </p>
+
+        <div class="form-group">
+            <label class="form-label">Extra Instructions</label>
+
+            <textarea
+                class="form-textarea"
+                id="aiAssistExtraInput"
+                placeholder="Example: Make it sound premium, friendly, and suitable for Instagram..."
+            ></textarea>
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn btn-primary" type="button" id="submitAiAssist">
+                ✦ Generate Answer
+            </button>
+
+            <button class="btn btn-secondary" type="button" data-close-modal>
+                Cancel
+            </button>
+        </div>
+
+    </div>
+
+</x-modal>
+
+<x-toast
+    id="appToast"
+    title="Saved"
+    message="Your action was completed successfully."
+/>
+
+<x-toast
+    id="aiAssistToast"
+    title="AI Draft Ready"
+    message="The answer was drafted successfully."
+/>
 
 @endsection

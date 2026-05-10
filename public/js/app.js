@@ -96,40 +96,113 @@ document.querySelectorAll('.ai-field textarea').forEach((textarea) => {
     updateAiCounter();
 });
 
-// Demo AI Assist behavior
-document.querySelectorAll('.ai-assist-btn').forEach((button) => {
+/* V2 PATCH 2 — AI ASSIST POPUP FLOW */
+
+let activeAiField = null;
+let activeAiButton = null;
+const aiAssistClickCounts = new WeakMap();
+
+document.querySelectorAll('[data-open-ai-assist]').forEach((button) => {
     button.addEventListener('click', () => {
-        const field = button.closest('.ai-field');
-        const textarea = field?.querySelector('textarea');
+        const aiField = button.closest('.ai-field');
+        const textarea = aiField?.querySelector('[data-ai-target-field]');
 
-        if (!textarea) return;
+        if (!aiField || !textarea) return;
 
-        if (textarea.value.trim() !== '') {
-            const shouldReplace = confirm('This will replace your current text. Continue?');
+        activeAiField = aiField;
+        activeAiButton = button;
 
-            if (!shouldReplace) return;
-        }
+        const label = button.getAttribute('data-ai-label') || 'Selected field';
+        const helper = button.getAttribute('data-ai-helper') || 'Add any extra details that may help MARKETHING draft a better answer.';
 
-        button.disabled = true;
-        button.textContent = '✦ Drafting...';
-        textarea.setAttribute('readonly', true);
+        const labelElement = document.getElementById('aiAssistFieldLabel');
+        const helperElement = document.getElementById('aiAssistHelperText');
+        const extraInput = document.getElementById('aiAssistExtraInput');
 
-        setTimeout(() => {
-            textarea.value =
-                'This business communicates with a warm, clear, and customer-focused tone. It highlights quality, trust, and the experience customers receive, while keeping the message easy to understand and suitable for social media campaigns.';
+        if (labelElement) labelElement.textContent = label;
+        if (helperElement) helperElement.textContent = helper;
+        if (extraInput) extraInput.value = '';
 
-            textarea.dispatchEvent(new Event('input'));
-
-            textarea.removeAttribute('readonly');
-            button.disabled = false;
-            button.textContent = '✦ Help me answer this';
-
-            if (typeof showToast === 'function') {
-                showToast('appToast');
-            }
-        }, 1200);
+        document.getElementById('aiAssistModal')?.classList.add('show');
     });
 });
+
+document.getElementById('submitAiAssist')?.addEventListener('click', () => {
+    if (!activeAiField || !activeAiButton) return;
+
+    const textarea = activeAiField.querySelector('[data-ai-target-field]');
+    const modal = document.getElementById('aiAssistModal');
+
+    if (!textarea) return;
+
+    if (textarea.value.trim() !== '') {
+        const shouldReplace = confirm('This will replace your current text. Continue?');
+
+        if (!shouldReplace) return;
+    }
+
+    modal?.classList.remove('show');
+
+    const currentCount = aiAssistClickCounts.get(activeAiField) || 0;
+    const nextCount = currentCount + 1;
+
+    aiAssistClickCounts.set(activeAiField, nextCount);
+
+    if (nextCount >= 3) {
+        activeAiField.querySelector('.ai-soft-warning')?.classList.remove('hidden');
+    }
+
+    activeAiButton.disabled = true;
+    activeAiButton.classList.add('is-loading');
+    activeAiButton.textContent = '✦ Drafting...';
+
+    activeAiField.classList.add('is-drafting');
+    textarea.setAttribute('readonly', true);
+
+    setTimeout(() => {
+        const extraInstructions = document.getElementById('aiAssistExtraInput')?.value.trim();
+
+        textarea.value =
+            extraInstructions
+                ? `Draft based on your business context and extra guidance: ${extraInstructions}. This answer is clear, brand-aware, and ready to edit.`
+                : 'This answer was drafted using the Business Context and is ready for the user to edit before saving.';
+
+        textarea.dispatchEvent(new Event('input'));
+
+        textarea.removeAttribute('readonly');
+
+        activeAiField.classList.remove('is-drafting');
+
+        activeAiButton.disabled = false;
+        activeAiButton.classList.remove('is-loading');
+        activeAiButton.textContent = '✦ Help me answer this';
+
+        if (typeof showToast === 'function') {
+            showToast('aiAssistToast');
+        }
+
+        activeAiField = null;
+        activeAiButton = null;
+    }, 1400);
+});
+
+/* Disable AI Assist until Business Context has text */
+
+const businessContextInput = document.querySelector('.business-context-input');
+
+function syncAiAssistAvailability() {
+    const hasContext = businessContextInput && businessContextInput.value.trim().length > 0;
+
+    document.querySelectorAll('[data-open-ai-assist]').forEach((button) => {
+        button.disabled = !hasContext;
+        button.title = hasContext
+            ? ''
+            : 'Add a description of the business at the top of the profile to enable AI assist.';
+    });
+}
+
+businessContextInput?.addEventListener('input', syncAiAssistAvailability);
+syncAiAssistAvailability();
 
 // Demo add persona button behavior
 document.querySelectorAll('[data-add-persona]').forEach((button) => {
@@ -301,12 +374,30 @@ document.querySelectorAll('[data-edit-profile]').forEach((button) => {
     });
 });
 
-document.querySelectorAll('[data-delete-client]').forEach((button) => {
+document.querySelectorAll('[data-deactivate-client]').forEach((button) => {
     button.addEventListener('click', (event) => {
-        const confirmed = confirm('Delete this client profile? Existing campaigns will remain unchanged.');
+        event.preventDefault();
 
-        if (!confirmed) {
-            event.preventDefault();
+        const confirmed = confirm(
+            'Deactivate this client profile? Existing campaigns will remain unchanged because campaigns keep snapshots of client data.'
+        );
+
+        if (!confirmed) return;
+
+        if (typeof showToast === 'function') {
+            showToast('appToast');
+        }
+    });
+});
+
+document.querySelectorAll('[data-reactivate-client]').forEach((button) => {
+    button.addEventListener('click', () => {
+        const confirmed = confirm('Reactivate this client profile?');
+
+        if (!confirmed) return;
+
+        if (typeof showToast === 'function') {
+            showToast('appToast');
         }
     });
 });
@@ -491,15 +582,86 @@ function updateCampaignReview() {
 
 const generateCampaignBtn = document.getElementById('generateCampaignBtn');
 
+let generationTimerInterval = null;
+
 generateCampaignBtn?.addEventListener('click', () => {
+    if (!validateCampaignDetails()) {
+        return;
+    }
+
     const overlay = document.getElementById('generationOverlay');
+    const timerText = document.getElementById('generationTimerText');
+    const timerCount = document.getElementById('generationTimerCount');
+    const errorBox = document.getElementById('generationError');
+    const closeErrorBtn = document.getElementById('closeGenerationError');
+
+    let elapsedSeconds = 0;
 
     overlay?.classList.add('show');
+    errorBox?.classList.add('hidden');
+    closeErrorBtn?.classList.add('hidden');
+
+    if (timerText) timerText.textContent = 'Preparing generation...';
+    if (timerCount) timerCount.textContent = '0s';
+
+    clearInterval(generationTimerInterval);
+
+    generationTimerInterval = setInterval(() => {
+        elapsedSeconds += 1;
+
+        if (timerCount) {
+            timerCount.textContent = `${elapsedSeconds}s`;
+        }
+
+        if (timerText) {
+            if (elapsedSeconds < 20) {
+                timerText.textContent = 'Preparing campaign data...';
+            } else if (elapsedSeconds < 45) {
+                timerText.textContent = 'Generating campaign content...';
+            } else if (elapsedSeconds < 60) {
+                timerText.textContent = 'Validating generated posts...';
+            } else {
+                timerText.textContent = 'Finalizing campaign view...';
+            }
+        }
+    }, 1000);
+
+    /*
+        Frontend demo behavior:
+        - Real backend should redirect when generation is done after the required wait behavior.
+        - For frontend testing, we redirect after 6 seconds so you do not need to wait 60 seconds every time.
+        - To test the timeout UI, change shouldSimulateTimeout to true.
+    */
+
+    const shouldSimulateTimeout = false;
+
+    if (shouldSimulateTimeout) {
+        setTimeout(() => {
+            clearInterval(generationTimerInterval);
+
+            if (timerText) {
+                timerText.textContent = 'Generation failed.';
+            }
+
+            errorBox?.classList.remove('hidden');
+            closeErrorBtn?.classList.remove('hidden');
+
+            campaignFormTouched = true;
+        }, 8000);
+
+        return;
+    }
 
     setTimeout(() => {
+        clearInterval(generationTimerInterval);
+
         campaignFormTouched = false;
         window.location.href = '/agency/campaigns/show';
-    }, 2600);
+    }, 6000);
+});
+
+document.getElementById('closeGenerationError')?.addEventListener('click', () => {
+    document.getElementById('generationOverlay')?.classList.remove('show');
 });
 
 window.addEventListener('beforeunload', (event) => {
@@ -585,66 +747,6 @@ document.querySelectorAll('[data-copy-post]').forEach((button) => {
     });
 });
 
-document.querySelectorAll('[data-regenerate-post]').forEach((button) => {
-    button.addEventListener('click', () => {
-        const card = button.closest('[data-post-card]');
-
-        if (!card) return;
-
-        if (button.dataset.used === 'true') {
-            alert('This post has already used its one regeneration.');
-            return;
-        }
-
-        if (card.classList.contains('has-unsaved')) {
-            const confirmed = confirm('Regenerating will overwrite your edits to this post. Continue?');
-
-            if (!confirmed) return;
-        }
-
-        button.disabled = true;
-        button.textContent = '✦ Regenerating...';
-
-        setTimeout(() => {
-            const caption = card.querySelector('[data-post-caption]');
-            const hashtags = card.querySelector('[data-post-hashtags]');
-            const creative = card.querySelector('[data-post-creative]');
-
-            if (caption) {
-                caption.value = 'Fresh regenerated version: Invite your audience to experience the campaign with a clearer hook, stronger emotional appeal, and a more polished social media caption.';
-            }
-
-            if (hashtags) {
-                hashtags.value = '#GeneratedContent #MarketingCampaign #MARKETHING';
-            }
-
-            if (creative) {
-                creative.value = 'A refreshed visual direction with stronger composition, brighter lighting, and a clearer focus on the campaign message.';
-            }
-
-            card.classList.remove('has-unsaved');
-            card.classList.add('is-edited');
-
-            button.dataset.used = 'true';
-            button.textContent = 'Regeneration Used';
-
-            const headerRight = card.querySelector('.post-summary-right');
-
-            if (headerRight && !card.querySelector('.post-indicator.regenerated')) {
-                const indicator = document.createElement('span');
-                indicator.className = 'post-indicator regenerated';
-                indicator.textContent = 'Regenerated';
-                headerRight.prepend(indicator);
-            }
-
-            hasUnsavedPostChanges = false;
-
-            if (typeof showToast === 'function') {
-                showToast('appToast');
-            }
-        }, 1200);
-    });
-});
 
 window.addEventListener('beforeunload', (event) => {
     if (!hasUnsavedPostChanges) return;
@@ -681,7 +783,7 @@ document.querySelectorAll('[data-test-prompt]').forEach((button) => {
 });
 
 // Save prompt draft
-document.querySelectorAll('[data-save-draft-prompt]').forEach((button) => {
+document.querySelectorAll('[data-save-prompt]').forEach((button) => {
     button.addEventListener('click', () => {
         if (typeof showToast === 'function') {
             showToast('appToast');
@@ -759,27 +861,15 @@ document.querySelectorAll('.sidebar-link[data-route]').forEach((link) => {
 });
 
 // Dropdown helpers
-const notificationToggle = document.querySelector('[data-toggle-notifications]');
 const profileToggle = document.querySelector('[data-toggle-profile]');
-const notificationDropdown = document.getElementById('notificationDropdown');
 const profileDropdown = document.getElementById('profileDropdown');
 
 function closeAllDropdowns() {
-    notificationDropdown?.classList.remove('show');
     profileDropdown?.classList.remove('show');
 }
 
-notificationToggle?.addEventListener('click', (event) => {
-    event.stopPropagation();
-
-    profileDropdown?.classList.remove('show');
-    notificationDropdown?.classList.toggle('show');
-});
-
 profileToggle?.addEventListener('click', (event) => {
     event.stopPropagation();
-
-    notificationDropdown?.classList.remove('show');
     profileDropdown?.classList.toggle('show');
 });
 
@@ -790,19 +880,6 @@ document.addEventListener('click', () => {
 document.querySelectorAll('.dropdown-panel').forEach((dropdown) => {
     dropdown.addEventListener('click', (event) => {
         event.stopPropagation();
-    });
-});
-
-// Global search demo
-document.querySelectorAll('[data-global-search]').forEach((input) => {
-    input.addEventListener('keydown', (event) => {
-        if (event.key !== 'Enter') return;
-
-        const query = input.value.trim();
-
-        if (!query) return;
-
-        alert(`Search demo: "${query}"`);
     });
 });
 
@@ -844,14 +921,13 @@ document.querySelectorAll('[data-confirm-action]').forEach((button) => {
     });
 });
 
-// Upgrade destructive actions to use confirm modal
-document.querySelectorAll('[data-delete-client]').forEach((button) => {
+document.querySelectorAll('[data-deactivate-client]').forEach((button) => {
     button.addEventListener('click', (event) => {
         event.preventDefault();
 
         openConfirmModal({
-            title: 'Delete client profile?',
-            message: 'Existing campaigns will remain unchanged because campaigns keep snapshots of client data.',
+            title: 'Deactivate client profile?',
+            message: 'Existing campaigns will remain unchanged because campaigns keep snapshots of client data. This profile will no longer be used for new campaigns unless reactivated.',
             onConfirm: () => {
                 if (typeof showToast === 'function') {
                     showToast('appToast');
@@ -878,8 +954,8 @@ document.querySelectorAll('[data-suspend-user]').forEach((button) => {
 document.querySelectorAll('.danger-shortcut').forEach((button) => {
     button.addEventListener('click', () => {
         openConfirmModal({
-            title: 'Delete this account?',
-            message: 'This removes the user and associated clients, campaigns, and personal logs.',
+            title: 'Suspend this account?',
+            message: 'The agency will lose access to the platform until the founder reactivates the account.',
             onConfirm: () => {
                 if (typeof showToast === 'function') {
                     showToast('appToast');
@@ -891,7 +967,25 @@ document.querySelectorAll('.danger-shortcut').forEach((button) => {
 
 // Add fade-in animation to main page content
 document.querySelectorAll(
-    '.agency-page, .admin-page, .clients-page, .client-create-page, .client-show-page, .campaign-builder-page, .campaign-output-page, .admin-prompts-page, .admin-settings-page, .admin-logs-page, .admin-usage-page'
+    '.agency-page, .admin-page, .clients-page, .client-create-page, .client-show-page, .campaign-builder-page, .campaign-output-page, .admin-prompts-page, .admin-settings-page, .admin-logs-page'
 ).forEach((page) => {
     page.classList.add('fade-in');
+});
+
+/* FINAL PROMPT HISTORY MODAL */
+
+document.querySelectorAll('[data-view-prompt-history]').forEach((button) => {
+    button.addEventListener('click', () => {
+        document.getElementById('promptHistoryModal')?.classList.add('show');
+    });
+});
+
+document.querySelectorAll('[data-toggle-version]').forEach((button) => {
+    button.addEventListener('click', () => {
+        const drawer = button.closest('.version-drawer');
+
+        if (!drawer) return;
+
+        drawer.classList.toggle('open');
+    });
 });

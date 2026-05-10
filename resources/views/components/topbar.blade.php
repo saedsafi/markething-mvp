@@ -17,53 +17,6 @@
 
     <div class="topbar-actions">
 
-        <div class="global-search">
-            <input type="text" placeholder="Search..." data-global-search>
-            <span>⌕</span>
-        </div>
-
-        <div class="notification-wrapper">
-
-            <button class="notification-btn" type="button" data-toggle-notifications>
-                🔔
-                <span></span>
-            </button>
-
-            <div class="dropdown-panel notification-dropdown" id="notificationDropdown">
-
-                <div class="dropdown-header">
-                    <strong>Notifications</strong>
-                    <small>3 new</small>
-                </div>
-
-                <div class="notification-item">
-                    <div>✦</div>
-                    <p>
-                        <strong>Campaign generated</strong>
-                        <span>Summer Launch is ready for review.</span>
-                    </p>
-                </div>
-
-                <div class="notification-item">
-                    <div>◎</div>
-                    <p>
-                        <strong>AI assist used</strong>
-                        <span>Brand personality answer drafted.</span>
-                    </p>
-                </div>
-
-                <div class="notification-item">
-                    <div>!</div>
-                    <p>
-                        <strong>Usage limit reminder</strong>
-                        <span>18 of 50 AI assists used today.</span>
-                    </p>
-                </div>
-
-            </div>
-
-        </div>
-
         <div class="profile-wrapper">
 
             <button class="profile-box profile-button" type="button" data-toggle-profile>

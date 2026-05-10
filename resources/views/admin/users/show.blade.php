@@ -3,7 +3,7 @@
 @section('title', 'User Detail - MARKETHING')
 
 @section('page-title', 'Nova Marketing')
-@section('page-subtitle', 'Manage agency account, usage, clients, campaigns, and access.')
+@section('page-subtitle', 'Manage agency account, client limit, clients, campaigns, and access.')
 
 @section('user-name', 'Founder Admin')
 @section('user-role', 'Platform Owner')
@@ -20,13 +20,13 @@
             <div>
                 <span class="hero-badge">Active Account</span>
                 <h2>Nova Marketing</h2>
-                <p>nova@example.com · Basic tier · Created May 2026</p>
+                <p>nova@example.com · Client limit: 10 · Created May 2026</p>
             </div>
         </div>
 
         <div class="hero-actions">
             <button class="btn btn-secondary" type="button" data-reset-temp-password>
-                Reset Temp Password
+                Issue New Password
             </button>
 
             <button class="btn btn-danger" type="button" data-suspend-user>
@@ -38,9 +38,9 @@
 
     <div class="stats-grid">
 
-        <x-stats-card label="Clients" value="6/10" hint="Plan limit" />
-        <x-stats-card label="Campaigns" value="24" hint="All time" />
-        <x-stats-card label="Token Usage" value="42K" hint="This month" />
+        <x-stats-card label="Clients" value="6/10" hint="Client limit set by founder" />
+        <x-stats-card label="Campaigns" value="24" hint="Generated campaigns" />
+        <x-stats-card label="Account Status" value="Active" hint="Can access platform" />
 
     </div>
 
@@ -52,6 +52,7 @@
                 <thead>
                     <tr>
                         <th>Client</th>
+                        <th>Status</th>
                         <th>Personas</th>
                         <th>Campaigns</th>
                         <th>Last Updated</th>
@@ -61,6 +62,7 @@
                 <tbody>
                     <tr>
                         <td>Bloom Café</td>
+                        <td><span class="status active-status">Active</span></td>
                         <td>3</td>
                         <td>8</td>
                         <td>May 2026</td>
@@ -68,6 +70,7 @@
 
                     <tr>
                         <td>Luna Boutique</td>
+                        <td><span class="status active-status">Active</span></td>
                         <td>2</td>
                         <td>5</td>
                         <td>April 2026</td>
@@ -75,6 +78,7 @@
 
                     <tr>
                         <td>Nova Fitness</td>
+                        <td><span class="status inactive-status">Needs Persona</span></td>
                         <td>0</td>
                         <td>0</td>
                         <td>April 2026</td>
@@ -92,43 +96,43 @@
                 <div class="shortcut-list">
                     <button class="shortcut-card" type="button" data-reset-temp-password>
                         <span>🔑</span>
-                        Issue Temp Password
+                        Issue New Password
                     </button>
 
                     <button class="shortcut-card" type="button">
-                        <span>↕</span>
-                        Change Tier
+                        <span>#</span>
+                        Update Client Limit
                     </button>
 
-                    <button class="shortcut-card danger-shortcut" type="button">
+                    <button class="shortcut-card danger-shortcut" type="button" data-suspend-user>
                         <span>!</span>
-                        Delete Account
+                        Suspend Account
                     </button>
                 </div>
             </div>
 
             <div class="table-card">
-                <h2 class="section-title">Usage Breakdown</h2>
+                <h2 class="section-title">Account Rules</h2>
 
-                <div class="usage-list">
-                    <div class="usage-row">
-                        <span>Campaign Generation</span>
-                        <strong>28K tokens</strong>
+                <div class="checklist">
+                    <div class="checklist-item done">
+                        <span>✓</span>
+                        No self-service signup
                     </div>
 
-                    <div class="usage-row">
-                        <span>Post Regeneration</span>
-                        <strong>6K tokens</strong>
+                    <div class="checklist-item done">
+                        <span>✓</span>
+                        Password reset is admin-handled
                     </div>
 
-                    <div class="usage-row">
-                        <span>AI Assist</span>
-                        <strong>8K tokens</strong>
+                    <div class="checklist-item done">
+                        <span>✓</span>
+                        Client limit is set during user creation
                     </div>
 
-                    <div class="usage-row total">
-                        <span>Estimated Cost</span>
-                        <strong>$12.80</strong>
+                    <div class="checklist-item active">
+                        <span>!</span>
+                        Suspended accounts cannot sign in
                     </div>
                 </div>
             </div>

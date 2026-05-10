@@ -16,16 +16,17 @@
                 <span class="post-indicator edited">Edited</span>
             @endisset
 
-            @isset($regenerated)
-                <span class="post-indicator regenerated">Regenerated</span>
-            @endisset
-
             <span class="post-chevron">⌄</span>
         </div>
 
     </button>
 
     <div class="post-card-body">
+
+        <div class="form-group">
+            <label class="form-label">Short Description</label>
+            <textarea class="form-textarea post-editable" data-post-summary>{{ $summary ?? '' }}</textarea>
+        </div>
 
         <div class="form-group">
             <label class="form-label">Caption</label>
@@ -46,10 +47,6 @@
 
             <button class="btn btn-secondary" type="button" data-copy-post>
                 Copy Post
-            </button>
-
-            <button class="btn btn-secondary" type="button" data-regenerate-post>
-                ✦ Regenerate
             </button>
 
             <button class="btn btn-primary" type="button" data-save-post>

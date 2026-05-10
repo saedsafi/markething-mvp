@@ -21,17 +21,26 @@
             <textarea class="form-textarea prompt-textarea" placeholder="Write prompt here...">{{ $slot }}</textarea>
         </div>
 
+        <div class="form-group">
+            <label class="form-label">Test Prompt Input</label>
+
+            <textarea
+                class="form-textarea test-prompt-textarea"
+                placeholder="Write a test input for the predetermined test user..."
+            ></textarea>
+
+            <p class="input-helper">
+                This test input is only used for the predetermined test user.
+            </p>
+        </div>
+
         <div class="prompt-actions">
             <button class="btn btn-secondary" type="button" data-test-prompt>
-                Test Preview
+                Test With Test User
             </button>
 
-            <button class="btn btn-secondary" type="button" data-save-draft-prompt>
-                Save Draft
-            </button>
-
-            <button class="btn btn-primary" type="button" data-promote-prompt>
-                Promote To Production
+            <button class="btn btn-primary" type="button" data-save-prompt>
+                Save Prompt
             </button>
         </div>
 

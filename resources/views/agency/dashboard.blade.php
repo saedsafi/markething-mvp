@@ -39,21 +39,21 @@
     <div class="stats-grid">
 
         <x-stats-card
-            label="Active Campaigns"
+            label="Campaigns"
             value="12"
-            hint="3 generated this month"
+            hint="Sorted by most recent first"
         />
 
         <x-stats-card
-            label="Client Profiles"
-            value="6/10"
-            hint="4 profiles remaining"
+            label="Active Client Profiles"
+            value="6"
+            hint="Client limit is set by founder"
         />
 
         <x-stats-card
             label="AI Assists Today"
             value="18/50"
-            hint="Daily limit resets at midnight"
+            hint="Daily cap resets at midnight"
         />
 
     </div>
@@ -63,7 +63,7 @@
         <x-data-table title="Recent Campaigns">
 
             <x-slot name="action">
-                <x-button variant="btn-primary" type="button">
+                <x-button variant="btn-primary" type="button" data-create-campaign>
                     + Create Campaign
                 </x-button>
             </x-slot>
@@ -134,7 +134,7 @@
                         <span>1</span>
                         <div>
                             <strong>Create client profile</strong>
-                            <p>Business and brand information saved.</p>
+                            <p>Add business context and client information.</p>
                         </div>
                     </div>
 
@@ -142,7 +142,7 @@
                         <span>2</span>
                         <div>
                             <strong>Add audience persona</strong>
-                            <p>At least one persona is required.</p>
+                            <p>At least one persona is required before campaign creation.</p>
                         </div>
                     </div>
 
@@ -150,7 +150,7 @@
                         <span>3</span>
                         <div>
                             <strong>Create campaign</strong>
-                            <p>Select client, persona, channels, and dates.</p>
+                            <p>Select client, persona, channels, date range, and post count.</p>
                         </div>
                     </div>
 
@@ -158,7 +158,7 @@
                         <span>4</span>
                         <div>
                             <strong>Review generated posts</strong>
-                            <p>Edit, copy, save, or regenerate post content.</p>
+                            <p>Edit, copy, and save post content.</p>
                         </div>
                     </div>
 
@@ -190,76 +190,56 @@
                         </div>
                     </div>
 
-                    <div class="activity-item">
-                        <div class="activity-icon">↻</div>
+                </div>
+            </div>
 
+            <div class="table-card">
+                <h2 class="section-title">Account Limits</h2>
+        
+                <div class="limit-list">
+        
+                    <div class="limit-row">
                         <div>
-                            <strong>Post regenerated</strong>
-                            <p>Alternative caption generated for Instagram post.</p>
-                            <small>2 days ago</small>
+                            <strong>Client Profiles</strong>
+                            <p>6 active client profiles. Your maximum is set by the founder.</p>
+                        </div>
+        
+                        <div class="limit-bar">
+                            <span style="width:60%;"></span>
                         </div>
                     </div>
-
+        
+                    <div class="limit-row">
+                        <div>
+                            <strong>Personas Per Client</strong>
+                            <p>Up to 5 personas per client profile.</p>
+                        </div>
+        
+                        <div class="limit-bar">
+                            <span style="width:40%;"></span>
+                        </div>
+                    </div>
+        
+                    <div class="limit-row">
+                        <div>
+                            <strong>AI Assists Today</strong>
+                            <p>18 of 50 used today.</p>
+                        </div>
+        
+                        <div class="limit-bar">
+                            <span style="width:36%;"></span>
+                        </div>
+                    </div>
+        
                 </div>
+        
             </div>
+                
 
         </div>
 
     </div>
 
-    <div class="dashboard-bottom-grid">
-
-        <x-empty-state
-            title="No urgent notifications"
-            description="Important campaign alerts, account updates, and AI usage notices will appear here."
-        >
-            <x-slot name="action">
-                <x-button variant="btn-secondary" type="button">
-                    View All Notifications
-                </x-button>
-            </x-slot>
-        </x-empty-state>
-
-        <div class="table-card">
-            <h2 class="section-title">Usage Limits</h2>
-
-            <div class="limit-list">
-
-                <div class="limit-row">
-                    <div>
-                        <strong>Client Profiles</strong>
-                        <p>6 of 10 used</p>
-                    </div>
-                    <div class="limit-bar">
-                        <span style="width:60%;"></span>
-                    </div>
-                </div>
-
-                <div class="limit-row">
-                    <div>
-                        <strong>Personas Per Client</strong>
-                        <p>Up to 5 personas</p>
-                    </div>
-                    <div class="limit-bar">
-                        <span style="width:40%;"></span>
-                    </div>
-                </div>
-
-                <div class="limit-row">
-                    <div>
-                        <strong>AI Assists Today</strong>
-                        <p>18 of 50 used</p>
-                    </div>
-                    <div class="limit-bar">
-                        <span style="width:36%;"></span>
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
 
 </div>
 
