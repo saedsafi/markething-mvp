@@ -103,27 +103,55 @@
                 </div>
 
                 <div class="form-group">
+
                     <label class="form-label">
                         Business Context
                     </label>
 
-                    <textarea
-                        name="business_context"
-                        class="form-textarea"
-                        placeholder="Describe the business, products, services, audience, goals, and unique positioning..."
-                    >{{ old('business_context', $client->business_context ?? '') }}</textarea>
+                    <div class="ai-assist-group">
+
+                        <textarea
+                            name="business_context"
+                            class="form-textarea ai-target"
+                            data-field="business_context"
+                            placeholder="Describe the business, products, services, audience, goals, and unique positioning..."
+                        >{{ old('business_context', $client->business_context ?? '') }}</textarea>
+
+                        <button
+                            class="ai-assist-btn"
+                            type="button"
+                        >
+                            ✨ AI Assist
+                        </button>
+
+                    </div>
+
                 </div>
 
                 <div class="form-group">
+
                     <label class="form-label">
                         Business Offer
                     </label>
 
-                    <textarea
-                        name="business_offer"
-                        class="form-textarea ai-target"
-                        placeholder="What does this business offer?"
-                    >{{ old('business_offer', $businessInfo['business_offer'] ?? '') }}</textarea>
+                    <div class="ai-assist-group">
+
+                        <textarea
+                            name="business_offer"
+                            class="form-textarea ai-target"
+                            data-field="business_offer"
+                            placeholder="What does this business offer?"
+                        >{{ old('business_offer', $businessInfo['business_offer'] ?? '') }}</textarea>
+
+                        <button
+                            class="ai-assist-btn"
+                            type="button"
+                        >
+                            ✨ AI Assist
+                        </button>
+
+                    </div>
+
                 </div>
 
             </div>
@@ -171,15 +199,29 @@
                 </div>
 
                 <div class="form-group">
+
                     <label class="form-label">
                         Brand Personality
                     </label>
 
-                    <textarea
-                        name="brand_personality"
-                        class="form-textarea ai-target"
-                        placeholder="Describe how the brand behaves and communicates."
-                    >{{ old('brand_personality', $brandInfo['brand_personality'] ?? '') }}</textarea>
+                    <div class="ai-assist-group">
+
+                        <textarea
+                            name="brand_personality"
+                            class="form-textarea ai-target"
+                            data-field="brand_personality"
+                            placeholder="Describe how the brand behaves and communicates."
+                        >{{ old('brand_personality', $brandInfo['brand_personality'] ?? '') }}</textarea>
+
+                        <button
+                            class="ai-assist-btn"
+                            type="button"
+                        >
+                            ✨ AI Assist
+                        </button>
+
+                    </div>
+
                 </div>
 
             </div>
@@ -227,15 +269,29 @@
                 </div>
 
                 <div class="form-group">
+
                     <label class="form-label">
                         Persona Description
                     </label>
 
-                    <textarea
-                        name="persona_description"
-                        class="form-textarea ai-target"
-                        placeholder="Describe interests, lifestyle, behavior, and motivations."
-                    >{{ old('persona_description', $personaAnswers['description'] ?? '') }}</textarea>
+                    <div class="ai-assist-group">
+
+                        <textarea
+                            name="persona_description"
+                            class="form-textarea ai-target"
+                            data-field="persona_description"
+                            placeholder="Describe interests, lifestyle, behavior, and motivations."
+                        >{{ old('persona_description', $personaAnswers['description'] ?? '') }}</textarea>
+
+                        <button
+                            class="ai-assist-btn"
+                            type="button"
+                        >
+                            ✨ AI Assist
+                        </button>
+
+                    </div>
+
                 </div>
 
             </div>
@@ -297,5 +353,86 @@
     </form>
 
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    document.querySelectorAll('.ai-assist-btn')
+        .forEach((button) => {
+
+            button.addEventListener('click', async () => {
+
+                const wrapper =
+                    button.closest('.ai-assist-group');
+
+                const textarea =
+                    wrapper.querySelector('.ai-target');
+
+                const field =
+                    textarea.dataset.field;
+
+                const clientName =
+                    document.querySelector('[name="name"]')?.value || '';
+
+                const industry =
+                    document.querySelector('[name="industry"]')?.value || '';
+
+                const context =
+                    textarea.value;
+
+                const originalText =
+                    button.innerHTML;
+
+                button.disabled = true;
+
+                button.innerHTML = 'Generating...';
+
+                try {
+
+                    const response = await fetch(
+                        "{{ route('agency.ai-assist') }}",
+                        {
+                            method: 'POST',
+
+                            headers: {
+                                'Content-Type': 'application/json',
+
+                                'X-CSRF-TOKEN':
+                                    document.querySelector('meta[name="csrf-token"]')
+                                        .getAttribute('content'),
+                            },
+
+                            body: JSON.stringify({
+                                field,
+                                context,
+                                client_name: clientName,
+                                industry,
+                            }),
+                        }
+                    );
+
+                    const data =
+                        await response.json();
+
+                    if (data.success) {
+                        textarea.value = data.text;
+                    }
+
+                } catch (error) {
+
+                    alert(
+                        'AI Assist failed. Please try again.'
+                    );
+
+                } finally {
+
+                    button.disabled = false;
+
+                    button.innerHTML = originalText;
+                }
+            });
+        });
+});
+</script>
 
 @endsection

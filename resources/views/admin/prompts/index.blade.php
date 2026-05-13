@@ -3,309 +3,450 @@
 @section('title', 'Prompt Editor - MARKETHING')
 
 @section('page-title', 'Prompt Editor')
-@section('page-subtitle', 'Manage the master campaign prompt and per-question AI Assist prompts.')
 
-@section('user-name', 'Founder Admin')
+@section(
+    'page-subtitle',
+    'Manage AI prompt templates, versions, testing, and activation.'
+)
+
+@section('user-name', auth()->user()->name ?? 'Founder Admin')
 @section('user-role', 'Platform Owner')
 
 @section('dashboard-content')
 
-<div class="admin-prompts-page">
+<div class="prompt-editor-page">
 
-    <div class="admin-tools-tabs">
-        <button class="admin-tab active" type="button" data-admin-tab="masterPrompt">
-            Master Prompt
-        </button>
+    @if (session('success'))
+        <div class="validation-box success-box">
+            {{ session('success') }}
+        </div>
+    @endif
 
-        <button class="admin-tab" type="button" data-admin-tab="assistPrompts">
-            Assist Prompts
-        </button>
+    @if ($errors->any())
+        <div class="validation-box">
+            {{ $errors->first() }}
+        </div>
+    @endif
 
-        <button class="admin-tab" type="button" data-admin-tab="promptVersions">
-            Version History
-        </button>
-    </div>
+    @if (session('test_result'))
 
-    <section class="admin-tab-panel active" id="masterPrompt">
+        @php
+            $test = session('test_result');
+        @endphp
 
-        <div class="prompt-layout">
+        <div class="table-card test-result-card">
 
-            <x-prompt-editor
-                badge="Campaign Generation"
-                title="Master Prompt"
-                description="This prompt generates full campaigns, post schedules, captions, hashtags, and creative directions."
-                version="v1.0"
-            >
-@verbatim
-You are MARKETHING's campaign generation engine.
+            <div class="section-header">
 
-Use the following variables:
-{{business_info}}
-{{brand_info}}
-{{selected_persona}}
-{{campaign_objective}}
-{{campaign_dates}}
-{{channels}}
-{{post_count}}
+                <div>
+                    <h2 class="section-title">
+                        Prompt Test Result
+                    </h2>
 
-Return structured JSON only.
-@endverbatim
-            </x-prompt-editor>
-
-            <aside class="prompt-side">
-
-                <div class="table-card">
-                    <h2 class="section-title">Variable Reference</h2>
-
-                    <div class="variable-list">
-                        <button type="button">@verbatim{{business_info}}@endverbatim</button>
-                        <button type="button">@verbatim{{brand_info}}@endverbatim</button>
-                        <button type="button">@verbatim{{selected_persona}}@endverbatim</button>
-                        <button type="button">@verbatim{{campaign_objective}}@endverbatim</button>
-                        <button type="button">@verbatim{{campaign_dates}}@endverbatim</button>
-                        <button type="button">@verbatim{{channels}}@endverbatim</button>
-                        <button type="button">@verbatim{{post_count}}@endverbatim</button>
-                    </div>
-                </div>
-
-                <div class="table-card">
-                    <h2 class="section-title">Test Prompt Rule</h2>
-
-                    <p class="profile-text">
-                        The test prompt is used only with a predetermined test user.
-                        It should not affect normal agency users.
+                    <p class="section-description">
+                        Simulated AI response from the current prompt.
                     </p>
                 </div>
 
-                <div class="table-card">
-                    <h2 class="section-title">Prompt Rules</h2>
+            </div>
 
-                    <div class="checklist">
-                        <div class="checklist-item done">
-                            <span>✓</span>
-                            JSON output required
-                        </div>
+            <div class="prompt-test-grid">
 
-                        <div class="checklist-item done">
-                            <span>✓</span>
-                            Total posts must match request
-                        </div>
+                <div class="prompt-test-block">
 
-                        <div class="checklist-item done">
-                            <span>✓</span>
-                            Posts must stay inside date range
-                        </div>
-                    </div>
+                    <span>Assembled Prompt</span>
+
+                    <pre>{{ $test['assembled_prompt'] }}</pre>
+
                 </div>
 
-            </aside>
+                <div class="prompt-test-block">
+
+                    <span>Generated Response</span>
+
+                    <pre>{{ $test['response'] }}</pre>
+
+                </div>
+
+            </div>
+
+            <div class="prompt-test-meta">
+
+                <div>
+                    <span>Status</span>
+                    <strong>{{ ucfirst($test['status']) }}</strong>
+                </div>
+
+                <div>
+                    <span>Tokens</span>
+                    <strong>{{ $test['tokens'] }}</strong>
+                </div>
+
+                <div>
+                    <span>Latency</span>
+                    <strong>{{ $test['latency'] }}</strong>
+                </div>
+
+            </div>
 
         </div>
 
-    </section>
+    @endif
 
-    <section class="admin-tab-panel" id="assistPrompts">
+    <div class="prompt-template-list">
 
-        <div class="assist-prompt-grid">
+        @forelse ($templates as $template)
 
-            <x-prompt-editor
-                badge="Business Info"
-                title="Assist Prompt — What does this business offer?"
-                description="Used when agency users click Help me answer this on the business offer field."
-                version="v1.2"
+            @php
+                $activeVersion = $template->currentVersion;
+            @endphp
+
+            <div class="table-card prompt-template-card">
+
+                <div class="section-header">
+
+                    <div>
+
+                        <div class="prompt-template-top">
+
+                            <span class="hero-badge">
+                                {{ ucfirst($template->type) }}
+                            </span>
+
+                            @if ($activeVersion)
+                                <span class="active-version-pill">
+                                    Active v{{ $activeVersion->version_number }}
+                                </span>
+                            @endif
+
+                        </div>
+
+                        <h2 class="section-title">
+                            {{ $template->name }}
+                        </h2>
+
+                        <p class="section-description">
+                            {{ $template->description ?: 'No description provided.' }}
+                        </p>
+
+                    </div>
+
+                    <button
+                        class="btn btn-primary"
+                        type="button"
+                        data-open-modal="newVersionModal{{ $template->id }}"
+                    >
+                        + New Version
+                    </button>
+
+                </div>
+
+                @if ($activeVersion)
+
+                    <div class="active-prompt-box">
+
+                        <div class="prompt-box-top">
+
+                            <div>
+                                <span class="prompt-meta-label">
+                                    Current Active Prompt
+                                </span>
+
+                                <h3>
+                                    Version {{ $activeVersion->version_number }}
+                                </h3>
+                            </div>
+
+                            <span class="status active-status">
+                                Active
+                            </span>
+
+                        </div>
+
+                        <pre>{{ $activeVersion->content }}</pre>
+
+                    </div>
+
+                @endif
+
+                <div class="prompt-actions-row">
+
+                    <button
+                        class="btn btn-secondary"
+                        type="button"
+                        data-open-modal="historyModal{{ $template->id }}"
+                    >
+                        View Version History
+                    </button>
+
+                    <button
+                        class="btn btn-primary"
+                        type="button"
+                        data-open-modal="testPromptModal{{ $template->id }}"
+                    >
+                        Test Prompt
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- NEW VERSION MODAL -->
+
+            <x-modal
+                id="newVersionModal{{ $template->id }}"
+                title="Create Prompt Version"
+                subtitle="Create a new immutable prompt version."
             >
-@verbatim
-Using {{business_context}}, draft a clear answer for:
-{{question_label}}
 
-Also consider the user's extra popup instructions:
-{{extra_instructions}}
+                <form
+                    method="POST"
+                    action="{{ route('admin.prompts.versions.store') }}"
+                >
 
-Match the user's language.
-Keep the answer under {{character_limit}} characters.
-@endverbatim
-            </x-prompt-editor>
+                    @csrf
 
-            <x-prompt-editor
-                badge="Brand Info"
-                title="Assist Prompt — Brand Personality"
-                description="Used to draft the client's brand personality answer."
-                version="v1.1"
+                    <input
+                        type="hidden"
+                        name="prompt_template_id"
+                        value="{{ $template->id }}"
+                    >
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Prompt Content
+                        </label>
+
+                        <textarea
+                            name="content"
+                            class="form-textarea prompt-editor-textarea"
+                            placeholder="Write the full prompt..."
+                            required
+                        >{{ old('content', $activeVersion?->content) }}</textarea>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Version Notes
+                        </label>
+
+                        <textarea
+                            name="notes"
+                            class="form-textarea"
+                            placeholder="Describe what changed in this version..."
+                        >{{ old('notes') }}</textarea>
+
+                    </div>
+
+                    <div class="modal-actions">
+
+                        <button class="btn btn-primary" type="submit">
+                            Create Version
+                        </button>
+
+                        <button
+                            class="btn btn-secondary"
+                            type="button"
+                            data-close-modal
+                        >
+                            Cancel
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </x-modal>
+
+            <!-- TEST PROMPT MODAL -->
+
+            <x-modal
+                id="testPromptModal{{ $template->id }}"
+                title="Test Prompt"
+                subtitle="Simulate prompt execution with sample input."
             >
-@verbatim
-Using {{business_context}}, describe the brand personality for:
-{{question_label}}
 
-Also consider:
-{{extra_instructions}}
+                <form
+                    method="POST"
+                    action="{{ route('admin.prompts.test') }}"
+                >
 
-Use a concise marketing-focused tone.
-@endverbatim
-            </x-prompt-editor>
+                    @csrf
 
-            <x-prompt-editor
-                badge="Persona"
-                title="Assist Prompt — Persona Description"
-                description="Used to draft audience persona descriptions."
-                version="v1.0"
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Prompt
+                        </label>
+
+                        <textarea
+                            name="prompt"
+                            class="form-textarea prompt-editor-textarea"
+                            required
+                        >{{ $activeVersion?->content }}</textarea>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Test Input
+                        </label>
+
+                        <textarea
+                            name="test_input"
+                            class="form-textarea"
+                            placeholder="Business context, campaign objective, persona, etc..."
+                            required
+                        ></textarea>
+
+                    </div>
+
+                    <div class="modal-actions">
+
+                        <button class="btn btn-primary" type="submit">
+                            Run Test
+                        </button>
+
+                        <button
+                            class="btn btn-secondary"
+                            type="button"
+                            data-close-modal
+                        >
+                            Cancel
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </x-modal>
+
+            <!-- HISTORY MODAL -->
+
+            <x-modal
+                id="historyModal{{ $template->id }}"
+                title="Prompt Version History"
+                subtitle="Inspect all immutable versions for this template."
             >
-@verbatim
-Using {{business_context}}, draft a persona answer for:
-{{question_label}}
 
-Use the user's extra popup instructions:
-{{extra_instructions}}
+                <div class="prompt-history-list">
 
-Return a concise, practical persona description.
-@endverbatim
-            </x-prompt-editor>
+                    @foreach ($template->versions as $version)
 
-        </div>
+                        <div class="prompt-history-item">
 
-    </section>
+                            <button
+                                class="prompt-history-toggle"
+                                type="button"
+                            >
 
-    <section class="admin-tab-panel" id="promptVersions">
+                                <div>
 
-        <x-data-table title="Prompt Version History">
+                                    <strong>
+                                        Version {{ $version->version_number }}
+                                    </strong>
 
-            <table class="dashboard-table">
-                <thead>
-                    <tr>
-                        <th>Prompt</th>
-                        <th>Version</th>
-                        <th>Type</th>
-                        <th>Updated</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
+                                    <p>
+                                        {{ $version->created_at->format('M d, Y · H:i') }}
+                                    </p>
 
-                <tbody>
-                    <tr>
-                        <td>Master Prompt</td>
-                        <td>v1.0</td>
-                        <td>Campaign Generation</td>
-                        <td>May 2026</td>
-                        <td>
-                            <button class="mini-btn" type="button" data-view-prompt-history>
-                                View
-                            </button>                        
-                        </td>
-                    </tr>
+                                </div>
 
-                    <tr>
-                        <td>Business Offer Assist</td>
-                        <td>v1.2</td>
-                        <td>AI Assist</td>
-                        <td>May 2026</td>
-                        <td>
-                            <button class="mini-btn" type="button" data-view-prompt-history>
-                                View
-                            </button>                       
-                        </td>
-                    </tr>
+                                <div class="prompt-history-actions">
 
-                    <tr>
-                        <td>Brand Personality Assist</td>
-                        <td>v1.1</td>
-                        <td>AI Assist</td>
-                        <td>May 2026</td>
-                        <td>
-                            <button class="mini-btn" type="button" data-view-prompt-history>
-                                View
+                                    @if ($version->is_active)
+
+                                        <span class="status active-status">
+                                            Active
+                                        </span>
+
+                                    @else
+
+                                        <form
+                                            method="POST"
+                                            action="{{ route('admin.prompts.versions.activate', $version) }}"
+                                        >
+
+                                            @csrf
+                                            @method('PATCH')
+
+                                            <button
+                                                class="mini-btn success"
+                                                type="submit"
+                                            >
+                                                Activate
+                                            </button>
+
+                                        </form>
+
+                                    @endif
+
+                                </div>
+
                             </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
 
-        </x-data-table>
+                            <div class="prompt-history-content">
 
-    </section>
+                                @if ($version->notes)
+
+                                    <div class="history-notes-box">
+
+                                        <span>
+                                            Version Notes
+                                        </span>
+
+                                        <p>
+                                            {{ $version->notes }}
+                                        </p>
+
+                                    </div>
+
+                                @endif
+
+                                <pre>{{ $version->content }}</pre>
+
+                            </div>
+
+                        </div>
+
+                    @endforeach
+
+                </div>
+
+            </x-modal>
+
+        @empty
+
+            <x-empty-state
+                title="No prompt templates found"
+                description="Seed prompt templates before using the prompt editor."
+            />
+
+        @endforelse
+
+    </div>
 
 </div>
 
-<x-modal
-    id="promptPreviewModal"
-    title="Test Prompt"
-    subtitle="This test uses the predetermined test user only."
->
-    <div class="prompt-preview-box">
-        <strong>Test Output</strong>
-        <p>
-            The test prompt ran against the predetermined test user. Backend integration will provide the real Claude response later.
-        </p>
-    </div>
-</x-modal>
-<x-modal
-    id="promptHistoryModal"
-    title="Prompt Version History"
-    subtitle="Expand a version to view its details."
->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
 
-    <div class="version-drawer-list">
+    document.querySelectorAll('.prompt-history-toggle')
+        .forEach((toggle) => {
 
-        <div class="version-drawer">
-            <button class="version-drawer-header" type="button" data-toggle-version>
-                <span>Master Prompt — v1.0</span>
-                <strong>May 2026</strong>
-            </button>
+            toggle.addEventListener('click', () => {
 
-            <div class="version-drawer-body">
-                <p class="table-muted">Created on May 7, 2026</p>
+                const item =
+                    toggle.closest('.prompt-history-item');
 
-                <pre>@verbatim
-You are MARKETHING's campaign generation engine.
-
-Use:
-{{business_info}}
-{{brand_info}}
-{{selected_persona}}
-{{campaign_objective}}
-@endverbatim</pre>
-            </div>
-        </div>
-
-        <div class="version-drawer">
-            <button class="version-drawer-header" type="button" data-toggle-version>
-                <span>Master Prompt — v0.9</span>
-                <strong>April 2026</strong>
-            </button>
-
-            <div class="version-drawer-body">
-                <p class="table-muted">Created on April 24, 2026</p>
-
-                <pre>@verbatim
-Previous prompt structure for campaign generation.
-
-Variables:
-{{business_info}}
-{{campaign_dates}}
-{{channels}}
-@endverbatim</pre>
-            </div>
-        </div>
-
-        <div class="version-drawer">
-            <button class="version-drawer-header" type="button" data-toggle-version>
-                <span>Master Prompt — v0.8</span>
-                <strong>April 2026</strong>
-            </button>
-
-            <div class="version-drawer-body">
-                <p class="table-muted">Created on April 10, 2026</p>
-
-                <pre>@verbatim
-Initial MVP prompt draft.
-
-Return structured JSON only.
-@endverbatim</pre>
-            </div>
-        </div>
-
-    </div>
-
-</x-modal>
-
-<x-toast id="appToast" title="Prompt Saved" message="Prompt saved successfully." />
+                item.classList.toggle('open');
+            });
+        });
+});
+</script>
 
 @endsection

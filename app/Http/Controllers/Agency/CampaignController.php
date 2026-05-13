@@ -8,6 +8,7 @@ use App\Models\Campaign;
 use App\Models\Client;
 use App\Models\Persona;
 use App\Models\PromptTemplate;
+use App\Services\FakeCampaignGenerationService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -50,26 +51,37 @@ class CampaignController extends Controller
             ->firstOrFail();
 
         $startDate = Carbon::parse($request->start_date)->startOfDay();
+
         $endDate = Carbon::parse($request->end_date)->startOfDay();
 
-        $durationDays = $startDate->diffInDays($endDate) + 1;
+        $durationDays =
+            $startDate->diffInDays($endDate) + 1;
 
         if ($durationDays > 90) {
+
             return back()
                 ->withErrors([
-                    'end_date' => 'Maximum campaign date range is 90 days.',
+                    'end_date' =>
+                        'Maximum campaign date range is 90 days.',
                 ])
                 ->withInput();
         }
 
-        $channels = array_values(array_unique($request->channels));
+        $channels =
+            array_values(array_unique($request->channels));
 
-        $maxPostsAllowed = $durationDays * count($channels);
+        $maxPostsAllowed =
+            $durationDays * count($channels);
 
-        if ((int) $request->requested_posts_count > $maxPostsAllowed) {
+        if (
+            (int) $request->requested_posts_count >
+            $maxPostsAllowed
+        ) {
+
             return back()
                 ->withErrors([
-                    'requested_posts_count' => "Too many posts. Maximum allowed for this date range and channels is {$maxPostsAllowed}.",
+                    'requested_posts_count' =>
+                        "Too many posts. Maximum allowed for this date range and channels is {$maxPostsAllowed}.",
                 ])
                 ->withInput();
         }
@@ -82,19 +94,34 @@ class CampaignController extends Controller
             ?->currentVersion;
 
         $campaign = Campaign::create([
+
             'user_id' => $user->id,
+
             'client_id' => $client->id,
+
             'persona_id' => $persona->id,
+
             'name' => $request->name,
+
             'objective' => $request->objective,
+
             'start_date' => $startDate->toDateString(),
+
             'end_date' => $endDate->toDateString(),
+
             'channels' => $channels,
-            'requested_posts_count' => (int) $request->requested_posts_count,
+
+            'requested_posts_count' =>
+                (int) $request->requested_posts_count,
+
             'description' => $request->description,
+
             'status' => 'generating',
+
             'prompt_version_id' => $promptVersion?->id,
+
             'snapshot' => [
+
                 'client' => [
                     'id' => $client->id,
                     'name' => $client->name,
@@ -103,12 +130,14 @@ class CampaignController extends Controller
                     'business_info' => $client->business_info,
                     'brand_info' => $client->brand_info,
                 ],
+
                 'persona' => [
                     'id' => $persona->id,
                     'name' => $persona->name,
                     'age_range' => $persona->age_range,
                     'answers' => $persona->answers,
                 ],
+
                 'campaign' => [
                     'name' => $request->name,
                     'objective' => $request->objective,
@@ -116,59 +145,41 @@ class CampaignController extends Controller
                     'start_date' => $startDate->toDateString(),
                     'end_date' => $endDate->toDateString(),
                     'channels' => $channels,
-                    'requested_posts_count' => (int) $request->requested_posts_count,
+                    'requested_posts_count' =>
+                        (int) $request->requested_posts_count,
                 ],
             ],
         ]);
 
-        /*
-         * Phase 6 will replace this demo output with real Claude generation.
-         * For now we create placeholder posts so the campaign output page can be tested end-to-end.
-         */
-        $this->createDemoPosts($campaign);
-
-        $campaign->update([
-            'status' => 'generated',
-        ]);
+        app(FakeCampaignGenerationService::class)
+            ->generate($campaign);
 
         return redirect()
             ->route('agency.campaigns.show', $campaign)
-            ->with('success', 'Campaign generated successfully.');
+            ->with(
+                'success',
+                'Campaign generated successfully.'
+            );
     }
 
-    public function show(Request $request, Campaign $campaign): View
-    {
-        abort_if($campaign->user_id !== $request->user()->id, 403);
+    public function show(
+        Request $request,
+        Campaign $campaign
+    ): View {
 
-        $campaign->load(['posts', 'client', 'persona']);
+        abort_if(
+            $campaign->user_id !== $request->user()->id,
+            403
+        );
+
+        $campaign->load([
+            'posts',
+            'client',
+            'persona',
+        ]);
 
         return view('agency.campaigns.show', [
             'campaign' => $campaign,
         ]);
-    }
-
-    private function createDemoPosts(Campaign $campaign): void
-    {
-        $campaign->posts()->delete();
-
-        $channels = $campaign->channels;
-        $startDate = $campaign->start_date->copy();
-
-        for ($i = 1; $i <= $campaign->requested_posts_count; $i++) {
-            $channel = $channels[($i - 1) % count($channels)];
-            $scheduledDate = $startDate->copy()->addDays((int) floor(($i - 1) / count($channels)));
-
-            $campaign->posts()->create([
-                'sequence_number' => $i,
-                'scheduled_date' => $scheduledDate->toDateString(),
-                'channel' => ucfirst($channel),
-                'media_type' => $channel === 'instagram' ? 'Reel' : 'Image',
-                'summary' => "Generated post {$i} for {$campaign->name}.",
-                'caption' => "This is a placeholder generated caption for {$campaign->name}. Phase 6 will replace this with real AI-generated content.",
-                'hashtags' => '#MARKETHING #MarketingCampaign #GeneratedContent',
-                'creative_direction' => 'Use a clean, on-brand visual direction based on the selected client profile and persona.',
-                'is_edited' => false,
-            ]);
-        }
     }
 }

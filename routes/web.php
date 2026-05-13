@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Agency\AiAssistController;
+use App\Http\Controllers\Admin\LlmLogController;
+use App\Http\Controllers\Admin\PromptController;
 use App\Http\Controllers\Agency\CampaignController;
 use App\Http\Controllers\Agency\ClientController;
 use App\Http\Controllers\Agency\DashboardController;
@@ -127,9 +130,17 @@ Route::middleware([
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/prompts', function () {
-        return view('admin.prompts.index');
-    })->name('admin.prompts.index');
+    Route::get('/prompts', [\App\Http\Controllers\Admin\PromptController::class, 'index'])
+        ->name('admin.prompts.index');
+
+    Route::post('/prompts/versions', [\App\Http\Controllers\Admin\PromptController::class, 'storeVersion'])
+        ->name('admin.prompts.versions.store');
+
+    Route::patch('/prompts/versions/{version}/activate', [\App\Http\Controllers\Admin\PromptController::class, 'activateVersion'])
+        ->name('admin.prompts.versions.activate');
+
+    Route::post('/prompts/test', [\App\Http\Controllers\Admin\PromptController::class, 'test'])
+        ->name('admin.prompts.test');
 
     /*
     |--------------------------------------------------------------------------
@@ -147,9 +158,9 @@ Route::middleware([
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/logs', function () {
-        return view('admin.logs.index');
-    })->name('admin.logs.index');
+    Route::get('/logs', [\App\Http\Controllers\Admin\LlmLogController::class, 'index'])
+    ->name('admin.logs.index');
+
 });
 
 /*
@@ -228,5 +239,13 @@ Route::post('/campaigns', [\App\Http\Controllers\Agency\CampaignController::clas
 
 Route::get('/campaigns/{campaign}', [\App\Http\Controllers\Agency\CampaignController::class, 'show'])
     ->name('agency.campaigns.show');
+   /*
+    |--------------------------------------------------------------------------
+    | AI Assist
+    |--------------------------------------------------------------------------
+    */
+
+    Route::post('/ai-assist', \App\Http\Controllers\Agency\AiAssistController::class)
+    ->name('agency.ai-assist');
    
 });
