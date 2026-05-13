@@ -19,15 +19,26 @@
             Sign in to manage campaigns, clients, and AI-powered marketing workflows.
         </p>
 
-        <form>
+        @if ($errors->any())
+            <div class="validation-box">
+                {{ $errors->first() }}
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('login.store') }}">
+            @csrf
 
             <div class="form-group">
                 <label class="form-label">Email Address</label>
 
                 <input
                     type="email"
+                    name="email"
                     class="form-input"
                     placeholder="agency@example.com"
+                    value="{{ old('email') }}"
+                    required
+                    autofocus
                 >
             </div>
 
@@ -36,12 +47,14 @@
 
                 <input
                     type="password"
+                    name="password"
                     class="form-input"
                     placeholder="Enter your password"
+                    required
                 >
             </div>
 
-            <button class="primary-btn" type="button" data-login-submit>
+            <button class="primary-btn" type="submit">
                 Sign In
             </button>
 

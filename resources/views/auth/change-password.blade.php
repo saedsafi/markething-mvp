@@ -5,8 +5,8 @@
 @section('page-title', 'Account Settings')
 @section('page-subtitle', 'Update your password and keep your account secure.')
 
-@section('user-name', 'Nova Marketing')
-@section('user-role', 'Agency Account')
+@section('user-name', auth()->user()->name ?? 'Nova Marketing')
+@section('user-role', auth()->user()?->isFounder() ? 'Platform Owner' : 'Agency Account')
 
 @section('dashboard-content')
 
@@ -21,15 +21,30 @@
             </p>
         </div>
 
-        <form>
+        @if (session('success'))
+            <div class="validation-box success-box">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div class="validation-box">
+                {{ $errors->first() }}
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('password.update') }}">
+            @csrf
 
             <div class="form-group">
                 <label class="form-label">Current Password</label>
 
                 <input
                     type="password"
+                    name="current_password"
                     class="form-input"
                     placeholder="Enter current password"
+                    required
                 >
             </div>
 
@@ -38,8 +53,10 @@
 
                 <input
                     type="password"
+                    name="password"
                     class="form-input"
                     placeholder="Enter new password"
+                    required
                 >
 
                 <p class="input-helper">
@@ -52,19 +69,21 @@
 
                 <input
                     type="password"
+                    name="password_confirmation"
                     class="form-input"
                     placeholder="Confirm new password"
+                    required
                 >
             </div>
 
             <div class="settings-actions">
-                <x-button variant="btn-primary" type="button">
+                <button class="btn btn-primary" type="submit">
                     Save Password
-                </x-button>
+                </button>
 
-                <x-button variant="btn-secondary" type="button">
+                <a href="{{ auth()->user()?->isFounder() ? url('/admin/dashboard') : url('/agency/dashboard') }}" class="btn btn-secondary">
                     Cancel
-                </x-button>
+                </a>
             </div>
 
         </form>

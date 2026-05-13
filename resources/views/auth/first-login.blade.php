@@ -21,25 +21,24 @@
             You are using a temporary password. Create a new password before entering your dashboard.
         </p>
 
-        <form>
-
-            <div class="form-group">
-                <label class="form-label">Temporary Password</label>
-
-                <input
-                    type="password"
-                    class="form-input"
-                    placeholder="Enter temporary password"
-                >
+        @if ($errors->any())
+            <div class="validation-box">
+                {{ $errors->first() }}
             </div>
+        @endif
+
+        <form method="POST" action="{{ route('first-login.update') }}">
+            @csrf
 
             <div class="form-group">
                 <label class="form-label">New Password</label>
 
                 <input
                     type="password"
+                    name="password"
                     class="form-input"
                     placeholder="Create new password"
+                    required
                 >
 
                 <p class="input-helper">
@@ -52,12 +51,14 @@
 
                 <input
                     type="password"
+                    name="password_confirmation"
                     class="form-input"
                     placeholder="Confirm new password"
+                    required
                 >
             </div>
 
-            <button class="primary-btn" type="button" data-first-login-submit>
+            <button class="primary-btn" type="submit">
                 Continue To Dashboard
             </button>
 

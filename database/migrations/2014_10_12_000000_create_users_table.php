@@ -13,10 +13,21 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+        
             $table->string('name');
             $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+        
+            $table->enum('role', ['founder', 'agency'])->default('agency');
+            $table->enum('status', ['inactive', 'active', 'suspended'])->default('inactive');
+        
+            $table->boolean('must_change_password')->default(true);
+            $table->unsignedInteger('client_limit')->default(10);
+            $table->unsignedInteger('daily_ai_assist_limit')->default(50);
+        
+            $table->timestamp('password_changed_at')->nullable();
+            $table->timestamp('last_login_at')->nullable();
+        
             $table->rememberToken();
             $table->timestamps();
         });

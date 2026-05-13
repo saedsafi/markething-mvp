@@ -1,225 +1,404 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Campaign Output - MARKETHING')
+@section('title', $campaign->name . ' - MARKETHING')
 
-@section('page-title', 'Summer Launch')
-@section('page-subtitle', 'Review, edit, copy, and save generated campaign posts.')
+@section('page-title', $campaign->name)
 
-@section('user-name', 'Nova Marketing')
+@section(
+    'page-subtitle',
+    'Review generated campaign posts, captions, and creative directions.'
+)
+
+@section('user-name', auth()->user()->name ?? 'Agency User')
 @section('user-role', 'Agency Account')
 
 @section('dashboard-content')
 
 <div class="campaign-output-page">
 
+    @if (session('success'))
+        <div class="validation-box success-box">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if ($errors->any())
+        <div class="validation-box">
+            {{ $errors->first() }}
+        </div>
+    @endif
+
     <div class="campaign-output-hero">
 
         <div>
-            <span class="hero-badge">Generated Campaign</span>
 
-            <h2>Summer Launch</h2>
+            @if ($campaign->status === 'generated')
+
+                <span class="hero-badge">
+                    Campaign Generated
+                </span>
+
+            @elseif ($campaign->status === 'failed')
+
+                <span class="hero-badge suspended-badge">
+                    Generation Failed
+                </span>
+
+            @else
+
+                <span class="hero-badge inactive-badge">
+                    Generating
+                </span>
+
+            @endif
+
+            <h2>{{ $campaign->name }}</h2>
 
             <p>
-                Campaign generated for Bloom Café using the Young Professional persona.
-                Review each post, edit content inline, copy post content, and save changes.
+                {{ $campaign->objective }}
+                · {{ $campaign->posts->count() }} generated posts
+                · {{ $campaign->start_date->format('M d') }}
+                —
+                {{ $campaign->end_date->format('M d, Y') }}
             </p>
+
         </div>
 
         <div class="hero-actions">
-            <button class="btn btn-secondary" type="button" data-agency-dashboard>
-                Back To Dashboard
+
+            <a
+                href="{{ route('agency.campaigns.create') }}"
+                class="btn btn-secondary"
+            >
+                + New Campaign
+            </a>
+
+            <button
+                class="btn btn-primary"
+                type="button"
+                onclick="window.print()"
+            >
+                Export / Print
             </button>
 
-            <button class="btn btn-primary" type="button">
-                Export Campaign
-            </button>
         </div>
 
     </div>
 
-    <div class="campaign-meta-grid">
+    <div class="stats-grid">
 
-        <div class="campaign-meta-card">
-            <span>Client</span>
-            <strong>Bloom Café</strong>
-        </div>
+        <x-stats-card
+            label="Posts"
+            value="{{ $campaign->posts->count() }}"
+            hint="Generated outputs"
+        />
 
-        <div class="campaign-meta-card">
-            <span>Persona</span>
-            <strong>Young Professional</strong>
-        </div>
+        <x-stats-card
+            label="Channels"
+            value="{{ count($campaign->channels) }}"
+            hint="Selected platforms"
+        />
 
-        <div class="campaign-meta-card">
-            <span>Date Range</span>
-            <strong>May 10 → May 23</strong>
-        </div>
+        <x-stats-card
+            label="Client"
+            value="{{ $campaign->client?->name }}"
+            hint="Business profile"
+        />
 
-        <div class="campaign-meta-card">
-            <span>Total Posts</span>
-            <strong>6</strong>
-        </div>
+        <x-stats-card
+            label="Persona"
+            value="{{ $campaign->persona?->name }}"
+            hint="Audience target"
+        />
 
     </div>
 
-    <div class="campaign-output-layout">
+    <div class="campaign-output-grid">
 
-        <main class="post-list">
+        <div class="campaign-posts-column">
 
-            <x-post-card
-                number="1"
-                title="Post 1 of 6 — Morning Ritual"
-                date="May 10"
-                channel="Instagram"
-                media="Reel"
-                summary="A warm morning coffee post inviting followers to start their day at Bloom Café."
-                caption="Start your morning with the kind of coffee that makes the whole day feel softer. Visit Bloom Café for fresh espresso, cozy corners, and your favorite first sip."
-                hashtags="#BloomCafe #CoffeeTime #RamallahCafe #MorningCoffee"
-                creative="A short reel showing espresso pouring into a glass cup, sunlight hitting the table, and a customer opening a laptop beside fresh dessert."
-            />
+            @forelse ($campaign->posts as $post)
 
-            <x-post-card
-                number="2"
-                title="Post 2 of 6 — Dessert Moment"
-                date="May 12"
-                channel="Facebook"
-                media="Image"
-                summary="A sweet afternoon post promoting handmade desserts and calm café breaks."
-                caption="Your afternoon deserves something sweet. Pair your favorite coffee with our handmade desserts and enjoy a calm break at Bloom Café."
-                hashtags="#DessertLovers #CafeLife #BloomCafe"
-                creative="A warm close-up image of cake beside a cappuccino on a wooden table with soft natural light."
-                edited="true"
-            />
+                <div class="campaign-post-card">
 
-            <x-post-card
-                number="3"
-                title="Post 3 of 6 — Friends Gathering"
-                date="May 15"
-                channel="Instagram"
-                media="Carousel"
-                summary="A social post encouraging friend groups to gather, share coffee, and enjoy the atmosphere."
-                caption="Good coffee tastes even better with good company. Bring your friends, choose your favorite corner, and enjoy the Bloom Café experience."
-                hashtags="#CafeFriends #CoffeeAndConversation #BloomCafe"
-                creative="Carousel showing friends laughing, drinks on the table, cozy seating, and dessert sharing."
-            />
+                    <div class="campaign-post-top">
 
-            <x-post-card
-                number="4"
-                title="Post 4 of 6 — Work From Café"
-                date="May 18"
-                channel="Facebook"
-                media="Image"
-                summary="A productivity-focused post positioning Bloom Café as a calm place to work."
-                caption="Need a calm place to focus? Bloom Café gives you the coffee, comfort, and atmosphere you need to get things done."
-                hashtags="#WorkFromCafe #RemoteWork #BloomCafe"
-                creative="Photo of a laptop, notebook, iced coffee, and headphones on a café table."
-            />
+                        <div>
 
-            <x-post-card
-                number="5"
-                title="Post 5 of 6 — Seasonal Drink"
-                date="May 20"
-                channel="Instagram"
-                media="Reel"
-                summary="A promotional reel introducing a seasonal drink and encouraging followers to try it."
-                caption="A seasonal favorite is waiting for you. Come try our limited-time drink and make your coffee break feel special."
-                hashtags="#SeasonalDrink #CafeReel #BloomCafe"
-                creative="Reel showing the drink being prepared, topped, served, and enjoyed by a customer."
-            />
+                            <span class="post-number">
+                                Post #{{ $post->sequence_number }}
+                            </span>
 
-            <x-post-card
-                number="6"
-                title="Post 6 of 6 — Weekend Invitation"
-                date="May 23"
-                channel="Facebook"
-                media="Image"
-                summary="A weekend invitation post encouraging followers to slow down and visit the café."
-                caption="This weekend, slow down and treat yourself to your favorite coffee, fresh dessert, and a cozy seat at Bloom Café."
-                hashtags="#WeekendCafe #CoffeeBreak #BloomCafe"
-                creative="Lifestyle image of a relaxed weekend table setup with two drinks, dessert, and soft background blur."
-            />
+                            <h3>
+                                {{ $post->summary }}
+                            </h3>
 
-        </main>
+                            <p>
+                                {{ $post->channel }}
+                                ·
+                                {{ $post->media_type }}
+                                ·
+                                {{ $post->scheduled_date->format('M d, Y') }}
+                            </p>
 
-        <aside class="campaign-output-side">
+                        </div>
 
-            <div class="table-card">
-                <h2 class="section-title">Campaign Summary</h2>
+                        <div class="campaign-post-actions">
+
+                            @if ($post->is_edited)
+
+                                <span class="edited-pill">
+                                    Edited
+                                </span>
+
+                            @endif
+
+                            <button
+                                class="mini-btn"
+                                type="button"
+                                data-open-modal="postModal{{ $post->id }}"
+                            >
+                                View Full
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <div class="post-preview">
+
+                        <p>
+                            {{ \Illuminate\Support\Str::limit($post->caption, 240) }}
+                        </p>
+
+                    </div>
+
+                    <div class="post-meta-row">
+
+                        <div>
+                            <span>Creative Direction</span>
+
+                            <strong>
+                                {{ \Illuminate\Support\Str::limit($post->creative_direction, 60) }}
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>Hashtags</span>
+
+                            <strong>
+                                {{ \Illuminate\Support\Str::limit($post->hashtags, 40) }}
+                            </strong>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <x-modal
+                    id="postModal{{ $post->id }}"
+                    title="Generated Campaign Post"
+                    subtitle="Review the generated marketing content."
+                >
+
+                    <div class="generated-post-detail">
+
+                        <div class="generated-detail-block">
+
+                            <span>
+                                Summary
+                            </span>
+
+                            <p>
+                                {{ $post->summary }}
+                            </p>
+
+                        </div>
+
+                        <div class="generated-detail-block">
+
+                            <span>
+                                Caption
+                            </span>
+
+                            <textarea
+                                class="generated-output-textarea"
+                                rows="8"
+                            >{{ $post->caption }}</textarea>
+
+                        </div>
+
+                        <div class="generated-detail-block">
+
+                            <span>
+                                Hashtags
+                            </span>
+
+                            <textarea
+                                class="generated-output-textarea"
+                                rows="4"
+                            >{{ $post->hashtags }}</textarea>
+
+                        </div>
+
+                        <div class="generated-detail-block">
+
+                            <span>
+                                Creative Direction
+                            </span>
+
+                            <textarea
+                                class="generated-output-textarea"
+                                rows="5"
+                            >{{ $post->creative_direction }}</textarea>
+
+                        </div>
+
+                        <div class="modal-actions">
+
+                            <button
+                                class="btn btn-primary"
+                                type="button"
+                                data-copy-post
+                            >
+                                Copy Content
+                            </button>
+
+                            <button
+                                class="btn btn-secondary"
+                                type="button"
+                                data-close-modal
+                            >
+                                Close
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </x-modal>
+
+            @empty
+
+                <x-empty-state
+                    title="No generated posts yet"
+                    description="This campaign does not contain generated output yet."
+                />
+
+            @endforelse
+
+        </div>
+
+        <div class="campaign-side-column">
+
+            <div class="table-card sticky-card">
+
+                <h2 class="section-title">
+                    Campaign Summary
+                </h2>
 
                 <div class="summary-list">
-                    <div>
-                        <span>Objective</span>
-                        <strong>Awareness</strong>
+
+                    <div class="summary-row">
+                        <span>Client</span>
+                        <strong>{{ $campaign->client?->name }}</strong>
                     </div>
 
-                    <div>
-                        <span>Channels</span>
-                        <strong>Instagram + Facebook</strong>
+                    <div class="summary-row">
+                        <span>Persona</span>
+                        <strong>{{ $campaign->persona?->name }}</strong>
                     </div>
 
-                    <div>
-                        <span>Prompt Version</span>
-                        <strong>Master v1.0</strong>
-                    </div>
-
-                    <div>
+                    <div class="summary-row">
                         <span>Status</span>
-                        <strong>Generated</strong>
+                        <strong>{{ ucfirst($campaign->status) }}</strong>
                     </div>
+
+                    <div class="summary-row">
+                        <span>Posts Requested</span>
+                        <strong>{{ $campaign->requested_posts_count }}</strong>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Channels</span>
+
+                        <strong>
+                            {{ implode(', ', array_map('ucfirst', $campaign->channels)) }}
+                        </strong>
+                    </div>
+
                 </div>
+
+                <div class="profile-side-divider"></div>
+
+                <div class="campaign-objective-box">
+
+                    <h3>
+                        Campaign Objective
+                    </h3>
+
+                    <p>
+                        {{ $campaign->description ?: $campaign->objective }}
+                    </p>
+
+                </div>
+
+                <div class="save-actions">
+
+                    <a
+                        href="{{ route('agency.dashboard') }}"
+                        class="btn btn-secondary full-btn"
+                    >
+                        Back To Dashboard
+                    </a>
+
+                    <a
+                        href="{{ route('agency.clients.show', $campaign->client) }}"
+                        class="btn btn-primary full-btn"
+                    >
+                        View Client
+                    </a>
+
+                </div>
+
             </div>
 
-            <div class="table-card">
-                <h2 class="section-title">Post Rules</h2>
-
-                <div class="checklist">
-                    <div class="checklist-item done">
-                        <span>✓</span>
-                        One post per day per channel by total
-                    </div>
-
-                    <div class="checklist-item done">
-                        <span>✓</span>
-                        All posts inside date range
-                    </div>
-
-                    <div class="checklist-item done">
-                        <span>✓</span>
-                        Total posts match request
-                    </div>
-                </div>
-            </div>
-
-            <div class="table-card">
-                <h2 class="section-title">Quick Actions</h2>
-
-                <div class="shortcut-list">
-                    <button class="shortcut-card" type="button">
-                        <span>⧉</span>
-                        Copy All Posts
-                    </button>
-
-                    <button class="shortcut-card" type="button">
-                        <span>↓</span>
-                        Download Content
-                    </button>
-
-                    <button class="shortcut-card" type="button" data-create-campaign>
-                        <span>✦</span>
-                        New Campaign
-                    </button>
-                </div>
-            </div>
-
-        </aside>
+        </div>
 
     </div>
 
 </div>
 
-<x-toast
-    id="appToast"
-    title="Saved"
-    message="Your changes were saved successfully."
-/>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    document.querySelectorAll('[data-copy-post]')
+        .forEach((button) => {
+
+            button.addEventListener('click', () => {
+
+                const modal =
+                    button.closest('.modal-content');
+
+                const textareas =
+                    modal.querySelectorAll('textarea');
+
+                let combined = '';
+
+                textareas.forEach((textarea) => {
+                    combined += textarea.value + '\n\n';
+                });
+
+                navigator.clipboard.writeText(combined);
+
+                button.textContent = 'Copied!';
+
+                setTimeout(() => {
+                    button.textContent = 'Copy Content';
+                }, 1800);
+            });
+        });
+});
+</script>
 
 @endsection

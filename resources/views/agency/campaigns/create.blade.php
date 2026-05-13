@@ -2,387 +2,411 @@
 
 @section('title', 'Create Campaign - MARKETHING')
 
-@section('page-title', 'Create New Campaign')
-@section('page-subtitle', 'Select a client, choose a persona, define campaign details, and generate AI-powered posts.')
+@section('page-title', 'Create Campaign')
 
-@section('user-name', 'Nova Marketing')
+@section(
+    'page-subtitle',
+    'Generate AI-powered campaigns using real client profiles and personas.'
+)
+
+@section('user-name', auth()->user()->name ?? 'Agency User')
 @section('user-role', 'Agency Account')
 
 @section('dashboard-content')
 
 <div class="campaign-builder-page">
 
-    <x-stepper
-        :steps="['Client', 'Persona', 'Campaign Details', 'Review & Generate']"
-        :active="1"
-    />
+    @if (session('success'))
+        <div class="validation-box success-box">
+            {{ session('success') }}
+        </div>
+    @endif
 
-    <div class="campaign-builder-grid">
+    @if ($errors->any())
+        <div class="validation-box">
+            {{ $errors->first() }}
+        </div>
+    @endif
 
-        <aside class="campaign-builder-side">
+    <form
+        method="POST"
+        action="{{ route('agency.campaigns.store') }}"
+        class="campaign-builder-layout"
+    >
 
-            <x-campaign-step-card
-                number="1"
-                title="Select Client"
-                description="Choose the client profile this campaign belongs to."
-                :active="true"
-            />
+        @csrf
 
-            <x-campaign-step-card
-                number="2"
-                title="Select Persona"
-                description="Pick one audience persona from the selected client."
-            />
+        <div class="campaign-main-column">
 
-            <x-campaign-step-card
-                number="3"
-                title="Campaign Details"
-                description="Set objective, channels, dates, and post count."
-            />
+            <div class="table-card">
 
-            <x-campaign-step-card
-                number="4"
-                title="Review & Generate"
-                description="Confirm everything and start AI generation."
-            />
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">
+                            Campaign Information
+                        </h2>
 
-        </aside>
-
-        <main class="campaign-builder-main">
-
-            <form id="campaignBuilderForm">
-
-                <section class="table-card campaign-section" data-campaign-section="1">
-
-                    <div class="builder-section-header">
-                        <span>Step 1</span>
-                        <h2>Select Client Profile</h2>
-                        <p>
-                            Choose one of your existing client profiles. Campaigns capture a snapshot
-                            of the selected client data when generated.
+                        <p class="section-description">
+                            Configure the core details of the generated campaign.
                         </p>
                     </div>
+                </div>
 
-                    <div class="selection-grid">
-
-                        <label class="select-card">
-                            <input type="radio" name="client" value="bloom-cafe" checked>
-
-                            <div class="client-logo">B</div>
-
-                            <div>
-                                <h3>Bloom Café</h3>
-                                <p>Food & Beverage · 3 personas</p>
-                            </div>
-                        </label>
-
-                        <label class="select-card">
-                            <input type="radio" name="client" value="luna-boutique">
-
-                            <div class="client-logo">L</div>
-
-                            <div>
-                                <h3>Luna Boutique</h3>
-                                <p>Fashion · 2 personas</p>
-                            </div>
-                        </label>
-
-                        <label class="select-card disabled">
-                            <input type="radio" name="client" value="nova-fitness" disabled>
-
-                            <div class="client-logo">N</div>
-
-                            <div>
-                                <h3>Nova Fitness</h3>
-                                <p>Needs at least one persona</p>
-                            </div>
-                        </label>
-
-                    </div>
-
-                    <div class="campaign-section-actions">
-                        <button class="btn btn-primary" type="button" data-campaign-next>
-                            Continue
-                        </button>
-                    </div>
-
-                </section>
-
-                <section class="table-card campaign-section hidden" data-campaign-section="2">
-
-                    <div class="builder-section-header">
-                        <span>Step 2</span>
-                        <h2>Select Audience Persona</h2>
-                        <p>
-                            Select the audience persona this campaign should speak to.
-                        </p>
-                    </div>
-
-                    <div class="selection-grid">
-
-                        <label class="select-card">
-                            <input type="radio" name="persona" value="young-professional" checked>
-
-                            <div class="persona-avatar">YP</div>
-
-                            <div>
-                                <h3>Young Professional</h3>
-                                <p>25-35 · Instagram-focused · Lifestyle buyer</p>
-                            </div>
-                        </label>
-
-                        <label class="select-card">
-                            <input type="radio" name="persona" value="friend-group">
-
-                            <div class="persona-avatar">FG</div>
-
-                            <div>
-                                <h3>Friend Group Planner</h3>
-                                <p>20-30 · Social gatherings · Visual content</p>
-                            </div>
-                        </label>
-
-                        <label class="select-card">
-                            <input type="radio" name="persona" value="remote-freelancer">
-
-                            <div class="persona-avatar">RF</div>
-
-                            <div>
-                                <h3>Remote Freelancer</h3>
-                                <p>24-40 · Calm places · Productivity</p>
-                            </div>
-                        </label>
-
-                    </div>
-
-                    <div class="campaign-section-actions">
-                        <button class="btn btn-secondary" type="button" data-campaign-prev>
-                            Back
-                        </button>
-
-                        <button class="btn btn-primary" type="button" data-campaign-next>
-                            Continue
-                        </button>
-                    </div>
-
-                </section>
-
-                <section class="table-card campaign-section hidden" data-campaign-section="3">
-
-                    <div class="builder-section-header">
-                        <span>Step 3</span>
-                        <h2>Campaign Details</h2>
-                        <p>
-                            Define the campaign objective, dates, channels, and number of posts.
-                        </p>
-                    </div>
+                <div class="form-grid">
 
                     <div class="form-group">
-                        <label class="form-label">Campaign Name</label>
+
+                        <label class="form-label">
+                            Campaign Name
+                        </label>
+
                         <input
                             type="text"
+                            name="name"
                             class="form-input"
-                            id="campaignName"
-                            placeholder="Summer Launch"
+                            placeholder="Summer Product Launch"
+                            value="{{ old('name') }}"
                             required
                         >
+
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Campaign Objective</label>
 
-                        <select class="form-input" id="campaignObjective">
-                            <option>Awareness</option>
-                            <option>Launch</option>
-                            <option>Promotion</option>
-                            <option>Engagement</option>
-                            <option>Seasonal Campaign</option>
-                        </select>
-                    </div>
-
-                    <div class="campaign-form-grid">
-
-                        <div class="form-group">
-                            <label class="form-label">Start Date</label>
-                            <input type="date" class="form-input" id="campaignStartDate">
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">End Date</label>
-                            <input type="date" class="form-input" id="campaignEndDate">
-                        </div>
-
-                    </div>
-
-                    <div class="validation-box hidden" id="dateValidationBox">
-                        End date must be after start date. Maximum campaign range is 90 days.
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Channels</label>
-
-                        <div class="channel-grid">
-                            <x-channel-toggle
-                                value="instagram"
-                                label="Instagram"
-                                description="Reels, posts, carousels, captions"
-                            />
-
-                            <x-channel-toggle
-                                value="facebook"
-                                label="Facebook"
-                                description="Posts, captions, engagement content"
-                            />
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Total Number of Posts</label>
+                        <label class="form-label">
+                            Campaign Objective
+                        </label>
 
                         <input
-                            type="number"
+                            type="text"
+                            name="objective"
                             class="form-input"
-                            id="postCount"
-                            min="1"
-                            placeholder="Example: 12"
+                            placeholder="Increase awareness and engagement"
+                            value="{{ old('objective') }}"
+                            required
                         >
 
-                        <p class="input-helper" id="postLimitHint">
-                            Select dates and channels to calculate the maximum allowed posts.
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        Campaign Description
+                    </label>
+
+                    <textarea
+                        name="description"
+                        class="form-textarea"
+                        placeholder="Describe campaign goals, offers, themes, and important context..."
+                    >{{ old('description') }}</textarea>
+
+                </div>
+
+            </div>
+
+            <div class="table-card">
+
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">
+                            Client & Persona
+                        </h2>
+
+                        <p class="section-description">
+                            Select the business and target audience persona.
                         </p>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Client Profile
+                        </label>
+
+                        <select
+                            name="client_id"
+                            id="clientSelect"
+                            class="form-input"
+                            required
+                        >
+
+                            <option value="">
+                                Select client
+                            </option>
+
+                            @foreach ($clients as $client)
+
+                                <option
+                                    value="{{ $client->id }}"
+                                    data-personas='@json($client->personas)'
+                                    {{ old('client_id') == $client->id ? 'selected' : '' }}
+                                >
+                                    {{ $client->name }}
+                                </option>
+
+                            @endforeach
+
+                        </select>
+
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Campaign Description</label>
 
-                        <textarea
-                            class="form-textarea"
-                            id="campaignDescription"
-                            placeholder="Describe the offer, message, campaign theme, or content direction..."
-                        ></textarea>
+                        <label class="form-label">
+                            Persona
+                        </label>
 
-                        <p class="input-helper">
-                            AI Assist is not available on campaign creation fields in v1.
+                        <select
+                            name="persona_id"
+                            id="personaSelect"
+                            class="form-input"
+                            required
+                        >
+
+                            <option value="">
+                                Select persona
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="table-card">
+
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">
+                            Scheduling
+                        </h2>
+
+                        <p class="section-description">
+                            Configure campaign duration, channels, and post count.
                         </p>
                     </div>
+                </div>
 
-                    <div class="campaign-section-actions">
-                        <button class="btn btn-secondary" type="button" data-campaign-prev>
-                            Back
-                        </button>
+                <div class="form-grid">
 
-                        <button class="btn btn-primary" type="button" data-campaign-next>
-                            Review Campaign
-                        </button>
-                    </div>
+                    <div class="form-group">
 
-                </section>
+                        <label class="form-label">
+                            Start Date
+                        </label>
 
-                <section class="table-card campaign-section hidden" data-campaign-section="4">
-
-                    <div class="builder-section-header">
-                        <span>Step 4</span>
-                        <h2>Review & Generate</h2>
-                        <p>
-                            Review your campaign setup before triggering AI generation.
-                        </p>
-                    </div>
-
-                    <div class="review-grid">
-
-                        <div class="review-item">
-                            <span>Client</span>
-                            <strong>Bloom Café</strong>
-                        </div>
-
-                        <div class="review-item">
-                            <span>Persona</span>
-                            <strong>Young Professional</strong>
-                        </div>
-
-                        <div class="review-item">
-                            <span>Objective</span>
-                            <strong id="reviewObjective">Awareness</strong>
-                        </div>
-
-                        <div class="review-item">
-                            <span>Date Range</span>
-                            <strong id="reviewDates">Not selected</strong>
-                        </div>
-
-                        <div class="review-item">
-                            <span>Channels</span>
-                            <strong id="reviewChannels">Not selected</strong>
-                        </div>
-
-                        <div class="review-item">
-                            <span>Total Posts</span>
-                            <strong id="reviewPosts">0</strong>
-                        </div>
+                        <input
+                            type="date"
+                            name="start_date"
+                            class="form-input"
+                            value="{{ old('start_date') }}"
+                            required
+                        >
 
                     </div>
 
-                    <div class="generation-warning">
-                        <strong>Before generating:</strong>
-                        Campaign creation must be completed in one session. If you leave this page,
-                        your current progress may be discarded. During generation, MARKETHING will show a loading state for up to 60 seconds.
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            End Date
+                        </label>
+
+                        <input
+                            type="date"
+                            name="end_date"
+                            class="form-input"
+                            value="{{ old('end_date') }}"
+                            required
+                        >
+
                     </div>
 
-                    <div class="campaign-section-actions">
-                        <button class="btn btn-secondary" type="button" data-campaign-prev>
-                            Back
-                        </button>
+                </div>
 
-                        <button class="btn btn-primary" type="button" id="generateCampaignBtn">
-                            ✦ Generate Campaign
-                        </button>
+                <div class="form-group">
+
+                    <label class="form-label">
+                        Channels
+                    </label>
+
+                    <div class="checkbox-grid">
+
+                        <label class="channel-checkbox">
+
+                            <input
+                                type="checkbox"
+                                name="channels[]"
+                                value="instagram"
+                                {{ in_array('instagram', old('channels', [])) ? 'checked' : '' }}
+                            >
+
+                            <span>Instagram</span>
+
+                        </label>
+
+                        <label class="channel-checkbox">
+
+                            <input
+                                type="checkbox"
+                                name="channels[]"
+                                value="facebook"
+                                {{ in_array('facebook', old('channels', [])) ? 'checked' : '' }}
+                            >
+
+                            <span>Facebook</span>
+
+                        </label>
+
                     </div>
 
-                </section>
+                </div>
 
-            </form>
+                <div class="form-group">
 
-        </main>
+                    <label class="form-label">
+                        Requested Posts Count
+                    </label>
 
-    </div>
+                    <input
+                        type="number"
+                        name="requested_posts_count"
+                        class="form-input"
+                        min="1"
+                        placeholder="12"
+                        value="{{ old('requested_posts_count') }}"
+                        required
+                    >
+
+                    <p class="input-helper">
+                        Maximum allowed depends on selected date range and channels.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="campaign-side-column">
+
+            <div class="table-card sticky-card">
+
+                <h2 class="section-title">
+                    AI Campaign Generation
+                </h2>
+
+                <div class="completion-list">
+
+                    <div class="completion-item done">
+                        <span>✓</span>
+                        Business Context
+                    </div>
+
+                    <div class="completion-item done">
+                        <span>✓</span>
+                        Persona Selection
+                    </div>
+
+                    <div class="completion-item active">
+                        <span>•</span>
+                        Campaign Generation
+                    </div>
+
+                </div>
+
+                <div class="profile-side-divider"></div>
+
+                <div class="campaign-note">
+
+                    <h3>Generation Notes</h3>
+
+                    <p>
+                        MARKETHING will assemble:
+                    </p>
+
+                    <ul>
+                        <li>Business context</li>
+                        <li>Brand information</li>
+                        <li>Audience persona</li>
+                        <li>Campaign objective</li>
+                        <li>Selected channels</li>
+                    </ul>
+
+                </div>
+
+                <div class="save-actions">
+
+                    <button class="btn btn-primary full-btn" type="submit">
+                        Generate Campaign
+                    </button>
+
+                    <a
+                        href="{{ route('agency.dashboard') }}"
+                        class="btn btn-secondary full-btn"
+                    >
+                        Cancel
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </form>
 
 </div>
 
-<div class="generation-overlay" id="generationOverlay">
+<script>
+document.addEventListener('DOMContentLoaded', () => {
 
-    <div class="generation-card">
+    const clientSelect = document.getElementById('clientSelect');
+    const personaSelect = document.getElementById('personaSelect');
 
-        <div class="generation-loader"></div>
+    function populatePersonas() {
 
-        <h2>Generating Your Campaign</h2>
+        personaSelect.innerHTML = `
+            <option value="">
+                Select persona
+            </option>
+        `;
 
-        <p>
-            MARKETHING is generating your campaign. This may take up to 60 seconds.
-            If generation takes too long, your inputs will remain here so you can try again.
-        </p>
+        const selectedOption =
+            clientSelect.options[clientSelect.selectedIndex];
 
-        <div class="generation-timer">
-            <strong id="generationTimerText">Preparing generation...</strong>
-            <span id="generationTimerCount">0s</span>
-        </div>
+        if (!selectedOption || !selectedOption.dataset.personas) {
+            return;
+        }
 
-        <div class="generation-steps">
-            <span class="active">Preparing campaign data</span>
-            <span>Generating content</span>
-            <span>Validating output</span>
-            <span>Preparing campaign view</span>
-        </div>
+        const personas =
+            JSON.parse(selectedOption.dataset.personas);
 
-        <div class="generation-error hidden" id="generationError">
-            network error, please try again later
-        </div>
+        personas.forEach((persona) => {
 
-        <button class="btn btn-secondary hidden" type="button" id="closeGenerationError">
-            Back To Form
-        </button>
+            const option = document.createElement('option');
 
-    </div>
+            option.value = persona.id;
+            option.textContent = persona.name;
 
-</div>
+            if ("{{ old('persona_id') }}" == persona.id) {
+                option.selected = true;
+            }
+
+            personaSelect.appendChild(option);
+        });
+    }
+
+    populatePersonas();
+
+    clientSelect.addEventListener('change', populatePersonas);
+});
+</script>
 
 @endsection

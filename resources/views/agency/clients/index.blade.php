@@ -5,17 +5,31 @@
 @section('page-title', 'Client Profiles')
 @section('page-subtitle', 'Create and manage the businesses you generate campaigns for.')
 
-@section('user-name', 'Nova Marketing')
+@section('user-name', auth()->user()->name ?? 'Nova Marketing')
 @section('user-role', 'Agency Account')
 
 @section('dashboard-content')
 
 <div class="clients-page">
 
+    @if (session('success'))
+        <div class="validation-box success-box">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if ($errors->any())
+        <div class="validation-box">
+            {{ $errors->first() }}
+        </div>
+    @endif
+
     <div class="clients-header-card">
 
         <div>
-            <span class="hero-badge">6 client profiles used</span>
+            <span class="hero-badge">
+                {{ $activeClients ?? 0 }} active client profiles
+            </span>
 
             <h2>Your Client Workspace</h2>
 
@@ -26,7 +40,7 @@
         </div>
 
         <div class="hero-actions">
-            <a href="{{ url('/agency/clients/create') }}" class="btn btn-primary">
+            <a href="{{ route('agency.clients.create') }}" class="btn btn-primary">
                 + Create Client Profile
             </a>
         </div>
@@ -37,177 +51,132 @@
 
         <x-stats-card
             label="Active Clients"
-            value="5"
+            value="{{ $activeClients ?? 0 }}"
             hint="Available for campaigns"
         />
 
         <x-stats-card
             label="Inactive Clients"
-            value="1"
+            value="{{ $inactiveClients ?? 0 }}"
             hint="Deactivated profiles"
         />
 
         <x-stats-card
             label="Total Personas"
-            value="14"
-            hint="Across active clients"
+            value="{{ $totalPersonas ?? 0 }}"
+            hint="Across all clients"
         />
 
     </div>
 
     <div class="client-grid">
 
-        <div class="client-card">
+        @forelse ($clients as $client)
 
-            <div class="client-card-top">
-                <div class="client-logo">B</div>
+            <div class="client-card {{ $client->status === 'inactive' ? 'deactivated' : '' }}">
 
-                <div>
-                    <h3>Bloom Café</h3>
-                    <p>Coffee shop · Lifestyle brand</p>
+                <div class="client-card-top">
+                    <div class="client-logo">
+                        {{ strtoupper(substr($client->name, 0, 1)) }}
+                    </div>
+
+                    <div>
+                        <h3>{{ $client->name }}</h3>
+
+                        <p>
+                            {{ $client->industry ?: 'No industry set' }}
+                            @if ($client->status === 'inactive')
+                                · Inactive profile
+                            @endif
+                        </p>
+                    </div>
                 </div>
+
+                <div class="client-info-list">
+                    <div>
+                        <span>Personas</span>
+                        <strong>{{ $client->personas_count }}</strong>
+                    </div>
+
+                    <div>
+                        <span>Campaigns</span>
+                        <strong>{{ $client->campaigns_count }}</strong>
+                    </div>
+
+                    <div>
+                        <span>Status</span>
+                        <strong>{{ ucfirst($client->status) }}</strong>
+                    </div>
+                </div>
+
+                <div class="client-actions">
+
+                    <a href="{{ route('agency.clients.show', $client) }}" class="mini-btn">
+                        View Profile
+                    </a>
+
+                    @if ($client->status === 'active')
+                        <a href="{{ route('agency.clients.edit', $client) }}" class="mini-btn">
+                            Edit
+                        </a>
+
+                        <form method="POST" action="{{ route('agency.clients.deactivate', $client) }}">
+                            @csrf
+                            @method('PATCH')
+
+                            <button class="mini-btn danger" type="submit">
+                                Deactivate
+                            </button>
+                        </form>
+                    @else
+                        <form method="POST" action="{{ route('agency.clients.reactivate', $client) }}">
+                            @csrf
+                            @method('PATCH')
+
+                            <button class="mini-btn success" type="submit">
+                                Reactivate
+                            </button>
+                        </form>
+                    @endif
+
+                </div>
+
             </div>
 
-            <div class="client-info-list">
-                <div>
-                    <span>Personas</span>
-                    <strong>3</strong>
-                </div>
+        @empty
 
-                <div>
-                    <span>Campaigns</span>
-                    <strong>8</strong>
-                </div>
+            <x-empty-state
+                title="No client profiles yet"
+                description="Create your first client profile before generating campaigns."
+            >
+                <x-slot name="action">
+                    <a href="{{ route('agency.clients.create') }}" class="btn btn-primary">
+                        + Create Client Profile
+                    </a>
+                </x-slot>
+            </x-empty-state>
 
-                <div>
-                    <span>Status</span>
-                    <strong>Active</strong>
-                </div>
-            </div>
-
-            <div class="client-actions">
-                <a href="{{ url('/agency/clients/show') }}" class="mini-btn">View Profile</a>
-                <button class="mini-btn" type="button" data-edit-profile>Edit</button>
-                <button class="mini-btn danger" type="button" data-deactivate-client>Deactivate</button>
-            </div>
-
-        </div>
-
-        <div class="client-card">
-
-            <div class="client-card-top">
-                <div class="client-logo">L</div>
-
-                <div>
-                    <h3>Luna Boutique</h3>
-                    <p>Fashion · Women’s clothing</p>
-                </div>
-            </div>
-
-            <div class="client-info-list">
-                <div>
-                    <span>Personas</span>
-                    <strong>2</strong>
-                </div>
-
-                <div>
-                    <span>Campaigns</span>
-                    <strong>5</strong>
-                </div>
-
-                <div>
-                    <span>Status</span>
-                    <strong>Active</strong>
-                </div>
-            </div>
-
-            <div class="client-actions">
-                <a href="{{ url('/agency/clients/show') }}" class="mini-btn">View Profile</a>
-                <button class="mini-btn" type="button" data-edit-profile>Edit</button>
-                <button class="mini-btn danger" type="button" data-deactivate-client>Deactivate</button>
-            </div>
-
-        </div>
-
-        <div class="client-card incomplete">
-
-            <div class="client-card-top">
-                <div class="client-logo">N</div>
-
-                <div>
-                    <h3>Nova Fitness</h3>
-                    <p>Gym · Health and wellness</p>
-                </div>
-            </div>
-
-            <div class="client-info-list">
-                <div>
-                    <span>Personas</span>
-                    <strong>0</strong>
-                </div>
-
-                <div>
-                    <span>Campaigns</span>
-                    <strong>0</strong>
-                </div>
-
-                <div>
-                    <span>Status</span>
-                    <strong>Needs Persona</strong>
-                </div>
-            </div>
-
-            <div class="client-actions">
-                <a href="{{ url('/agency/clients/show') }}" class="mini-btn">Continue Setup</a>
-                <button class="mini-btn danger" type="button" data-deactivate-client>Deactivate</button>
-            </div>
-
-        </div>
-
-        <div class="client-card deactivated">
-
-            <div class="client-card-top">
-                <div class="client-logo">O</div>
-
-                <div>
-                    <h3>Old Studio</h3>
-                    <p>Inactive profile · Previous campaigns preserved</p>
-                </div>
-            </div>
-
-            <div class="client-info-list">
-                <div>
-                    <span>Personas</span>
-                    <strong>2</strong>
-                </div>
-
-                <div>
-                    <span>Campaigns</span>
-                    <strong>4</strong>
-                </div>
-
-                <div>
-                    <span>Status</span>
-                    <strong>Inactive</strong>
-                </div>
-            </div>
-
-            <div class="client-actions">
-                <button class="mini-btn success" type="button" data-reactivate-client>Reactivate</button>
-            </div>
-
-        </div>
+        @endforelse
 
     </div>
 
     <div class="capacity-card">
         <div>
             <h3>Client Capacity</h3>
-            <p>Your client limit is set by the founder when your account is created.</p>
+            <p>
+                You have {{ $activeClients ?? 0 }} active clients.
+                Your maximum is {{ auth()->user()->client_limit }}.
+            </p>
         </div>
 
         <div class="capacity-bar">
-            <span style="width:60%;"></span>
+            @php
+                $percentage = auth()->user()->client_limit > 0
+                    ? min(100, (($activeClients ?? 0) / auth()->user()->client_limit) * 100)
+                    : 0;
+            @endphp
+
+            <span style="width:{{ $percentage }}%;"></span>
         </div>
     </div>
 

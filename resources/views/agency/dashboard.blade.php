@@ -3,35 +3,58 @@
 @section('title', 'Agency Dashboard - MARKETHING')
 
 @section('page-title', 'Agency Dashboard')
-@section('page-subtitle', 'Manage clients, campaigns, and AI-generated marketing content.')
 
-@section('user-name', 'Nova Marketing')
+@section(
+    'page-subtitle',
+    'Monitor clients, personas, campaigns, and AI-powered marketing workflows.'
+)
+
+@section('user-name', auth()->user()->name ?? 'Agency User')
 @section('user-role', 'Agency Account')
 
 @section('dashboard-content')
 
-<div class="agency-page">
+<div class="agency-dashboard">
 
-    <div class="agency-hero-card">
+    @if (session('success'))
+        <div class="validation-box success-box">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    <div class="dashboard-hero">
 
         <div>
-            <span class="hero-badge">AI Marketing Studio</span>
+            <span class="hero-badge">
+                {{ $activeClients }} active clients
+            </span>
 
-            <h2>Ready to build your next campaign?</h2>
+            <h2>
+                Welcome back, {{ auth()->user()->name }}
+            </h2>
 
             <p>
-                Create a client profile, define personas, and generate structured campaign posts in minutes.
+                Manage client profiles, generate campaigns,
+                and organize AI-powered marketing operations.
             </p>
         </div>
 
         <div class="hero-actions">
-            <x-button variant="btn-primary" type="button" data-create-campaign>
-                + Create New Campaign
-            </x-button>
 
-            <x-button variant="btn-secondary" type="button" data-create-client>
-                Create Client Profile
-            </x-button>
+            <a
+                href="{{ route('agency.clients.create') }}"
+                class="btn btn-primary"
+            >
+                + Create Client Profile
+            </a>
+
+            <a
+                href="{{ route('agency.campaigns.create') }}"
+                class="btn btn-secondary"
+            >
+                + Create Campaign
+            </a>
+
         </div>
 
     </div>
@@ -39,207 +62,318 @@
     <div class="stats-grid">
 
         <x-stats-card
-            label="Campaigns"
-            value="12"
-            hint="Sorted by most recent first"
+            label="Active Clients"
+            value="{{ $activeClients }}"
+            hint="Available business profiles"
         />
 
         <x-stats-card
-            label="Active Client Profiles"
-            value="6"
-            hint="Client limit is set by founder"
+            label="Inactive Clients"
+            value="{{ $inactiveClients }}"
+            hint="Deactivated profiles"
         />
 
         <x-stats-card
-            label="AI Assists Today"
-            value="18/50"
-            hint="Daily cap resets at midnight"
+            label="Personas"
+            value="{{ $totalPersonas }}"
+            hint="Audience personas"
+        />
+
+        <x-stats-card
+            label="Generated Campaigns"
+            value="{{ $generatedCampaigns }}"
+            hint="Successfully generated"
         />
 
     </div>
 
-    <div class="agency-grid">
+    <div class="dashboard-grid">
 
-        <x-data-table title="Recent Campaigns">
+        <div class="dashboard-main-column">
 
-            <x-slot name="action">
-                <x-button variant="btn-primary" type="button" data-create-campaign>
-                    + Create Campaign
-                </x-button>
-            </x-slot>
+            <x-data-table title="Recent Client Profiles">
 
-            <table class="dashboard-table">
-                <thead>
-                    <tr>
-                        <th>Campaign</th>
-                        <th>Client</th>
-                        <th>Status</th>
-                        <th>Created</th>
-                        <th>Posts</th>
-                    </tr>
-                </thead>
+                <x-slot name="action">
+                    <a
+                        href="{{ route('agency.clients.index') }}"
+                        class="mini-btn"
+                    >
+                        View All
+                    </a>
+                </x-slot>
 
-                <tbody>
-                    <tr>
-                        <td>
-                            <strong>Summer Launch</strong>
-                            <p class="table-muted">Instagram + Facebook</p>
-                        </td>
-                        <td>Bloom Café</td>
-                        <td>
-                            <span class="status active-status">Generated</span>
-                        </td>
-                        <td>May 2026</td>
-                        <td>14</td>
-                    </tr>
+                <table class="dashboard-table">
 
-                    <tr>
-                        <td>
-                            <strong>Ramadan Offers</strong>
-                            <p class="table-muted">Instagram</p>
-                        </td>
-                        <td>Luna Boutique</td>
-                        <td>
-                            <span class="status pending-status">Needs Review</span>
-                        </td>
-                        <td>April 2026</td>
-                        <td>9</td>
-                    </tr>
+                    <thead>
+                        <tr>
+                            <th>Client</th>
+                            <th>Personas</th>
+                            <th>Campaigns</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
 
-                    <tr>
-                        <td>
-                            <strong>Brand Awareness</strong>
-                            <p class="table-muted">Facebook</p>
-                        </td>
-                        <td>Nova Fitness</td>
-                        <td>
-                            <span class="status active-status">Generated</span>
-                        </td>
-                        <td>April 2026</td>
-                        <td>18</td>
-                    </tr>
-                </tbody>
-            </table>
+                    <tbody>
 
-        </x-data-table>
+                        @forelse ($clients as $client)
+
+                            <tr>
+
+                                <td>
+                                    <strong>{{ $client->name }}</strong>
+
+                                    <p class="table-muted">
+                                        {{ $client->industry ?: 'No industry set' }}
+                                    </p>
+                                </td>
+
+                                <td>
+                                    {{ $client->personas_count }}
+                                </td>
+
+                                <td>
+                                    {{ $client->campaigns_count }}
+                                </td>
+
+                                <td>
+
+                                    @if ($client->status === 'active')
+
+                                        <span class="status active-status">
+                                            Active
+                                        </span>
+
+                                    @else
+
+                                        <span class="status inactive-status">
+                                            Inactive
+                                        </span>
+
+                                    @endif
+
+                                </td>
+
+                                <td>
+
+                                    <a
+                                        href="{{ route('agency.clients.show', $client) }}"
+                                        class="mini-btn"
+                                    >
+                                        View
+                                    </a>
+
+                                </td>
+
+                            </tr>
+
+                        @empty
+
+                            <tr>
+                                <td colspan="5">
+                                    No client profiles yet.
+                                </td>
+                            </tr>
+
+                        @endforelse
+
+                    </tbody>
+
+                </table>
+
+            </x-data-table>
+
+            <x-data-table title="Recent Campaigns">
+
+                <table class="dashboard-table">
+
+                    <thead>
+                        <tr>
+                            <th>Campaign</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @forelse ($campaigns as $campaign)
+
+                            <tr>
+
+                                <td>
+                                    <strong>{{ $campaign->name }}</strong>
+
+                                    <p class="table-muted">
+                                        {{ $campaign->objective }}
+                                    </p>
+                                </td>
+
+                                <td>
+
+                                    @if ($campaign->status === 'generated')
+
+                                        <span class="status active-status">
+                                            Generated
+                                        </span>
+
+                                    @elseif ($campaign->status === 'failed')
+
+                                        <span class="status suspended-status">
+                                            Failed
+                                        </span>
+
+                                    @else
+
+                                        <span class="status inactive-status">
+                                            Generating
+                                        </span>
+
+                                    @endif
+
+                                </td>
+
+                                <td>
+                                    {{ $campaign->created_at->format('M d, Y') }}
+                                </td>
+
+                            </tr>
+
+                        @empty
+
+                            <tr>
+                                <td colspan="3">
+                                    No campaigns generated yet.
+                                </td>
+                            </tr>
+
+                        @endforelse
+
+                    </tbody>
+
+                </table>
+
+            </x-data-table>
+
+        </div>
 
         <div class="agency-side-stack">
 
             <div class="table-card">
-                <h2 class="section-title">Workflow Progress</h2>
 
-                <div class="workflow-list">
+                <h2 class="section-title">
+                    Workflow Progress
+                </h2>
 
-                    <div class="workflow-item done">
-                        <span>1</span>
-                        <div>
-                            <strong>Create client profile</strong>
-                            <p>Add business context and client information.</p>
-                        </div>
+                <div class="completion-list">
+
+                    <div class="completion-item done">
+                        <span>✓</span>
+                        Client Profiles
                     </div>
 
-                    <div class="workflow-item done">
-                        <span>2</span>
-                        <div>
-                            <strong>Add audience persona</strong>
-                            <p>At least one persona is required before campaign creation.</p>
-                        </div>
+                    <div class="completion-item done">
+                        <span>✓</span>
+                        Audience Personas
                     </div>
 
-                    <div class="workflow-item active">
-                        <span>3</span>
-                        <div>
-                            <strong>Create campaign</strong>
-                            <p>Select client, persona, channels, date range, and post count.</p>
-                        </div>
-                    </div>
-
-                    <div class="workflow-item">
-                        <span>4</span>
-                        <div>
-                            <strong>Review generated posts</strong>
-                            <p>Edit, copy, and save post content.</p>
-                        </div>
+                    <div class="completion-item active">
+                        <span>•</span>
+                        Campaign Generation
                     </div>
 
                 </div>
+
             </div>
 
             <div class="table-card">
-                <h2 class="section-title">Recent AI Activity</h2>
 
-                <div class="activity-list">
+                <h2 class="section-title">
+                    Account Limits
+                </h2>
 
-                    <div class="activity-item">
-                        <div class="activity-icon">✦</div>
-
-                        <div>
-                            <strong>AI assist used</strong>
-                            <p>Brand voice answer drafted for Bloom Café.</p>
-                            <small>Today</small>
-                        </div>
-                    </div>
-
-                    <div class="activity-item">
-                        <div class="activity-icon">◎</div>
-
-                        <div>
-                            <strong>Campaign generated</strong>
-                            <p>Summer Launch campaign created with 14 posts.</p>
-                            <small>Yesterday</small>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-            <div class="table-card">
-                <h2 class="section-title">Account Limits</h2>
-        
                 <div class="limit-list">
-        
+
                     <div class="limit-row">
+
                         <div>
                             <strong>Client Profiles</strong>
-                            <p>6 active client profiles. Your maximum is set by the founder.</p>
+
+                            <p>
+                                {{ $activeClients }}
+                                active of
+                                {{ auth()->user()->client_limit }}
+                                allowed.
+                            </p>
                         </div>
-        
+
+                        @php
+                            $clientPercentage =
+                                auth()->user()->client_limit > 0
+                                    ? min(
+                                        100,
+                                        ($activeClients / auth()->user()->client_limit) * 100
+                                    )
+                                    : 0;
+                        @endphp
+
                         <div class="limit-bar">
-                            <span style="width:60%;"></span>
+                            <span style="width:{{ $clientPercentage }}%;"></span>
                         </div>
+
                     </div>
-        
+
                     <div class="limit-row">
+
                         <div>
-                            <strong>Personas Per Client</strong>
-                            <p>Up to 5 personas per client profile.</p>
+                            <strong>Daily AI Assist</strong>
+
+                            <p>
+                                {{ auth()->user()->daily_ai_assist_limit }}
+                                daily assist actions available.
+                            </p>
                         </div>
-        
+
                         <div class="limit-bar">
-                            <span style="width:40%;"></span>
+                            <span style="width:35%;"></span>
                         </div>
+
                     </div>
-        
-                    <div class="limit-row">
-                        <div>
-                            <strong>AI Assists Today</strong>
-                            <p>18 of 50 used today.</p>
-                        </div>
-        
-                        <div class="limit-bar">
-                            <span style="width:36%;"></span>
-                        </div>
-                    </div>
-        
+
                 </div>
-        
+
             </div>
-                
+
+            <div class="table-card">
+
+                <h2 class="section-title">
+                    Campaign Health
+                </h2>
+
+                <div class="quick-stats">
+
+                    <div>
+                        <span>Generated</span>
+                        <strong>{{ $generatedCampaigns }}</strong>
+                    </div>
+
+                    <div>
+                        <span>Failed</span>
+                        <strong>{{ $failedCampaigns }}</strong>
+                    </div>
+
+                    <div>
+                        <span>Total</span>
+                        <strong>{{ $campaigns->count() }}</strong>
+                    </div>
+
+                </div>
+
+            </div>
 
         </div>
 
     </div>
-
 
 </div>
 

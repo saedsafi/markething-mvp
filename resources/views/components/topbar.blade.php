@@ -32,8 +32,13 @@
 
                 <a href="{{ url('/change-password') }}">Account Settings</a>
                 <a href="{{ url('/agency/dashboard') }}">Dashboard</a>
-                <a href="{{ url('/login') }}" class="danger-link">Sign Out</a>
-
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                
+                    <button type="submit" class="dropdown-button danger-link">
+                        Sign Out
+                    </button>
+                </form>
             </div>
 
         </div>
