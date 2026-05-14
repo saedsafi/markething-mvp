@@ -8,10 +8,10 @@ use App\Http\Requests\Admin\TestPromptRequest;
 use App\Models\PromptTemplate;
 use App\Models\PromptVersion;
 use App\Services\FakePromptTestingService;
+use App\Services\LlmLogService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use App\Services\LlmLogService;
 
 class PromptController extends Controller
 {
@@ -42,13 +42,32 @@ class PromptController extends Controller
 
         $latestVersion =
             $template->versions()
-                ->max('version_number') ?? 0;
+                ->latest('id')
+                ->first();
+
+        $nextVersion = 'v1.0';
+
+        if ($latestVersion) {
+
+            $currentVersion =
+                (float) str_replace(
+                    'v',
+                    '',
+                    $latestVersion->version
+                );
+
+            $nextVersion =
+                'v' . number_format(
+                    $currentVersion + 0.1,
+                    1
+                );
+        }
 
         $version = PromptVersion::create([
 
             'prompt_template_id' => $template->id,
 
-            'version_number' => $latestVersion + 1,
+            'version' => $nextVersion,
 
             'content' => $request->content,
 
@@ -61,7 +80,7 @@ class PromptController extends Controller
 
         return back()->with(
             'success',
-            "Prompt version v{$version->version_number} created successfully."
+            "Prompt version {$version->version} created successfully."
         );
     }
 
@@ -72,10 +91,9 @@ class PromptController extends Controller
 
         $template = $version->template;
 
-        $template->versions()
-            ->update([
-                'is_active' => false,
-            ]);
+        $template->versions()->update([
+            'is_active' => false,
+        ]);
 
         $version->update([
             'is_active' => true,
@@ -87,7 +105,7 @@ class PromptController extends Controller
 
         return back()->with(
             'success',
-            "Prompt version v{$version->version_number} is now active."
+            "Prompt version {$version->version} is now active."
         );
     }
 
@@ -102,34 +120,38 @@ class PromptController extends Controller
                     $request->test_input
                 );
 
-                app(LlmLogService::class)->create([
+        app(LlmLogService::class)->create([
 
-                    'user_id' => $request->user()->id,
-                
-                    'type' => 'prompt_test',
-                
-                    'provider' => 'fake-ai',
-                
-                    'model' => 'simulation-engine-v1',
-                
-                    'request_payload' => [
-                        'prompt' => $request->prompt,
-                        'test_input' => $request->test_input,
-                    ],
-                
-                    'response_payload' => [
-                        'response' => $result['response'],
-                    ],
-                
-                    'tokens_input' => $result['tokens'],
-                
-                    'tokens_output' => rand(400, 1200),
-                
-                    'latency_ms' =>
-                        (int) filter_var($result['latency'], FILTER_SANITIZE_NUMBER_INT) * 1000,
-                
-                    'status' => $result['status'],
-                ]);
+            'user_id' => $request->user()->id,
+
+            'call_type' => 'prompt_test',
+
+            'provider' => 'fake-ai',
+
+            'model' => 'simulation-engine-v1',
+
+            'assembled_prompt' => [
+                'prompt' => $request->prompt,
+                'test_input' => $request->test_input,
+            ],
+
+            'response' => [
+                'response' => $result['response'],
+            ],
+
+            'input_tokens' => $result['tokens'],
+
+            'output_tokens' => rand(400, 1200),
+
+            'latency_ms' =>
+                (int) filter_var(
+                    $result['latency'],
+                    FILTER_SANITIZE_NUMBER_INT
+                ) * 1000,
+
+            'status' => $result['status'],
+        ]);
+
         return back()
             ->with('test_result', $result)
             ->withInput();

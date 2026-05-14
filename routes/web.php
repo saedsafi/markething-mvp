@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Agency\AiAssistController;
 use App\Http\Controllers\Admin\LlmLogController;
 use App\Http\Controllers\Admin\PromptController;
@@ -148,9 +149,15 @@ Route::middleware([
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/settings', function () {
-        return view('admin.settings.index');
-    })->name('admin.settings.index');
+    Route::get(
+        '/settings',
+        [SettingController::class, 'index']
+    )->name('admin.settings.index');
+    
+    Route::patch(
+        '/settings',
+        [SettingController::class, 'update']
+    )->name('admin.settings.update');
 
     /*
     |--------------------------------------------------------------------------

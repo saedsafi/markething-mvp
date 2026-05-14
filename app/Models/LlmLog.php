@@ -30,8 +30,15 @@ class LlmLog extends Model
     ];
 
     protected $casts = [
+
+        'assembled_prompt' => 'array',
+    
+        'response' => 'array',
+    
         'input_tokens' => 'integer',
+    
         'output_tokens' => 'integer',
+    
         'latency_ms' => 'integer',
     ];
 

@@ -39,6 +39,7 @@
             <div class="section-header">
 
                 <div>
+
                     <h2 class="section-title">
                         Prompt Test Result
                     </h2>
@@ -46,6 +47,7 @@
                     <p class="section-description">
                         Simulated AI response from the current prompt.
                     </p>
+
                 </div>
 
             </div>
@@ -103,9 +105,9 @@
 
             <div class="table-card prompt-template-card">
 
-                <div class="section-header">
+                <div class="prompt-card-header">
 
-                    <div>
+                    <div class="prompt-card-info">
 
                         <div class="prompt-template-top">
 
@@ -114,9 +116,11 @@
                             </span>
 
                             @if ($activeVersion)
+
                                 <span class="active-version-pill">
-                                    Active v{{ $activeVersion->version_number }}
+                                    Active {{ $activeVersion->version }}
                                 </span>
+
                             @endif
 
                         </div>
@@ -131,13 +135,17 @@
 
                     </div>
 
-                    <button
-                        class="btn btn-primary"
-                        type="button"
-                        data-open-modal="newVersionModal{{ $template->id }}"
-                    >
-                        + New Version
-                    </button>
+                    <div class="prompt-card-header-actions">
+
+                        <button
+                            class="btn btn-primary"
+                            type="button"
+                            data-open-modal="newVersionModal{{ $template->id }}"
+                        >
+                            + New Version
+                        </button>
+
+                    </div>
 
                 </div>
 
@@ -148,13 +156,15 @@
                         <div class="prompt-box-top">
 
                             <div>
+
                                 <span class="prompt-meta-label">
                                     Current Active Prompt
                                 </span>
 
                                 <h3>
-                                    Version {{ $activeVersion->version_number }}
+                                    {{ $activeVersion->version }}
                                 </h3>
+
                             </div>
 
                             <span class="status active-status">
@@ -163,7 +173,11 @@
 
                         </div>
 
-                        <pre>{{ $activeVersion->content }}</pre>
+                        <div class="prompt-preview-box">
+
+                            <pre>{{ $activeVersion->content }}</pre>
+
+                        </div>
 
                     </div>
 
@@ -191,12 +205,12 @@
 
             </div>
 
-            <!-- NEW VERSION MODAL -->
+            <!-- CREATE VERSION MODAL -->
 
             <x-modal
                 id="newVersionModal{{ $template->id }}"
                 title="Create Prompt Version"
-                subtitle="Create a new immutable prompt version."
+                subtitle="Create a new immutable version for this template."
             >
 
                 <form
@@ -221,7 +235,6 @@
                         <textarea
                             name="content"
                             class="form-textarea prompt-editor-textarea"
-                            placeholder="Write the full prompt..."
                             required
                         >{{ old('content', $activeVersion?->content) }}</textarea>
 
@@ -236,7 +249,7 @@
                         <textarea
                             name="notes"
                             class="form-textarea"
-                            placeholder="Describe what changed in this version..."
+                            placeholder="Describe changes in this version..."
                         >{{ old('notes') }}</textarea>
 
                     </div>
@@ -261,12 +274,12 @@
 
             </x-modal>
 
-            <!-- TEST PROMPT MODAL -->
+            <!-- TEST MODAL -->
 
             <x-modal
                 id="testPromptModal{{ $template->id }}"
                 title="Test Prompt"
-                subtitle="Simulate prompt execution with sample input."
+                subtitle="Run a simulated AI prompt test."
             >
 
                 <form
@@ -299,7 +312,7 @@
                         <textarea
                             name="test_input"
                             class="form-textarea"
-                            placeholder="Business context, campaign objective, persona, etc..."
+                            placeholder="Business context, campaign goals, persona, etc..."
                             required
                         ></textarea>
 
@@ -337,81 +350,89 @@
 
                     @foreach ($template->versions as $version)
 
-                        <div class="prompt-history-item">
+                    <div class="prompt-history-item">
 
+                        <div class="prompt-history-header">
+                    
                             <button
                                 class="prompt-history-toggle"
                                 type="button"
                             >
-
-                                <div>
-
+                    
+                                <div class="prompt-history-version-info">
+                    
                                     <strong>
-                                        Version {{ $version->version_number }}
+                                        {{ $version->version }}
                                     </strong>
-
+                    
                                     <p>
                                         {{ $version->created_at->format('M d, Y · H:i') }}
                                     </p>
-
+                    
                                 </div>
-
-                                <div class="prompt-history-actions">
-
-                                    @if ($version->is_active)
-
-                                        <span class="status active-status">
-                                            Active
-                                        </span>
-
-                                    @else
-
-                                        <form
-                                            method="POST"
-                                            action="{{ route('admin.prompts.versions.activate', $version) }}"
-                                        >
-
-                                            @csrf
-                                            @method('PATCH')
-
-                                            <button
-                                                class="mini-btn success"
-                                                type="submit"
-                                            >
-                                                Activate
-                                            </button>
-
-                                        </form>
-
-                                    @endif
-
-                                </div>
-
+                    
                             </button>
-
-                            <div class="prompt-history-content">
-
-                                @if ($version->notes)
-
-                                    <div class="history-notes-box">
-
-                                        <span>
-                                            Version Notes
-                                        </span>
-
-                                        <p>
-                                            {{ $version->notes }}
-                                        </p>
-
-                                    </div>
-
+                    
+                            <div class="prompt-history-actions">
+                    
+                                @if ($version->is_active)
+                    
+                                    <span class="status active-status">
+                                        Active
+                                    </span>
+                    
+                                @else
+                    
+                                    <form
+                                        method="POST"
+                                        action="{{ route('admin.prompts.versions.activate', $version) }}"
+                                    >
+                    
+                                        @csrf
+                                        @method('PATCH')
+                    
+                                        <button
+                                            class="mini-btn success"
+                                            type="submit"
+                                        >
+                                            Activate
+                                        </button>
+                    
+                                    </form>
+                    
                                 @endif
-
-                                <pre>{{ $version->content }}</pre>
-
+                    
                             </div>
-
+                    
                         </div>
+                    
+                        <div class="prompt-history-content">
+                    
+                            @if ($version->notes)
+                    
+                                <div class="history-notes-box">
+                    
+                                    <span>
+                                        Version Notes
+                                    </span>
+                    
+                                    <p>
+                                        {{ $version->notes }}
+                                    </p>
+                    
+                                </div>
+                    
+                            @endif
+                    
+                            <div class="history-prompt-preview">
+                    
+                                <pre>{{ $version->content }}</pre>
+                    
+                            </div>
+                    
+                        </div>
+                    
+                    </div>
 
                     @endforeach
 
@@ -433,20 +454,20 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-
-    document.querySelectorAll('.prompt-history-toggle')
-        .forEach((toggle) => {
-
-            toggle.addEventListener('click', () => {
-
-                const item =
-                    toggle.closest('.prompt-history-item');
-
-                item.classList.toggle('open');
+    document.addEventListener('DOMContentLoaded', () => {
+    
+        document.querySelectorAll('.prompt-history-toggle')
+            .forEach((toggle) => {
+    
+                toggle.addEventListener('click', () => {
+    
+                    const item =
+                        toggle.closest('.prompt-history-item');
+    
+                    item.classList.toggle('open');
+                });
             });
-        });
-});
-</script>
+    });
+    </script>
 
 @endsection

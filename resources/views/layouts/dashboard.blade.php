@@ -10,8 +10,15 @@
 
         @include('components.topbar')
 
-        @yield('dashboard-content')
+        <div class="dashboard-main">
+
+            <div class="dashboard-content-wrapper">
         
+                @yield('dashboard-content')
+        
+            </div>
+        
+        </div>        
 
     </main>
 

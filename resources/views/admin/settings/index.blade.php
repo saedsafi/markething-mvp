@@ -10,38 +10,82 @@
 
 @section('dashboard-content')
 
-<div class="admin-settings-page">
+<div class="admin-settings-page fade-in">
 
-    <div class="settings-config-grid single-config-grid">
+    <form
+        method="POST"
+        action="{{ route('admin.settings.update') }}"
+    >
 
-        <x-config-card
-            title="Campaign Rules"
-            description="Configure the campaign generation limit required for MVP."
-            badge="Campaigns"
-        >
-            <div class="config-form-grid">
-                <div class="form-group">
-                    <label class="form-label">Maximum Campaign Date Range</label>
-                    <input class="form-input" type="number" value="90">
-                    <p class="input-helper">
-                        End date must be after start date. Maximum campaign date range is 90 days.
+        @csrf
+        @method('PATCH')
+
+        <div class="settings-config-grid">
+
+            <div class="config-card">
+
+                <div class="config-card-header">
+
+                    <h2>
+                        Campaign Rules
+                    </h2>
+
+                    <p>
+                        Configure MVP campaign generation limits.
                     </p>
+
                 </div>
+
+                <div class="config-card-body">
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Maximum Campaign Date Range
+                        </label>
+
+                        <input
+                            class="form-input"
+                            type="number"
+                            name="max_campaign_days"
+                            min="1"
+                            max="90"
+                            value="{{ old('max_campaign_days', $settings['max_campaign_days'] ?? 90) }}"
+                        >
+
+                        <p class="input-helper">
+                            Campaigns cannot exceed 90 days.
+                        </p>
+
+                        @error('max_campaign_days')
+
+                            <p class="form-error">
+                                {{ $message }}
+                            </p>
+
+                        @enderror
+
+                    </div>
+
+                </div>
+
             </div>
-        </x-config-card>
 
-    </div>
+        </div>
 
-    <div class="settings-save-bar">
-        <p>Only confirmed MVP configuration settings are shown here.</p>
+        <div class="settings-save-bar">
 
-        <button class="btn btn-primary" type="button" data-save-settings>
-            Save Settings
-        </button>
-    </div>
+            <button
+                class="btn btn-primary"
+                type="submit"
+                >
+                Save Settings
+            </button>
+
+        </div>
+
+    </form>
 
 </div>
-
-<x-toast id="appToast" title="Settings Saved" message="System settings were saved successfully." />
 
 @endsection
