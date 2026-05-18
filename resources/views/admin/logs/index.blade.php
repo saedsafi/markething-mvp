@@ -111,7 +111,7 @@
 
             </div>
 
-            <button class="btn btn-primary" type="submit">
+            <button class="btn btn-primary filter-button" type="submit">
                 Apply Filters
             </button>
 

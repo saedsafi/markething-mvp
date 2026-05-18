@@ -4679,3 +4679,8 @@ PROMPT EDITOR FINAL FIX
     display:block;
 }
 
+.filter-button{
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
