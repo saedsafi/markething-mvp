@@ -660,7 +660,7 @@ body{
     align-items: center;
     justify-content: center;
     padding: 24px;
-    z-index: 2000;
+    z-index: 9999;
 }
 
 .modal-overlay.show {
@@ -4611,7 +4611,7 @@ PROMPT EDITOR FINAL FIX
 .dashboard-main{
     flex:1;
     min-width:0;
-    overflow-x:hidden;
+    overflow-x: hidden;
 }
 
 .dashboard-content-wrapper{
@@ -4684,3 +4684,78 @@ PROMPT EDITOR FINAL FIX
     margin-bottom: auto;
 }
 
+/* VERSION HISTORY MODAL SCROLL */
+
+.version-history-modal .modal-content {
+    max-height: 85vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.version-history-modal .modal-body {
+    overflow-y: auto;
+    padding-right: 6px;
+    margin-top: 12px;
+}
+
+/* Optional nicer scrollbar */
+
+.version-history-modal .modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.version-history-modal .modal-body::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.25);
+    border-radius: 999px;
+}
+
+.version-history-modal .modal-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* VERSION HISTORY MODAL */
+
+.version-history-modal .modal-card {
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.version-history-modal .modal-body {
+    overflow-y: auto;
+    padding-right: 6px;
+    margin-top: 12px;
+}
+
+.version-history-modal .modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.version-history-modal .modal-body::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.25);
+    border-radius: 999px;
+}
+
+.fullscreen-modal {
+    position: fixed !important;
+    inset: 0 !important;
+
+    width: 100vw !important;
+    height: 100vh !important;
+
+    background: rgba(15, 23, 42, 0.45);
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    padding: 24px;
+
+    z-index: 999999 !important;
+}
+
+.fullscreen-modal.active {
+    display: flex;
+}

@@ -93,7 +93,7 @@
                                         type="button"
                                         data-open-modal="tempPasswordModal{{ $agencyUser->id }}"
                                     >
-                                        Issue Password
+                                        Change Password
                                     </button>
 
                                     @if ($agencyUser->status === 'suspended')
@@ -119,38 +119,7 @@
                             </td>
                         </tr>
 
-                        <x-modal
-                            id="tempPasswordModal{{ $agencyUser->id }}"
-                            title="Issue Temporary Password"
-                            subtitle="The user will be forced to change it on next login."
-                        >
-                            <form method="POST" action="{{ route('admin.users.temporary-password', $agencyUser) }}">
-                                @csrf
-                                @method('PATCH')
-
-                                <div class="form-group">
-                                    <label class="form-label">Temporary Password</label>
-
-                                    <input
-                                        type="text"
-                                        name="temporary_password"
-                                        class="form-input"
-                                        placeholder="Temp12345"
-                                        required
-                                    >
-                                </div>
-
-                                <div class="modal-actions">
-                                    <button class="btn btn-primary" type="submit">
-                                        Issue Password
-                                    </button>
-
-                                    <button class="btn btn-secondary" type="button" data-close-modal>
-                                        Cancel
-                                    </button>
-                                </div>
-                            </form>
-                        </x-modal>
+                        
                     @empty
                         <tr>
                             <td colspan="6">No agency users yet.</td>
@@ -210,6 +179,44 @@
     </div>
 
 </div>
+
+@foreach ($users as $agencyUser)
+
+<x-modal
+    id="tempPasswordModal{{ $agencyUser->id }}"
+    class="fullscreen-modal"
+    title="Issue Temporary Password"
+    subtitle="The user will be forced to change it on next login."
+>
+    <form method="POST" action="{{ route('admin.users.temporary-password', $agencyUser) }}">
+        @csrf
+        @method('PATCH')
+
+        <div class="form-group">
+            <label class="form-label">Temporary Password</label>
+
+            <input
+                type="text"
+                name="temporary_password"
+                class="form-input"
+                placeholder="Temp12345"
+                required
+            >
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn btn-primary" type="submit">
+                Force Change Password
+            </button>
+
+            <button class="btn btn-secondary" type="button" data-close-modal>
+                Cancel
+            </button>
+        </div>
+    </form>
+</x-modal>
+
+@endforeach
 
 <x-modal
     id="createAgencyModal"

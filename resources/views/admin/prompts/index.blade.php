@@ -344,9 +344,11 @@
                 id="historyModal{{ $template->id }}"
                 title="Prompt Version History"
                 subtitle="Inspect all immutable versions for this template."
+                class="version-history-modal"
             >
+            <div class="modal-body">
 
-                <div class="prompt-history-list">
+                <div class="prompt-history-list ">
 
                     @foreach ($template->versions as $version)
 
@@ -438,6 +440,8 @@
 
                 </div>
 
+            </div>
+            
             </x-modal>
 
         @empty
