@@ -185,6 +185,19 @@ Route::middleware([
 
     Route::get('/dashboard', DashboardController::class)
     ->name('agency.dashboard');
+    /*
+|--------------------------------------------------------------------------
+| Settings
+|--------------------------------------------------------------------------
+*/
+    Route::get('/settings', function () {
+        return view('agency.settings.index');
+    })->name('agency.settings.index');
+
+    Route::patch('/settings', [\App\Http\Controllers\Agency\SettingController::class, 'update'])
+    ->name('agency.settings.update');
+    
+
 
     /*
 |--------------------------------------------------------------------------
@@ -238,7 +251,11 @@ Route::patch('/personas/{persona}/reactivate', [\App\Http\Controllers\Agency\Per
     | Campaigns
     |--------------------------------------------------------------------------
     */
-    Route::get('/campaigns/create', [\App\Http\Controllers\Agency\CampaignController::class, 'create'])
+
+Route::get('/campaigns', [\App\Http\Controllers\Agency\CampaignController::class, 'index'])
+    ->name('agency.campaigns.index');
+
+Route::get('/campaigns/create', [\App\Http\Controllers\Agency\CampaignController::class, 'create'])
     ->name('agency.campaigns.create');
 
 Route::post('/campaigns', [\App\Http\Controllers\Agency\CampaignController::class, 'store'])

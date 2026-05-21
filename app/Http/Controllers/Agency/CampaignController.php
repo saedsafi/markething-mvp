@@ -182,4 +182,18 @@ class CampaignController extends Controller
             'campaign' => $campaign,
         ]);
     }
+
+    public function index()
+    {
+        $campaigns = \App\Models\Campaign::query()
+            ->where('user_id', auth()->id())
+            ->with(['client', 'persona'])
+            ->withCount('posts')
+            ->latest()
+            ->paginate(10);
+
+        return view('agency.campaigns.index', [
+            'campaigns' => $campaigns,
+        ]);
+    }
 }

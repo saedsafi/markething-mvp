@@ -59,7 +59,7 @@
 
     </div>
 
-    <div class="stats-grid">
+    <div class="agency-stats-grid">
 
         <x-stats-card
             label="Active Clients"
@@ -87,9 +87,9 @@
 
     </div>
 
-    <div class="dashboard-grid">
+    <div class="agency-dashboard-grid">
 
-        <div class="dashboard-main-column">
+        <div class="agency-dashboard-main-column">
 
             <x-data-table title="Recent Client Profiles">
 
@@ -259,7 +259,7 @@
 
         <div class="agency-side-stack">
 
-            <div class="table-card">
+            <div class="agency-table-card">
 
                 <h2 class="section-title">
                     Workflow Progress
@@ -286,7 +286,7 @@
 
             </div>
 
-            <div class="table-card">
+            <div class="agency-table-card">
 
                 <h2 class="section-title">
                     Account Limits
@@ -344,7 +344,7 @@
 
             </div>
 
-            <div class="table-card">
+            <div class="agency-table-card">
 
                 <h2 class="section-title">
                     Campaign Health

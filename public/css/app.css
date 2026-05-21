@@ -1115,6 +1115,7 @@ body{
     gap: 28px;
 }
 
+.dashboard-hero,
 .agency-hero-card {
     background:
         radial-gradient(circle at top left, rgba(124,77,255,0.18), transparent 35%),
@@ -1148,6 +1149,7 @@ body{
     font-weight: 800;
 }
 
+.dashboard-hero h2,
 .agency-hero-card h2 {
     font-size: 32px;
     font-weight: 850;
@@ -1155,6 +1157,7 @@ body{
     margin-bottom: 10px;
 }
 
+.dashboard-hero p,
 .agency-hero-card p {
     color: var(--gray);
     line-height: 1.7;
@@ -4758,4 +4761,337 @@ PROMPT EDITOR FINAL FIX
 
 .fullscreen-modal.active {
     display: flex;
+}
+
+/* =========================================
+   AGENCY DASHBOARD ONLY
+========================================= */
+
+.agency-dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+/* HERO */
+
+.dashboard-hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 32px;
+
+    padding: 42px;
+    border-radius: 34px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(124, 58, 237, 0.06),
+            rgba(99, 102, 241, 0.03)
+        );
+}
+
+.dashboard-hero h2 {
+    font-size: clamp(38px, 4vw, 54px);
+    line-height: 1.05;
+
+    margin-top: 18px;
+    margin-bottom: 18px;
+
+    max-width: 720px;
+}
+
+.dashboard-hero p {
+    font-size: 18px;
+    line-height: 1.8;
+
+    color: var(--gray);
+
+    max-width: 720px;
+}
+
+.hero-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+
+    min-width: 260px;
+}
+
+.hero-actions .btn {
+    width: 100%;
+    justify-content: center;
+}
+
+/* STATS */
+
+.agency-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+}
+
+/* MAIN GRID */
+
+.agency-dashboard-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) 360px;
+    gap: 28px;
+    align-items: start;
+}
+
+.agency-dashboard-main-column {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+/* SIDE STACK */
+
+.agency-side-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* SIDE CARDS */
+
+.agency-table-card {
+    background: white;
+
+    border-radius: 30px;
+
+    padding: 30px;
+
+    box-shadow:
+        0 10px 30px rgba(15, 23, 42, 0.04);
+}
+
+/* QUICK STATS */
+
+.quick-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+}
+
+.quick-stats div {
+    background: #f7f7ff;
+
+    border-radius: 18px;
+
+    padding: 18px;
+}
+
+.quick-stats span {
+    display: block;
+
+    color: var(--gray);
+
+    margin-bottom: 8px;
+}
+
+.quick-stats strong {
+    font-size: 28px;
+}
+
+/* LIMITS */
+
+.limit-list {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.limit-row {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.limit-bar {
+    width: 100%;
+    height: 10px;
+
+    background: #ececff;
+
+    border-radius: 999px;
+
+    overflow: hidden;
+}
+
+.limit-bar span {
+    display: block;
+
+    height: 100%;
+
+    border-radius: inherit;
+
+    background:
+        linear-gradient(
+            90deg,
+            #7c3aed,
+            #4f46e5
+        );
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 1200px) {
+
+    .agency-dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .agency-side-stack {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+}
+
+@media (max-width: 768px) {
+
+    .dashboard-hero {
+        flex-direction: column;
+
+        padding: 28px;
+    }
+
+    .dashboard-hero h2 {
+        font-size: 30px;
+    }
+
+    .dashboard-hero p {
+        font-size: 16px;
+    }
+
+    .hero-actions {
+        width: 100%;
+
+        min-width: unset;
+    }
+
+    .agency-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .agency-side-stack {
+        grid-template-columns: 1fr;
+    }
+
+    .quick-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .agency-table-card {
+        padding: 24px;
+    }
+
+}
+
+
+/*settings for agency css update */
+.agency-settings-page {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.agency-settings-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.7fr);
+    gap: 28px;
+    align-items: start;
+}
+
+.agency-settings-card {
+    background: white;
+    border-radius: 30px;
+    padding: 34px;
+    box-shadow: var(--shadow-md);
+}
+
+.agency-settings-header {
+    margin-bottom: 28px;
+}
+
+.agency-settings-header h2 {
+    font-size: 28px;
+    font-weight: 900;
+    margin-bottom: 10px;
+}
+
+.agency-settings-header p {
+    color: var(--gray);
+    line-height: 1.7;
+}
+
+.agency-settings-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px;
+}
+
+.agency-readonly-box {
+    margin-top: 28px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.agency-readonly-box div {
+    background: var(--light);
+    border-radius: 18px;
+    padding: 18px;
+}
+
+.agency-readonly-box span {
+    display: block;
+    color: var(--gray);
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.agency-readonly-box strong {
+    font-size: 15px;
+}
+
+.agency-settings-actions {
+    margin-top: 30px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.security-card {
+    position: sticky;
+    top: 24px;
+}
+
+@media (max-width: 1000px) {
+    .agency-settings-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .security-card {
+        position: static;
+    }
+}
+
+@media (max-width: 700px) {
+    .agency-settings-card {
+        padding: 26px;
+    }
+
+    .agency-settings-form-grid,
+    .agency-readonly-box {
+        grid-template-columns: 1fr;
+    }
+
+    .agency-settings-actions .btn {
+        width: 100%;
+    }
 }

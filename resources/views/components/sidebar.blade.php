@@ -41,8 +41,8 @@
                 Create Campaign
             </a>
 
-            <a href="{{ url('/agency/campaigns/show') }}" class="sidebar-link" data-route="/agency/campaigns/show">
-                Campaign Output
+            <a href="{{ route('agency.campaigns.index') }}" class="sidebar-link" data-route="/agency/campaigns">
+                Campaigns
             </a>
 
         @endif
