@@ -18,10 +18,10 @@ class UpdateClientRequest extends FormRequest
             'industry' => ['nullable', 'string', 'max:255'],
             'business_context' => ['nullable', 'string', 'max:5000'],
 
-            'business_offer' => ['nullable', 'string', 'max:700'],
+            'business_offer' => ['nullable', 'string', 'max:5000'],
             'brand_voice' => ['nullable', 'string', 'max:255'],
-            'brand_personality' => ['nullable', 'string', 'max:700'],
-            'brand_values' => ['nullable', 'string', 'max:700'],
+            'brand_personality' => ['nullable', 'string', 'max:5000'],
+            'brand_values' => ['nullable', 'string', 'max:5000'],
         ];
     }
 }

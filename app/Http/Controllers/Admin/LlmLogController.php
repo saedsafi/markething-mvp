@@ -22,7 +22,7 @@ class LlmLogController extends Controller
             ->when(
                 $request->filled('call_type'),
                 fn ($query) =>
-                    $query->where('call_type', $request->type)
+                    $query->where('call_type', $request->call_type)
             )
 
             ->when(

@@ -134,11 +134,11 @@
                             </h3>
 
                             <p>
-                                {{ $post->channel }}
+                                {{ ucfirst($post->channel) }}
                                 ·
-                                {{ $post->media_type }}
+                                {{ ucfirst($post->media_type) }}
                                 ·
-                                {{ $post->scheduled_date->format('M d, Y') }}
+                                {{ $post->scheduled_date?->format('M d, Y') }}
                             </p>
 
                         </div>
@@ -149,6 +149,14 @@
 
                                 <span class="edited-pill">
                                     Edited
+                                </span>
+
+                            @endif
+
+                            @if ($post->is_regenerated)
+
+                                <span class="edited-pill regenerated-pill">
+                                    Regenerated
                                 </span>
 
                             @endif
@@ -176,94 +184,120 @@
                     <div class="post-meta-row">
 
                         <div>
-                            <span>Creative Direction</span>
-
-                            <strong>
-                                {{ \Illuminate\Support\Str::limit($post->creative_direction, 60) }}
-                            </strong>
-                        </div>
-
-                        <div>
-                            <span>Hashtags</span>
-
-                            <strong>
-                                {{ \Illuminate\Support\Str::limit($post->hashtags, 40) }}
-                            </strong>
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <x-modal
-                    id="postModal{{ $post->id }}"
-                    title="Generated Campaign Post"
-                    subtitle="Review the generated marketing content."
-                >
-
-                    <div class="generated-post-detail">
-
-                        <div class="generated-detail-block">
-
-                            <span>
-                                Summary
-                            </span>
-
-                            <p>
-                                {{ $post->summary }}
-                            </p>
-
-                        </div>
-
-                        <div class="generated-detail-block">
-
-                            <span>
-                                Caption
-                            </span>
-
-                            <textarea
-                                class="generated-output-textarea"
-                                rows="8"
-                            >{{ $post->caption }}</textarea>
-
-                        </div>
-
-                        <div class="generated-detail-block">
-
-                            <span>
-                                Hashtags
-                            </span>
-
-                            <textarea
-                                class="generated-output-textarea"
-                                rows="4"
-                            >{{ $post->hashtags }}</textarea>
-
-                        </div>
-
-                        <div class="generated-detail-block">
 
                             <span>
                                 Creative Direction
                             </span>
 
-                            <textarea
-                                class="generated-output-textarea"
-                                rows="5"
-                            >{{ $post->creative_direction }}</textarea>
+                            <strong>
+                                {{ \Illuminate\Support\Str::limit($post->creative_direction, 60) }}
+                            </strong>
 
                         </div>
 
-                        <div class="modal-actions">
+                        <div>
 
+                            <span>
+                                Hashtags
+                            </span>
+
+                            <strong>
+                                {{ \Illuminate\Support\Str::limit($post->hashtags, 40) }}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+                
+                <x-modal
+                id="postModal{{ $post->id }}"
+                title="Generated Campaign Post"
+                subtitle="Review and edit the generated marketing content."
+            >
+            
+                <div class="generated-post-detail">
+            
+                    <div class="generated-detail-block">
+            
+                        <span>
+                            Summary
+                        </span>
+            
+                        <p>
+                            {{ $post->summary }}
+                        </p>
+            
+                    </div>
+            
+                    <form
+                        method="POST"
+                        action="{{ route('agency.campaign-posts.update', $post) }}"
+                    >
+            
+                        @csrf
+                        @method('PATCH')
+            
+                        <div class="generated-detail-block">
+            
+                            <span>
+                                Caption
+                            </span>
+            
+                            <textarea
+                                class="generated-output-textarea"
+                                rows="8"
+                                name="caption"
+                            >{{ $post->caption }}</textarea>
+            
+                        </div>
+            
+                        <div class="generated-detail-block">
+            
+                            <span>
+                                Hashtags
+                            </span>
+            
+                            <textarea
+                                class="generated-output-textarea"
+                                rows="4"
+                                name="hashtags"
+                            >{{ $post->hashtags }}</textarea>
+            
+                        </div>
+            
+                        <div class="generated-detail-block">
+            
+                            <span>
+                                Creative Direction
+                            </span>
+            
+                            <textarea
+                                class="generated-output-textarea"
+                                rows="5"
+                                name="creative_direction"
+                            >{{ $post->creative_direction }}</textarea>
+            
+                        </div>
+            
+                        <div class="modal-actions">
+            
                             <button
-                                class="btn btn-primary"
+                                class="btn btn-regenerate"
+                                type="submit"
+                            >
+                                Save Changes
+                            </button>
+            
+                            <button
+                                class="btn btn-secondary"
                                 type="button"
                                 data-copy-post
                             >
                                 Copy Content
                             </button>
-
+            
                             <button
                                 class="btn btn-secondary"
                                 type="button"
@@ -271,12 +305,39 @@
                             >
                                 Close
                             </button>
-
+            
                         </div>
-
-                    </div>
-
-                </x-modal>
+            
+                    </form>
+            
+                    <div class="profile-side-divider"></div>
+            
+                    <form
+                        method="POST"
+                        action="{{ route('agency.campaign-posts.regenerate', $post) }}"
+                        onsubmit="return confirm('Regenerate this post? This will overwrite the current generated content.')"
+                    >
+            
+                        @csrf
+            
+                        <div class="modal-actions">
+            
+                            <button
+                            class="btn btn-regenerate"
+                            type="submit"
+                            @disabled($post->regeneration_count >= 1)
+                        >
+                            ✦
+                            {{ $post->regeneration_count >= 1 ? 'Regeneration Used' : 'Regenerate Post' }}
+                        </button>
+            
+                        </div>
+            
+                    </form>
+            
+                </div>
+            
+            </x-modal>
 
             @empty
 
@@ -320,11 +381,15 @@
                     </div>
 
                     <div class="summary-row">
-                        <span>Channels</span>
+
+                        <span>
+                            Channels
+                        </span>
 
                         <strong>
                             {{ implode(', ', array_map('ucfirst', $campaign->channels)) }}
                         </strong>
+
                     </div>
 
                 </div>
@@ -378,7 +443,7 @@ document.addEventListener('DOMContentLoaded', () => {
             button.addEventListener('click', () => {
 
                 const modal =
-                    button.closest('.modal-content');
+                    button.closest('form');
 
                 const textareas =
                     modal.querySelectorAll('textarea');
@@ -386,15 +451,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 let combined = '';
 
                 textareas.forEach((textarea) => {
-                    combined += textarea.value + '\n\n';
+
+                    combined +=
+                        textarea.value + '\n\n';
                 });
 
-                navigator.clipboard.writeText(combined);
+                navigator.clipboard
+                    .writeText(combined);
 
-                button.textContent = 'Copied!';
+                button.textContent =
+                    'Copied!';
 
                 setTimeout(() => {
-                    button.textContent = 'Copy Content';
+
+                    button.textContent =
+                        'Copy Content';
+
                 }, 1800);
             });
         });

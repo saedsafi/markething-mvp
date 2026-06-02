@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\IssueTemporaryPasswordRequest;
 use App\Http\Requests\Admin\StoreAgencyUserRequest;
 use App\Http\Requests\Admin\UpdateAgencyUserRequest;
 use App\Models\User;
+use App\Models\LlmLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -16,9 +17,22 @@ class UserController extends Controller
     {
         $users = User::query()
             ->where('role', 'agency')
-            ->withCount(['clients', 'campaigns'])
+            ->withCount([
+                'clients',
+                'campaigns',
+            ])
+            ->withSum('llmLogs', 'input_tokens')
+            ->withSum('llmLogs', 'output_tokens')
             ->latest()
             ->get();
+
+        $users->each(function ($user) {
+
+            $user->total_tokens_used =
+                ($user->llm_logs_sum_input_tokens ?? 0)
+                +
+                ($user->llm_logs_sum_output_tokens ?? 0);
+        });
 
         return view('admin.dashboard', [
             'users' => $users,
@@ -35,6 +49,7 @@ class UserController extends Controller
             'email' => $request->email,
             'password' => $request->temporary_password,
             'role' => 'agency',
+            'tier' => 'standard',
             'status' => 'inactive',
             'must_change_password' => true,
             'client_limit' => $request->client_limit,

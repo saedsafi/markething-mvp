@@ -7,8 +7,8 @@ use App\Http\Requests\Agency\StoreCampaignRequest;
 use App\Models\Campaign;
 use App\Models\Client;
 use App\Models\Persona;
-use App\Models\PromptTemplate;
-use App\Services\FakeCampaignGenerationService;
+use App\Services\AI\PromptTemplateService;
+use App\Services\AI\CampaignGenerationService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -86,12 +86,9 @@ class CampaignController extends Controller
                 ->withInput();
         }
 
-        $promptVersion = PromptTemplate::query()
-            ->where('type', 'master')
-            ->where('is_active', true)
-            ->with('currentVersion')
-            ->first()
-            ?->currentVersion;
+        $promptVersion =
+        app(PromptTemplateService::class)
+            ->getActiveMasterPrompt();
 
         $campaign = Campaign::create([
 
@@ -151,7 +148,7 @@ class CampaignController extends Controller
             ],
         ]);
 
-        app(FakeCampaignGenerationService::class)
+        app(CampaignGenerationService::class)
             ->generate($campaign);
 
         return redirect()

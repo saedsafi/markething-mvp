@@ -327,6 +327,11 @@ body{
     font-weight:700;
 }
 
+
+.tier-status{
+    background: rgba(195, 188, 255, 0.401);
+    color: rgba(109, 93, 252, 0.883);
+}
 .active-status{
     background:rgba(16,185,129,0.1);
     color:#10b981;
@@ -570,6 +575,7 @@ body{
     font-size: 13px;
 }
 
+
 .btn {
     height: 52px;
     border: none;
@@ -587,7 +593,18 @@ body{
     box-shadow: 0 10px 30px rgba(109,93,252,0.25);
 }
 
+.btn-edit {
+    background: rgba(195, 188, 255, 0.401);
+    color: rgba(109, 93, 252, 0.883);
+    box-shadow: 0 10px 30px rgba(155, 144, 253, 0.25);
+}
+
+
 .btn-primary:hover {
+    transform: translateY(-2px);
+}
+
+.btn-edit:hover {
     transform: translateY(-2px);
 }
 
@@ -660,7 +677,7 @@ body{
     align-items: center;
     justify-content: center;
     padding: 24px;
-    z-index: 9999;
+    z-index: 99999;
 }
 
 .modal-overlay.show {
@@ -1008,6 +1025,11 @@ body{
 .mini-btn.success {
     background: rgba(16,185,129,0.1);
     color: #10b981;
+}
+
+.mini-btn.activate {
+    background: rgba(68, 182, 239, 0.1);
+    color: #44a2ef;
 }
 
 .suspended-status {
@@ -5094,4 +5116,182 @@ PROMPT EDITOR FINAL FIX
     .agency-settings-actions .btn {
         width: 100%;
     }
+}
+
+
+
+/* POST REGENERATION BUTTON */
+
+.btn-regenerate {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #7c3aed,
+            #4f46e5
+        );
+
+    color: white;
+
+    border: none;
+
+    padding: 12px 18px;
+
+    border-radius: 14px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        opacity 0.2s ease;
+
+    box-shadow:
+        0 10px 24px rgba(
+            99,
+            102,
+            241,
+            0.18
+        );
+}
+
+.btn-regenerate:hover {
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 14px 32px rgba(
+            99,
+            102,
+            241,
+            0.28
+        );
+}
+
+.btn-regenerate:active {
+
+    transform: scale(0.98);
+}
+
+.btn-regenerate:disabled {
+
+    opacity: 0.7;
+
+    cursor: not-allowed;
+}
+
+.modal-scroll-content {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding-right: 0.4rem;
+}
+
+.disabled-ai {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+
+/* PROMPT TABS/CARDS */
+/* PROMPT TABS */
+
+.prompt-tabs-card {
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 10px;
+    margin-bottom: 24px;
+    box-shadow: 0 18px 50px rgba(15, 23, 42, 0.06);
+}
+
+.prompt-tabs-header {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.prompt-tab-btn {
+    border: 0;
+    background: transparent;
+    color: #6b7280;
+    font-size: 15px;
+    font-weight: 800;
+    padding: 14px 22px;
+    border-radius: 18px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.prompt-tab-btn:hover {
+    background: rgba(124, 58, 237, 0.08);
+    color: #4f46e5;
+}
+
+.prompt-tab-btn.active {
+    background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    color: #ffffff;
+    box-shadow: 0 14px 30px rgba(99, 102, 241, 0.24);
+}
+
+.prompt-tab-panel {
+    display: none;
+}
+
+.prompt-tab-panel.active {
+    display: grid;
+    gap: 24px;
+}
+
+@media (max-width: 640px) {
+    .prompt-tabs-header {
+        flex-direction: column;
+    }
+
+    .prompt-tab-btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+.test-version-pill {
+    background: rgba(124, 58, 237, 0.12);
+    color: #6d28d9;
+}
+
+/* Laravel pagination fix */
+
+.pagination-wrapper nav {
+    margin-top: 28px;
+}
+
+.pagination-wrapper svg {
+    width: 18px;
+    height: 18px;
+    max-width: 18px;
+    max-height: 18px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.pagination-wrapper a,
+.pagination-wrapper span {
+    font-size: 14px;
+    line-height: 1;
+}
+
+.pagination-wrapper nav > div:first-child {
+    display: none;
+}
+
+.pagination-wrapper nav > div:last-child {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }

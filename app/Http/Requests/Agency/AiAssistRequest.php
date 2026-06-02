@@ -14,13 +14,58 @@ class AiAssistRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'field' => ['required', 'string', 'max:120'],
+            'client_id' => [
+                'nullable',
+                'integer',
+                'exists:clients,id',
+            ],
 
-            'context' => ['nullable', 'string', 'max:12000'],
+            'question_key' => [
+                'required',
+                'string',
+                'max:120',
+            ],
 
-            'client_name' => ['nullable', 'string', 'max:255'],
+            'question_label' => [
+                'required',
+                'string',
+                'max:255',
+            ],
 
-            'industry' => ['nullable', 'string', 'max:255'],
+            'input' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            'extra_instructions' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            'character_limit' => [
+                'nullable',
+                'integer',
+                'min:1',
+                'max:5000',
+            ],
+
+            'business_context' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            'business_info' => [
+                'nullable',
+                'array',
+            ],
+
+            'brand_info' => [
+                'nullable',
+                'array',
+            ],
         ];
     }
 }

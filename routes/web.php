@@ -17,9 +17,55 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
+| AI Routes
+|--------------------------------------------------------------------------
+*/ 
+Route::get('/test-compiler', function () {
+
+    $template = '
+
+You are a luxury Arabic marketing assistant.
+
+Rules:
+- Use ONLY Standard Arabic.
+- Do NOT use dialect/slang.
+- Keep the writing elegant, natural, premium, and marketing-focused.
+
+Business:
+{{business_context}}
+
+Task:
+{{task}}
+
+Tone:
+{{tone}}
+
+';
+
+    $prompt = app(
+        \App\Services\AI\PromptCompilerService::class
+    )->compile(
+        $template,
+        [
+            'business_context' =>
+                'متجر مجوهرات ذهب فاخر للنساء',
+
+            'task' =>
+                'اكتب وصفاً تسويقياً فاخراً للعلامة التجارية',
+
+            'tone' =>
+                'احترافي وفاخر',
+        ]
+    );
+
+    dd($prompt);
+});
+/*
+|--------------------------------------------------------------------------
 | Public / Login
 |--------------------------------------------------------------------------
 */
+
 
 Route::get('/', function () {
 
@@ -143,6 +189,21 @@ Route::middleware([
     Route::post('/prompts/test', [\App\Http\Controllers\Admin\PromptController::class, 'test'])
         ->name('admin.prompts.test');
 
+        Route::post(
+            '/prompts/test-versions',
+            [PromptController::class, 'storeTestVersion']
+        )->name('admin.prompts.test-versions.store');
+        
+        Route::patch(
+            '/prompts/test-versions/{version}/activate',
+            [PromptController::class, 'activateTestVersion']
+        )->name('admin.prompts.test-versions.activate');
+
+        Route::post(
+            '/prompts/test-versions/{version}/promote',
+            [\App\Http\Controllers\Admin\PromptController::class, 'promoteTestVersion']
+        )->name('admin.prompts.test-versions.promote');
+
     /*
     |--------------------------------------------------------------------------
     | Settings
@@ -263,6 +324,15 @@ Route::post('/campaigns', [\App\Http\Controllers\Agency\CampaignController::clas
 
 Route::get('/campaigns/{campaign}', [\App\Http\Controllers\Agency\CampaignController::class, 'show'])
     ->name('agency.campaigns.show');
+
+Route::patch(
+        '/campaign-posts/{post}',
+        [\App\Http\Controllers\Agency\CampaignPostController::class, 'update']
+    )->name('agency.campaign-posts.update');
+Route::post(
+        '/campaign-posts/{post}/regenerate',
+        [\App\Http\Controllers\Agency\CampaignPostRegenerationController::class, 'store']
+    )->name('agency.campaign-posts.regenerate');
    /*
     |--------------------------------------------------------------------------
     | AI Assist

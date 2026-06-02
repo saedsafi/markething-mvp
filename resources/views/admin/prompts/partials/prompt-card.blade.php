@@ -1,0 +1,423 @@
+@php
+    $activeVersion = $template->currentVersion;
+
+    $activeTestVersion = $template->testVersions
+        ->firstWhere('is_active', true);
+
+    $latestTestVersion = $template->testVersions->first();
+
+    $testPromptContent =
+        old(
+            'content',
+            $activeTestVersion?->content
+                ?? $latestTestVersion?->content
+                ?? $activeVersion?->content
+        );
+@endphp
+
+<div class="table-card prompt-template-card">
+
+    <div class="prompt-card-header">
+
+        <div class="prompt-card-info">
+
+            <div class="prompt-template-top">
+
+                <span class="hero-badge">
+                    {{ ucfirst($template->type) }}
+                </span>
+
+                @if ($activeVersion)
+                    <span class="active-version-pill">
+                        Production {{ $activeVersion->version }}
+                    </span>
+                @endif
+
+                @if ($activeTestVersion)
+                    <span class="active-version-pill test-version-pill">
+                        Test {{ $activeTestVersion->version }}
+                    </span>
+                @endif
+
+            </div>
+
+            <h2 class="section-title">
+                {{ $template->name }}
+            </h2>
+
+            <p class="section-description">
+                {{ $template->description ?: 'No description provided.' }}
+            </p>
+
+        </div>
+
+        <div class="prompt-card-header-actions">
+
+            <button
+                class="btn btn-primary"
+                type="button"
+                data-open-modal="newVersionModal{{ $template->id }}"
+            >
+                + New Production Version
+            </button>
+
+
+        </div>
+        <div class="prompt-card-header-actions">
+
+        <button
+        class="btn btn-edit"
+        type="button"
+                data-open-modal="testPromptModal{{ $template->id }}"
+            >
+                Edit Test Prompt
+        </button>
+        </div>
+
+    </div>
+
+    @if ($activeVersion)
+
+        <div class="active-prompt-box">
+
+            <div class="prompt-box-top">
+
+                <div>
+                    <span class="prompt-meta-label">
+                        Current Production Prompt
+                    </span>
+
+                    <h3>
+                        {{ $activeVersion->version }}
+                    </h3>
+                </div>
+
+                <span class="status active-status">
+                    Active
+                </span>
+
+            </div>
+
+            <div class="prompt-preview-box">
+                <pre>{{ $activeVersion->content }}</pre>
+            </div>
+
+        </div>
+
+    @endif
+
+    <div class="prompt-actions-row">
+
+        <button
+            class="btn btn-secondary"
+            type="button"
+            data-open-modal="historyModal{{ $template->id }}"
+        >
+            Production History
+        </button>
+
+        <button
+            class="btn btn-secondary"
+            type="button"
+            data-open-modal="testHistoryModal{{ $template->id }}"
+        >
+            Test Prompt History
+        </button>
+
+
+
+    </div>
+
+</div>
+
+{{-- CREATE PRODUCTION VERSION MODAL --}}
+
+<x-modal
+    id="newVersionModal{{ $template->id }}"
+    title="Create Production Prompt Version"
+    subtitle="Create a new immutable production version for this template."
+>
+    <form
+        method="POST"
+        action="{{ route('admin.prompts.versions.store') }}"
+    >
+        @csrf
+
+        <input
+            type="hidden"
+            name="prompt_template_id"
+            value="{{ $template->id }}"
+        >
+
+        <div class="form-group">
+            <label class="form-label">
+                Production Prompt Content
+            </label>
+
+            <textarea
+                name="content"
+                class="form-textarea prompt-editor-textarea"
+                required
+            >{{ old('content', $activeVersion?->content) }}</textarea>
+        </div>
+
+        <div class="modal-actions">
+
+            <button class="btn btn-primary" type="submit">
+                Create Production Version
+            </button>
+
+            <button
+                class="btn btn-secondary"
+                type="button"
+                data-close-modal
+            >
+                Cancel
+            </button>
+
+        </div>
+
+    </form>
+</x-modal>
+
+{{-- TEST PROMPT MODAL --}}
+
+<x-modal
+    id="testPromptModal{{ $template->id }}"
+    title="Test Prompt"
+    subtitle="Create and manage prompt versions used exclusively by the predetermined test account.">
+
+    <div class="test-account-info">
+
+        <strong>
+            Test Account
+        </strong>
+    
+        <p>
+            Active test prompt versions are only used by users marked with
+            <code>uses_test_prompts = true</code>.
+        </p>
+    
+    </div>
+
+
+    <form
+        method="POST"
+        action="{{ route('admin.prompts.test-versions.store') }}"
+        >
+        @csrf
+
+        <div class="form-group">
+            <label class="form-label">
+                Test Prompt Version
+            </label>
+
+            <textarea
+                name="content"
+                class="form-textarea prompt-editor-textarea"
+                required
+            >{{ $testPromptContent }}</textarea>
+
+            <p class="input-helper">
+                This is separate from the production prompt. Save it as a test version before promoting changes.
+            </p>
+        </div>
+
+        <div class="modal-actions">
+            <input
+                type="hidden"
+                name="prompt_template_id"
+                value="{{ $template->id }}"
+            >
+
+            <button
+                class="btn btn-primary"
+                type="submit"
+            >
+                Save Test Version
+            </button>
+
+            <button
+                class="btn btn-secondary"
+                type="button"
+                data-close-modal
+            >
+                Cancel
+            </button>
+
+        </div>
+
+    </form>
+</x-modal>
+
+{{-- PRODUCTION HISTORY MODAL --}}
+
+<x-modal
+    id="historyModal{{ $template->id }}"
+    title="Production Prompt Version History"
+    subtitle="Inspect all immutable production versions for this template."
+    class="version-history-modal"
+>
+    <div class="prompt-history-list">
+
+        @foreach ($template->versions as $version)
+
+            <div class="prompt-history-item">
+
+                <div class="prompt-history-header">
+
+                    <button
+                        class="prompt-history-toggle"
+                        type="button"
+                    >
+                        <div class="prompt-history-version-info">
+                            <strong>{{ $version->version }}</strong>
+
+                            <p>
+                                {{ $version->created_at->format('M d, Y · H:i') }}
+                            </p>
+                        </div>
+                    </button>
+
+                    <div class="prompt-history-actions">
+
+                        @if ($version->is_active)
+
+                            <span class="status active-status">
+                                Active
+                            </span>
+
+                        @else
+
+                            <form
+                                method="POST"
+                                action="{{ route('admin.prompts.versions.activate', $version) }}"
+                            >
+                                @csrf
+                                @method('PATCH')
+
+                                <button
+                                    class="mini-btn success"
+                                    type="submit"
+                                >
+                                    Activate
+                                </button>
+                            </form>
+
+                        @endif
+
+                    </div>
+
+                </div>
+
+                <div class="prompt-history-content">
+
+                    <div class="history-prompt-preview">
+                        <pre>{{ $version->content }}</pre>
+                    </div>
+
+                </div>
+
+            </div>
+
+        @endforeach
+
+    </div>
+</x-modal>
+
+{{-- TEST HISTORY MODAL --}}
+
+<x-modal
+    id="testHistoryModal{{ $template->id }}"
+    title="Test Prompt Version History"
+    subtitle="Inspect saved test prompt versions for this template."
+    class="version-history-modal"
+>
+    <div class="prompt-history-list">
+
+        @forelse ($template->testVersions as $version)
+
+            <div class="prompt-history-item">
+
+                <div class="prompt-history-header">
+
+                    <button
+                        class="prompt-history-toggle"
+                        type="button"
+                    >
+                        <div class="prompt-history-version-info">
+                            <strong>{{ $version->version }}</strong>
+
+                            <p>
+                                {{ $version->created_at->format('M d, Y · H:i') }}
+                            </p>
+                        </div>
+                    </button>
+
+                    <div class="prompt-history-actions">
+
+                        @if ($version->is_active)
+
+                            <span class="status active-status">
+                                Active Test
+                            </span>
+
+                            @else
+
+                            <form
+                                method="POST"
+                                action="{{ route('admin.prompts.test-versions.activate', $version) }}"
+                            >
+                                @csrf
+                                @method('PATCH')
+                        
+                                <button
+                                    class="mini-btn activate"
+                                    type="submit"
+                                >
+                                    Activate Test
+                                </button>
+                            </form>
+                        
+                        @endif
+                        
+                        <form
+                            method="POST"
+                            action="{{ route('admin.prompts.test-versions.promote', $version) }}"
+                        >
+                            @csrf
+                        
+                            <button
+                                class="mini-btn"
+                                type="submit"
+                                onclick="return confirm('Promote this test prompt to a new production version?')"
+                            >
+                                Promote To Production
+                            </button>
+                        </form>
+
+                    </div>
+
+                </div>
+
+                <div class="prompt-history-content">
+
+                    <div class="history-prompt-preview">
+                        <pre>{{ $version->content }}</pre>
+                    </div>
+
+                </div>
+
+            </div>
+
+        @empty
+
+            <x-empty-state
+                title="No test prompt versions yet"
+                description="Save a test prompt version before viewing history."
+            />
+
+        @endforelse
+
+    </div>
+</x-modal>

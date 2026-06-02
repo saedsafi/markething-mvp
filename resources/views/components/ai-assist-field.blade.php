@@ -1,34 +1,75 @@
-<div class="ai-field">
+@props([
+    'label',
+    'name',
+    'value' => '',
+    'helper' => 'Add any extra details that may help MARKETHING draft a better answer.',
+    'placeholder' => 'Write your answer...',
+    'footer' => 'AI Assist uses the Business Context and your extra popup input to draft this field.',
+    'max' => 500,
+    'disabled' => false,
+    'questionKey' => null,
+    'clientId' => null,
+])
+
+<div
+    class="ai-field"
+    data-ai-field
+    data-question-key="{{ $questionKey }}"
+    data-client-id="{{ $clientId }}"
+    data-character-limit="{{ $max }}"
+>
 
     <div class="ai-field-header">
-        <label class="form-label">{{ $label }}</label>
+
+        <label class="form-label">
+            {{ $label }}
+        </label>
 
         <button
             type="button"
             class="ai-assist-btn"
             data-open-ai-assist
             data-ai-label="{{ $label }}"
-            data-ai-helper="{{ $helper ?? 'Add any extra details that may help MARKETHING draft a better answer.' }}"
-            {{ isset($disabled) && $disabled ? 'disabled' : '' }}
-        >
+            data-ai-helper="{{ $helper }}"
+            data-question-key="{{ $questionKey }}"
+            data-client-id="{{ $clientId }}"
+            data-character-limit="{{ $max }}"
+            @disabled($disabled || ! $questionKey)
+                >
             ✦ Help me answer this
         </button>
+
     </div>
 
     <textarea
         class="form-textarea"
-        placeholder="{{ $placeholder ?? 'Write your answer...' }}"
-        maxlength="{{ $max ?? 500 }}"
+        name="{{ $name }}"
+        placeholder="{{ $placeholder }}"
+        maxlength="{{ $max }}"
         data-ai-target-field
-    >{{ $value ?? '' }}</textarea>
+        data-ai-current-clicks="0"
+    >{{ old($name, $value) }}</textarea>
 
     <div class="ai-field-footer">
-        <p>{{ $footer ?? 'AI Assist uses the Business Context and your extra popup input to draft this field.' }}</p>
-        <span>0/{{ $max ?? 500 }}</span>
+
+        <p>
+            {{ $footer }}
+        </p>
+
+        <span data-character-counter>
+            {{ mb_strlen(old($name, $value ?? '')) }}/{{ $max }}
+        </span>
+
     </div>
 
-    <p class="ai-soft-warning hidden">
+    <p class="ai-soft-warning hidden" data-ai-soft-warning>
         Try refining your business context above for better drafts.
     </p>
+
+    @if ($disabled)
+        <p class="input-helper">
+            Add a description of the business at the top of the profile to enable AI Assist.
+        </p>
+    @endif
 
 </div>

@@ -22,12 +22,16 @@ class CampaignPost extends Model
         'hashtags',
         'creative_direction',
         'is_edited',
+        'is_regenerated',
+        'regeneration_count',
     ];
 
     protected $casts = [
         'scheduled_date' => 'date',
         'sequence_number' => 'integer',
         'is_edited' => 'boolean',
+        'is_regenerated' => 'boolean',
+        'regeneration_count' => 'integer',
     ];
 
     public function campaign(): BelongsTo

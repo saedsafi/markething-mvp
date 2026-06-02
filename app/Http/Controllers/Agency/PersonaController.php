@@ -9,6 +9,7 @@ use App\Models\Client;
 use App\Models\Persona;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use App\Services\AppSettingService;
 
 class PersonaController extends Controller
 {
@@ -20,9 +21,12 @@ class PersonaController extends Controller
             ->where('status', 'active')
             ->count();
 
-        if ($activePersonaCount >= 5) {
+            $limit = app(AppSettingService::class)
+            ->int('max_personas_per_client', 5);
+        
+        if ($activePersonaCount >= $limit) {
             return back()->withErrors([
-                'persona_limit' => 'Each client can have up to 5 active personas.',
+                'persona_limit' => "Each client can have up to {$limit} active personas.",
             ]);
         }
 
@@ -76,9 +80,12 @@ class PersonaController extends Controller
             ->where('status', 'active')
             ->count();
 
-        if ($activePersonaCount >= 5) {
+            $limit = app(AppSettingService::class)
+            ->int('max_personas_per_client', 5);
+        
+        if ($activePersonaCount >= $limit) {
             return back()->withErrors([
-                'persona_limit' => 'Each client can have up to 5 active personas.',
+                'persona_limit' => "Each client can have up to {$limit} active personas.",
             ]);
         }
 

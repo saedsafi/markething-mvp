@@ -22,6 +22,8 @@ class User extends Authenticatable
         'daily_ai_assist_limit',
         'password_changed_at',
         'last_login_at',
+        'tier',
+        'uses_test_prompts',
     ];
 
     protected $hidden = [
@@ -36,6 +38,7 @@ class User extends Authenticatable
         'daily_ai_assist_limit' => 'integer',
         'password_changed_at' => 'datetime',
         'last_login_at' => 'datetime',
+        'uses_test_prompts' => 'boolean',
     ];
 
     public function clients(): HasMany
@@ -57,6 +60,7 @@ class User extends Authenticatable
     {
         return $this->hasMany(PromptVersion::class, 'created_by');
     }
+    
 
     public function isFounder(): bool
     {

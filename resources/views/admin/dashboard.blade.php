@@ -52,7 +52,9 @@
                         <th>Client Limit</th>
                         <th>Status</th>
                         <th>Campaigns</th>
+                        <th>AI Tokens</th>
                         <th>Actions</th>
+                        <th>Tier</th>
                     </tr>
                 </thead>
 
@@ -62,7 +64,7 @@
                             <td>
                                 <strong>{{ $agencyUser->name }}</strong>
                                 <p class="table-muted">
-                                    Created {{ $agencyUser->created_at->format('M Y') }}
+                                    Created {{ $agencyUser->created_at->format('d M Y') }}
                                 </p>
                             </td>
 
@@ -81,6 +83,9 @@
                             </td>
 
                             <td>{{ $agencyUser->campaigns_count }}</td>
+                            <td>
+                                {{ number_format($agencyUser->total_tokens_used ?? 0) }}
+                            </td>
 
                             <td>
                                 <div class="table-actions">
@@ -117,6 +122,11 @@
                                     @endif
                                 </div>
                             </td>
+                            <td>
+                                <span class="status active-status">
+                                {{ $agencyUser->tier }}</span>
+                            </td>
+
                         </tr>
 
                         
@@ -223,76 +233,83 @@
     title="Create Agency User"
     subtitle="Create an inactive agency account with a temporary password."
 >
-    <form method="POST" action="{{ route('admin.users.store') }}">
-        @csrf
 
-        <div class="form-group">
-            <label class="form-label">Display Name</label>
+    <div class="modal-scroll-content">
 
-            <input
-                type="text"
-                name="name"
-                class="form-input"
-                placeholder="Nova Marketing"
-                required
-            >
-        </div>
+        <form method="POST" action="{{ route('admin.users.store') }}">
+            @csrf
 
-        <div class="form-group">
-            <label class="form-label">Email Address</label>
+            <div class="form-group">
+                <label class="form-label">Display Name</label>
 
-            <input
-                type="email"
-                name="email"
-                class="form-input"
-                placeholder="agency@example.com"
-                required
-            >
-        </div>
+                <input
+                    type="text"
+                    name="name"
+                    class="form-input"
+                    placeholder="Nova Marketing"
+                    required
+                >
+            </div>
 
-        <div class="form-group">
-            <label class="form-label">Maximum Number of Clients</label>
+            <div class="form-group">
+                <label class="form-label">Email Address</label>
 
-            <input
-                type="number"
-                name="client_limit"
-                class="form-input"
-                min="1"
-                value="10"
-                required
-            >
+                <input
+                    type="email"
+                    name="email"
+                    class="form-input"
+                    placeholder="agency@example.com"
+                    required
+                >
+            </div>
 
-            <p class="input-helper">
-                This controls how many client profiles this agency can create.
-            </p>
-        </div>
+            <div class="form-group">
+                <label class="form-label">Maximum Number of Clients</label>
 
-        <div class="form-group">
-            <label class="form-label">Temporary Password</label>
+                <input
+                    type="number"
+                    name="client_limit"
+                    class="form-input"
+                    min="1"
+                    value="10"
+                    required
+                >
 
-            <input
-                type="text"
-                name="temporary_password"
-                class="form-input"
-                placeholder="Temp12345"
-                required
-            >
+                <p class="input-helper">
+                    This controls how many client profiles this agency can create.
+                </p>
+            </div>
 
-            <p class="input-helper">
-                The user will be forced to change this password on first login.
-            </p>
-        </div>
+            <div class="form-group">
+                <label class="form-label">Temporary Password</label>
 
-        <div class="modal-actions">
-            <button class="btn btn-primary" type="submit">
-                Create Inactive User
-            </button>
+                <input
+                    type="text"
+                    name="temporary_password"
+                    class="form-input"
+                    placeholder="Temp12345"
+                    required
+                >
 
-            <button class="btn btn-secondary" type="button" data-close-modal>
-                Cancel
-            </button>
-        </div>
-    </form>
+                <p class="input-helper">
+                    The user will be forced to change this password on first login.
+                </p>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-primary" type="submit">
+                    Create Inactive User
+                </button>
+
+                <button class="btn btn-secondary" type="button" data-close-modal>
+                    Cancel
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
 </x-modal>
 
 @endsection

@@ -16,7 +16,7 @@ class UpdatePersonaRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'age_range' => ['nullable', 'string', 'max:255'],
-            'description' => ['nullable', 'string', 'max:700'],
+            'description' => ['nullable', 'string', 'max:5000'],
             'channel' => ['nullable', 'string', 'max:255'],
         ];
     }

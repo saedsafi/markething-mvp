@@ -1,3 +1,4 @@
+@push('modals')
 <div
     class="modal-overlay {{ $class ?? '' }}"
     id="{{ $id ?? 'appModal' }}"
@@ -42,3 +43,4 @@
     </div>
 
 </div>
+@endpush

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\TestPromptVersion;
 
 class PromptTemplate extends Model
 {
@@ -43,4 +44,14 @@ class PromptTemplate extends Model
     {
         return $this->type === 'assist';
     }
+    public function testVersions(): HasMany
+{
+    return $this->hasMany(TestPromptVersion::class);
+}
+
+public function activeTestVersion(): BelongsTo
+{
+    return $this->belongsTo(TestPromptVersion::class, 'current_test_version_id');
+}
+
 }

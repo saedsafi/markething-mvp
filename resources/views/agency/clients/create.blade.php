@@ -27,7 +27,14 @@
         : null;
 
     $personaAnswers = $primaryPersona?->answers ?? [];
-@endphp
+
+    $businessContextMax = app(\App\Services\AppSettingService::class)
+    ->int('business_context_character_limit', 5000);
+
+    $businessContextValue = old('business_context', $client->business_context ?? '');
+
+    $aiDisabled = false;
+    @endphp
 
 <div class="client-create-page">
 
@@ -50,7 +57,6 @@
             : route('agency.clients.store') }}"
         class="client-form-layout"
     >
-
         @csrf
 
         @if ($editing)
@@ -63,9 +69,7 @@
 
                 <div class="section-header">
                     <div>
-                        <h2 class="section-title">
-                            Business Information
-                        </h2>
+                        <h2 class="section-title">Business Information</h2>
 
                         <p class="section-description">
                             Core information about the business and its market positioning.
@@ -108,51 +112,37 @@
                         Business Context
                     </label>
 
-                    <div class="ai-assist-group">
+                    <textarea
+                        name="business_context"
+                        class="form-textarea"
+                        maxlength="{{ $businessContextMax }}"
+                        data-business-context-source
+                        placeholder="Describe the business, products, services, audience, goals, and unique positioning..."
+                    >{{ old('business_context', $client->business_context ?? '') }}</textarea>
 
-                        <textarea
-                            name="business_context"
-                            class="form-textarea ai-target"
-                            data-field="business_context"
-                            placeholder="Describe the business, products, services, audience, goals, and unique positioning..."
-                        >{{ old('business_context', $client->business_context ?? '') }}</textarea>
+                    <div class="ai-field-footer">
+                        <p>
+                            This is the source context AI Assist uses for the fields below.
+                        </p>
 
-                        <button
-                            class="ai-assist-btn"
-                            type="button"
-                        >
-                            ✨ AI Assist
-                        </button>
-
+                        <span data-business-context-counter>
+                            {{ mb_strlen(old('business_context', $client->business_context ?? '')) }}/{{ $businessContextMax }}
+                        </span>
                     </div>
 
                 </div>
 
-                <div class="form-group">
-
-                    <label class="form-label">
-                        Business Offer
-                    </label>
-
-                    <div class="ai-assist-group">
-
-                        <textarea
-                            name="business_offer"
-                            class="form-textarea ai-target"
-                            data-field="business_offer"
-                            placeholder="What does this business offer?"
-                        >{{ old('business_offer', $businessInfo['business_offer'] ?? '') }}</textarea>
-
-                        <button
-                            class="ai-assist-btn"
-                            type="button"
-                        >
-                            ✨ AI Assist
-                        </button>
-
-                    </div>
-
-                </div>
+                <x-ai-assist-field
+                    label="Business Offer"
+                    name="business_offer"
+                    :value="old('business_offer', $businessInfo['business_offer'] ?? '')"
+                    question-key="business_offer"
+                    :client-id="$editing ? $client->id : null"
+                    :max="5000"
+                    :disabled="$aiDisabled"
+                    placeholder="What does this business offer?"
+                    footer="AI Assist uses the Business Context above to draft this answer."
+                />
 
             </div>
 
@@ -160,9 +150,7 @@
 
                 <div class="section-header">
                     <div>
-                        <h2 class="section-title">
-                            Brand Information
-                        </h2>
+                        <h2 class="section-title">Brand Information</h2>
 
                         <p class="section-description">
                             Define how the brand should sound and feel in generated campaigns.
@@ -198,31 +186,17 @@
 
                 </div>
 
-                <div class="form-group">
-
-                    <label class="form-label">
-                        Brand Personality
-                    </label>
-
-                    <div class="ai-assist-group">
-
-                        <textarea
-                            name="brand_personality"
-                            class="form-textarea ai-target"
-                            data-field="brand_personality"
-                            placeholder="Describe how the brand behaves and communicates."
-                        >{{ old('brand_personality', $brandInfo['brand_personality'] ?? '') }}</textarea>
-
-                        <button
-                            class="ai-assist-btn"
-                            type="button"
-                        >
-                            ✨ AI Assist
-                        </button>
-
-                    </div>
-
-                </div>
+                <x-ai-assist-field
+                    label="Brand Personality"
+                    name="brand_personality"
+                    :value="old('brand_personality', $brandInfo['brand_personality'] ?? '')"
+                    question-key="brand_personality"
+                    :client-id="$editing ? $client->id : null"
+                    :max="5000"
+                    :disabled="$aiDisabled"
+                    placeholder="Describe how the brand behaves and communicates."
+                    footer="AI Assist uses the Business Context above to draft this answer."
+                />
 
             </div>
 
@@ -230,9 +204,7 @@
 
                 <div class="section-header">
                     <div>
-                        <h2 class="section-title">
-                            Initial Persona
-                        </h2>
+                        <h2 class="section-title">Initial Persona</h2>
 
                         <p class="section-description">
                             Create the first target audience persona for this business.
@@ -268,31 +240,17 @@
 
                 </div>
 
-                <div class="form-group">
-
-                    <label class="form-label">
-                        Persona Description
-                    </label>
-
-                    <div class="ai-assist-group">
-
-                        <textarea
-                            name="persona_description"
-                            class="form-textarea ai-target"
-                            data-field="persona_description"
-                            placeholder="Describe interests, lifestyle, behavior, and motivations."
-                        >{{ old('persona_description', $personaAnswers['description'] ?? '') }}</textarea>
-
-                        <button
-                            class="ai-assist-btn"
-                            type="button"
-                        >
-                            ✨ AI Assist
-                        </button>
-
-                    </div>
-
-                </div>
+                <x-ai-assist-field
+                    label="Persona Description"
+                    name="persona_description"
+                    :value="old('persona_description', $personaAnswers['description'] ?? '')"
+                    question-key="persona_description"
+                    :client-id="$editing ? $client->id : null"
+                    :max="5000"
+                    :disabled="$aiDisabled"
+                    placeholder="Describe interests, lifestyle, behavior, and motivations."
+                    footer="AI Assist uses the Business Context above to draft this persona description."
+                />
 
             </div>
 
@@ -302,9 +260,7 @@
 
             <div class="table-card sticky-card">
 
-                <h2 class="section-title">
-                    Profile Completion
-                </h2>
+                <h2 class="section-title">Profile Completion</h2>
 
                 <div class="completion-list">
 
@@ -328,13 +284,11 @@
                 <div class="save-actions">
 
                     <button class="btn btn-primary full-btn" type="submit">
-
                         @if ($editing)
                             Save Client Changes
                         @else
                             Create Client Profile
                         @endif
-
                     </button>
 
                     <a
@@ -354,85 +308,280 @@
 
 </div>
 
+<x-modal
+    id="aiAssistModal"
+    title="AI Assist"
+    subtitle="Add optional details to help MARKETHING draft a better answer."
+>
+    <div class="form-group">
+        <label class="form-label" id="aiAssistLabel">
+            Field
+        </label>
+
+        <p class="input-helper" id="aiAssistHelper">
+            Add extra details if needed.
+        </p>
+
+        <textarea
+            class="form-textarea"
+            id="aiAssistExtraInput"
+            rows="5"
+            placeholder="Optional extra context..."
+        ></textarea>
+    </div>
+
+    <div class="modal-actions">
+        <button class="btn btn-primary" type="button" id="runAiAssistBtn">
+            ✦ Generate Draft
+        </button>
+
+        <button class="btn btn-secondary" type="button" data-close-modal>
+            Cancel
+        </button>
+    </div>
+</x-modal>
+
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', () => {
+        const businessContext = document.querySelector('[data-business-context-source]');
+        const businessCounter = document.querySelector('[data-business-context-counter]');
+        const aiButtons = document.querySelectorAll('[data-open-ai-assist]');
+    
+        let dailyLimitReached = false;
+    
+        function refreshAiButtons() {
+            const hasContext =
+                businessContext &&
+                businessContext.value.trim().length > 0;
+    
+            aiButtons.forEach((button) => {
+                button.disabled =
+                    !hasContext || dailyLimitReached;
+    
+                if (!hasContext) {
+                    button.classList.add('disabled-ai');
+                    button.title =
+                        'Add a description of the business at the top of the profile to enable AI Assist.';
+                } else if (dailyLimitReached) {
+                    button.classList.add('disabled-ai');
+                    button.title =
+                        'Daily AI assist limit reached. Resets at midnight.';
+                } else {
+                    button.classList.remove('disabled-ai');
+                    button.title = '';
+                }
+            });
+        }
+    
+        if (businessContext && businessCounter) {
+            businessContext.addEventListener('input', () => {
+                businessCounter.textContent =
+                    businessContext.value.length + '/' + businessContext.getAttribute('maxlength');
+    
+                refreshAiButtons();
+            });
+        }
+    
+        refreshAiButtons();
+    
+        let activeFieldWrapper = null;
+        let activeTextarea = null;
+    
+        const modal = document.getElementById('aiAssistModal');
+        const labelEl = document.getElementById('aiAssistLabel');
+        const helperEl = document.getElementById('aiAssistHelper');
+        const extraInput = document.getElementById('aiAssistExtraInput');
+        const runBtn = document.getElementById('runAiAssistBtn');
+    
+        aiButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                if (button.disabled) {
+                    return;
+                }
+    
+                activeFieldWrapper = button.closest('[data-ai-field]');
+                activeTextarea = activeFieldWrapper.querySelector('[data-ai-target-field]');
+    
+                labelEl.textContent =
+                    button.dataset.aiLabel || 'AI Assist';
+    
+                helperEl.textContent =
+                    button.dataset.aiHelper || 'Add extra details if needed.';
+    
+                extraInput.value = '';
+    
+                modal.classList.add('active');
+            });
+        });
+    
+        runBtn?.addEventListener('click', async () => {
+            if (!activeFieldWrapper || !activeTextarea) {
+                return;
+            }
+    
+            const existingValue =
+                activeTextarea.value.trim();
+    
+            if (existingValue.length > 0) {
+                const confirmed = confirm(
+                    'This will replace your current text. Continue?'
+                );
+    
+                if (!confirmed) {
+                    return;
+                }
+            }
+    
+            const button =
+                activeFieldWrapper.querySelector('[data-open-ai-assist]');
+    
+            const warning =
+                activeFieldWrapper.querySelector('[data-ai-soft-warning]');
+    
+            const clicks =
+                Number(activeTextarea.dataset.aiCurrentClicks || 0) + 1;
+    
+            activeTextarea.dataset.aiCurrentClicks =
+                clicks;
+    
+            if (clicks >= 3 && warning) {
+                warning.classList.remove('hidden');
+            }
+    
+            button.disabled = true;
+            runBtn.disabled = true;
+            runBtn.textContent = 'Generating...';
+            activeTextarea.readOnly = true;
+    
+            try {
+                const csrfToken =
+                    document
+                        .querySelector('meta[name="csrf-token"]')
+                        ?.getAttribute('content') || '{{ csrf_token() }}';
 
-    document.querySelectorAll('.ai-assist-btn')
-        .forEach((button) => {
+                const response = await fetch('{{ route('agency.ai-assist') }}', {
+                    method: 'POST',
+                    credentials: 'same-origin',
 
-            button.addEventListener('click', async () => {
-
-                const wrapper =
-                    button.closest('.ai-assist-group');
-
-                const textarea =
-                    wrapper.querySelector('.ai-target');
-
-                const field =
-                    textarea.dataset.field;
-
-                const clientName =
-                    document.querySelector('[name="name"]')?.value || '';
-
-                const industry =
-                    document.querySelector('[name="industry"]')?.value || '';
-
-                const context =
-                    textarea.value;
-
-                const originalText =
-                    button.innerHTML;
-
-                button.disabled = true;
-
-                button.innerHTML = 'Generating...';
-
-                try {
-
-                    const response = await fetch(
-                        "{{ route('agency.ai-assist') }}",
-                        {
-                            method: 'POST',
-
-                            headers: {
-                                'Content-Type': 'application/json',
-
-                                'X-CSRF-TOKEN':
-                                    document.querySelector('meta[name="csrf-token"]')
-                                        .getAttribute('content'),
-                            },
-
-                            body: JSON.stringify({
-                                field,
-                                context,
-                                client_name: clientName,
-                                industry,
-                            }),
-                        }
-                    );
-
-                    const data =
-                        await response.json();
-
-                    if (data.success) {
-                        textarea.value = data.text;
-                    }
-
-                } catch (error) {
-
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    body: JSON.stringify({
+                        ...(button.dataset.clientId
+                            ? { client_id: button.dataset.clientId }
+                            : {}),    
+                        question_key:
+                            button.dataset.questionKey,
+    
+                        question_label:
+                            button.dataset.aiLabel,
+    
+                        input:
+                            extraInput.value,
+    
+                        character_limit:
+                            button.dataset.characterLimit,
+    
+                        extra_instructions:
+                            extraInput.value,
+    
+                        business_context:
+                            businessContext?.value || '',
+    
+                        business_info: {
+                            business_offer:
+                                document.querySelector('[name="business_offer"]')?.value || '',
+                        },
+    
+                        brand_info: {
+                            brand_voice:
+                                document.querySelector('[name="brand_voice"]')?.value || '',
+    
+                            brand_values:
+                                document.querySelector('[name="brand_values"]')?.value || '',
+    
+                            brand_personality:
+                                document.querySelector('[name="brand_personality"]')?.value || '',
+                        },
+                    }),
+                });
+    
+                const data =
+                    await response.json();
+    
+                if (response.status === 429) {
+                    dailyLimitReached = true;
+                    refreshAiButtons();
+    
                     alert(
-                        'AI Assist failed. Please try again.'
+                        data.message ||
+                        'Daily AI assist limit reached. Resets at midnight.'
                     );
+    
+                    return;
+                }
+    
+                if (!response.ok || !data.success) {
+                    alert(
+                        data.message ||
+                        'Couldn’t draft an answer. Try again in a moment.'
+                    );
+    
+                    return;
+                }
+    
+                activeTextarea.value =
+                    data.text;
+    
+                const counter =
+                    activeFieldWrapper.querySelector('[data-character-counter]');
+    
+                if (counter) {
+                    counter.textContent =
+                        activeTextarea.value.length +
+                        '/' +
+                        button.dataset.characterLimit;
+                }
+    
+                modal.classList.remove('active');
+    
+            } catch (error) {
+                alert(
+                    'Couldn’t draft an answer. Try again in a moment.'
+                );
 
-                } finally {
-
-                    button.disabled = false;
-
-                    button.innerHTML = originalText;
+                alert(
+                    error.message
+                );
+            } finally {
+                runBtn.disabled = false;
+                runBtn.textContent = '✦ Generate Draft';
+                activeTextarea.readOnly = false;
+    
+                refreshAiButtons();
+            }
+        });
+    
+        document.querySelectorAll('[data-ai-target-field]').forEach((textarea) => {
+            const wrapper =
+                textarea.closest('[data-ai-field]');
+    
+            const counter =
+                wrapper?.querySelector('[data-character-counter]');
+    
+            const max =
+                textarea.getAttribute('maxlength');
+    
+            textarea.addEventListener('input', () => {
+                if (counter) {
+                    counter.textContent =
+                        textarea.value.length + '/' + max;
                 }
             });
         });
-});
-</script>
-
+    });
+    </script>
 @endsection
