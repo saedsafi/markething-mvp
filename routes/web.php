@@ -251,9 +251,10 @@ Route::middleware([
 | Settings
 |--------------------------------------------------------------------------
 */
-    Route::get('/settings', function () {
-        return view('agency.settings.index');
-    })->name('agency.settings.index');
+Route::get(
+    '/settings',
+    [\App\Http\Controllers\Agency\SettingController::class, 'index']
+)->name('agency.settings.index');
 
     Route::patch('/settings', [\App\Http\Controllers\Agency\SettingController::class, 'update'])
     ->name('agency.settings.update');

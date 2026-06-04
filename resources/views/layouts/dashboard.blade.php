@@ -25,5 +25,5 @@
 </div>
 
 @include('components.confirm-modal')
-
+<x-ai-loading-overlay />
 @endsection

@@ -3,51 +3,35 @@
 namespace App\Http\Controllers\Agency;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Agency\UpdateSettingsRequest;
+use App\Services\AI\AiAssistLimitService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class SettingController extends Controller
 {
-    public function index(): View
-    {
-        return view('agency.settings.index');
+    public function index(
+        AiAssistLimitService $aiAssistLimitService
+    ): View {
+        $user = auth()->user();
+    
+        return view('agency.settings.index', [
+            'aiAssistUsedToday' => $aiAssistLimitService->usedToday($user),
+            'aiAssistDailyLimit' => $aiAssistLimitService->dailyLimit(),
+        ]);
     }
 
     public function update(
-        Request $request
+        UpdateSettingsRequest $request
     ): RedirectResponse {
-
-        $user = $request->user();
-
-        $validated = $request->validate([
-
-            'name' => [
-                'required',
-                'string',
-                'max:255',
-            ],
-
-            'email' => [
-                'required',
-                'email',
-                'max:255',
-
-                Rule::unique('users')
-                    ->ignore($user->id),
-            ],
-
-        ]);
-
-        $user->update([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
+        $request->user()->update([
+            'name' => $request->name,
+            'email' => $request->email,
         ]);
 
         return back()->with(
             'success',
-            'Account settings updated successfully.'
+            'Settings updated successfully.'
         );
     }
 }

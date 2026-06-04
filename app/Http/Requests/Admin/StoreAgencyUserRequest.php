@@ -6,6 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreAgencyUserRequest extends FormRequest
 {
+    protected $errorBag = 'createAgency';
     public function authorize(): bool
     {
         return $this->user()?->isFounder() === true;

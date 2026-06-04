@@ -21,7 +21,10 @@ class AiAssistLimitService
             ->where('user_id', $user->id)
             ->where('call_type', 'ai_assist')
             ->where('status', 'success')
-            ->whereDate('created_at', now()->toDateString())
+            ->whereBetween('created_at', [
+                now()->startOfDay()->format('Y-m-d H:i:s'),
+                now()->endOfDay()->format('Y-m-d H:i:s'),
+            ])
             ->count();
     }
 

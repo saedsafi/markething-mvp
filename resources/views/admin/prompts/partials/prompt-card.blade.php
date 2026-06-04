@@ -29,7 +29,7 @@
 
                 @if ($activeVersion)
                     <span class="active-version-pill">
-                        Production {{ $activeVersion->version }}
+                        Live {{ $activeVersion->version }}
                     </span>
                 @endif
 
@@ -58,7 +58,7 @@
                 type="button"
                 data-open-modal="newVersionModal{{ $template->id }}"
             >
-                + New Production Version
+                + New Live Version
             </button>
 
 
@@ -70,7 +70,7 @@
         type="button"
                 data-open-modal="testPromptModal{{ $template->id }}"
             >
-                Edit Test Prompt
+                + New Test Prompt
         </button>
         </div>
 
@@ -84,7 +84,7 @@
 
                 <div>
                     <span class="prompt-meta-label">
-                        Current Production Prompt
+                        Current Live Prompt
                     </span>
 
                     <h3>
@@ -113,7 +113,7 @@
             type="button"
             data-open-modal="historyModal{{ $template->id }}"
         >
-            Production History
+            Live History
         </button>
 
         <button
@@ -130,12 +130,12 @@
 
 </div>
 
-{{-- CREATE PRODUCTION VERSION MODAL --}}
+{{-- CREATE LIVE VERSION MODAL --}}
 
 <x-modal
     id="newVersionModal{{ $template->id }}"
-    title="Create Production Prompt Version"
-    subtitle="Create a new immutable production version for this template."
+    title="Create Live Prompt Version"
+    subtitle="Create a new immutable live version for this template."
 >
     <form
         method="POST"
@@ -151,7 +151,7 @@
 
         <div class="form-group">
             <label class="form-label">
-                Production Prompt Content
+                Live Prompt Content
             </label>
 
             <textarea
@@ -164,7 +164,7 @@
         <div class="modal-actions">
 
             <button class="btn btn-primary" type="submit">
-                Create Production Version
+                Create Live Version
             </button>
 
             <button
@@ -219,7 +219,7 @@
             >{{ $testPromptContent }}</textarea>
 
             <p class="input-helper">
-                This is separate from the production prompt. Save it as a test version before promoting changes.
+                This is separate from the live prompt. Save it as a test version before promoting changes.
             </p>
         </div>
 
@@ -250,12 +250,12 @@
     </form>
 </x-modal>
 
-{{-- PRODUCTION HISTORY MODAL --}}
+{{-- LIVE HISTORY MODAL --}}
 
 <x-modal
     id="historyModal{{ $template->id }}"
-    title="Production Prompt Version History"
-    subtitle="Inspect all immutable production versions for this template."
+    title="Live Prompt Version History"
+    subtitle="Inspect all immutable live versions for this template."
     class="version-history-modal"
 >
     <div class="prompt-history-list">
@@ -390,9 +390,9 @@
                             <button
                                 class="mini-btn"
                                 type="submit"
-                                onclick="return confirm('Promote this test prompt to a new production version?')"
+                                onclick="return confirm('Promote this test prompt to a new Live version?')"
                             >
-                                Promote To Production
+                                Promote To Live
                             </button>
                         </form>
 

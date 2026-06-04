@@ -989,3 +989,78 @@ document.querySelectorAll('[data-toggle-version]').forEach((button) => {
         drawer.classList.toggle('open');
     });
 });
+
+/* LOADING FUNC */
+
+window.showAiLoading = function (
+    title = 'AI is working...',
+    message = 'Please wait while MARKETHING generates your content.'
+) {
+    const overlay = document.getElementById('aiLoadingOverlay');
+
+    if (!overlay) {
+        return;
+    }
+
+    overlay.querySelector('#aiLoadingTitle').textContent = title;
+    overlay.querySelector('#aiLoadingMessage').textContent = message;
+
+    overlay.classList.add('show');
+    document.body.classList.add('modal-open');
+};
+
+window.hideAiLoading = function () {
+    const overlay = document.getElementById('aiLoadingOverlay');
+
+    if (!overlay) {
+        return;
+    }
+
+    overlay.classList.remove('show');
+    document.body.classList.remove('modal-open');
+};
+
+const steps = document.querySelectorAll('[data-client-step]');
+const nextBtn = document.querySelector('[data-next-step]');
+const prevBtn = document.querySelector('[data-prev-step]');
+const submitBtn = document.querySelector('[data-submit-client]');
+const progressFill = document.querySelector('[data-step-progress-fill]');
+const progressItems = document.querySelectorAll('[data-step-progress-item]');
+
+let currentStep = 0;
+
+function showStep(index) {
+    steps.forEach((step, i) => {
+        step.classList.toggle('active', i === index);
+    });
+
+    progressItems.forEach((item, i) => {
+        item.classList.toggle('done', i < index);
+        item.classList.toggle('active', i === index);
+    });
+
+    if (progressFill) {
+        progressFill.style.width =
+            ((index + 1) / steps.length * 100) + '%';
+    }
+
+    prevBtn.style.display = index === 0 ? 'none' : 'inline-flex';
+    nextBtn.style.display = index === steps.length - 1 ? 'none' : 'inline-flex';
+    submitBtn.style.display = index === steps.length - 1 ? 'inline-flex' : 'none';
+}
+
+nextBtn?.addEventListener('click', () => {
+    if (currentStep < steps.length - 1) {
+        currentStep++;
+        showStep(currentStep);
+    }
+});
+
+prevBtn?.addEventListener('click', () => {
+    if (currentStep > 0) {
+        currentStep--;
+        showStep(currentStep);
+    }
+});
+
+showStep(currentStep);

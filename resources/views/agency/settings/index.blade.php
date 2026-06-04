@@ -24,11 +24,11 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('agency.settings.update') }}">
-        @csrf
-        @method('PATCH')
+    <div class="agency-settings-grid">
 
-        <div class="agency-settings-grid">
+        <form method="POST" action="{{ route('agency.settings.update') }}">
+            @csrf
+            @method('PATCH')
 
             <div class="agency-settings-card">
 
@@ -78,10 +78,13 @@
                     </div>
 
                     <div>
-                        <span>Daily AI Assist Limit</span>
-                        <strong>{{ auth()->user()->daily_ai_assist_limit }} assists</strong>
+                        <span>AI Assist Today</span>
+                    
+                        <strong>
+                            {{ $aiAssistUsedToday ?? 0 }} / {{ $aiAssistDailyLimit ?? auth()->user()->daily_ai_assist_limit }} assists
+                        </strong>
                     </div>
-
+                    
                     <div>
                         <span>Account Status</span>
                         <strong>{{ ucfirst(auth()->user()->status) }}</strong>
@@ -96,32 +99,78 @@
                 </div>
 
             </div>
+        </form>
 
-            <div class="agency-settings-card security-card">
+        <div class="agency-settings-card security-card">
 
-                <div class="agency-settings-header">
-                    <span class="hero-badge">Security</span>
+            <div class="agency-settings-header">
+                <span class="hero-badge">Security</span>
 
-                    <h2>Password</h2>
+                <h2>Password</h2>
 
-                    <p>
-                        Change your password whenever needed to keep your account secure.
-                    </p>
+                <p>
+                    Change your password whenever needed to keep your account secure.
+                </p>
+            </div>
+
+            <a
+                href="{{ url('/change-password') }}"
+                class="btn btn-edit"
+            >
+                Change Password
+            </a>
+
+        </div>
+
+        <div class="agency-settings-card">
+
+            <div class="agency-settings-header">
+                <span class="hero-badge">AI Assist</span>
+
+                <h2>AI Assist Preferences</h2>
+
+                <p>
+                    Reset your confirmation preference for replacing existing text with AI-generated drafts.
+                </p>
+            </div>
+
+            <div class="agency-readonly-box">
+
+                <div>
+                    <span>Replace Confirmation</span>
+                    <strong>Can be reset anytime</strong>
                 </div>
 
-                <a
-                    href="{{ url('/change-password') }}"
-                    class="btn btn-secondary"
-                >
-                    Change Password
-                </a>
+            </div>
 
+            <div class="agency-settings-actions">
+                <button
+                    class="btn btn-primary"
+                    type="button"
+                    id="resetAiAssistConfirmation"
+                >
+                    Reset “Don’t Ask Me Again”
+                </button>
             </div>
 
         </div>
 
-    </form>
+    </div>
 
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const resetButton = document.getElementById('resetAiAssistConfirmation');
+
+    resetButton?.addEventListener('click', () => {
+        localStorage.removeItem(
+            'markething_ai_assist_skip_replace_confirmation'
+        );
+
+        alert('AI Assist replacement confirmation has been reset.');
+    });
+});
+</script>
 
 @endsection

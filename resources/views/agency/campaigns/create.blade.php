@@ -31,6 +31,7 @@
     <form
         method="POST"
         action="{{ route('agency.campaigns.store') }}"
+        onsubmit="showAiLoading('Generating Campaign...', 'Claude is building your campaign posts. Please do not refresh or click back.');"
         class="campaign-builder-layout"
     >
 

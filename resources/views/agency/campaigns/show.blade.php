@@ -315,8 +315,7 @@
                     <form
                         method="POST"
                         action="{{ route('agency.campaign-posts.regenerate', $post) }}"
-                        onsubmit="return confirm('Regenerate this post? This will overwrite the current generated content.')"
-                    >
+                        onsubmit="showAiLoading('Regenerating Post...', 'Claude is creating a fresh version of this post.'); return confirm('Regenerate this post? This will overwrite the current generated content.');"                    >
             
                         @csrf
             
