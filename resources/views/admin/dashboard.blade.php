@@ -30,8 +30,10 @@
         <x-stats-card label="Inactive Accounts" value="{{ $inactiveAccounts ?? 0 }}" hint="Waiting for first login" />
     </div>
 
-    <div class="admin-main-stack">
 
+
+    <div class="admin-main-stack">
+         
         <x-data-table title="Agency Users">
 
             <x-slot name="action">
@@ -43,7 +45,81 @@
                     + Create Agency User
                 </x-button>
             </x-slot>
-
+            <form
+            method="GET"
+            action="{{ route('admin.dashboard') }}"
+            class="agency-filters"
+            id="agencyFiltersForm"
+        >
+        <input
+        id="agencySearch"
+        type="text"
+        name="search"
+        class="form-input"
+        placeholder="Search agency..."
+        value="{{ request('search') }}"
+    >
+        
+            <select name="status" class="form-select">
+                <option value="">All Statuses</option>
+                <option value="active" @selected(request('status') === 'active')>
+                    Active
+                </option>
+                <option value="inactive" @selected(request('status') === 'inactive')>
+                    Inactive
+                </option>
+                <option value="suspended" @selected(request('status') === 'suspended')>
+                    Suspended
+                </option>
+            </select>
+        
+            <select name="sort" class="form-select">
+                <option value="">Newest First</option>
+        
+                <option value="campaigns_desc" @selected(request('sort') === 'campaigns_desc')>
+                    Most Campaigns
+                </option>
+        
+                <option value="clients_desc" @selected(request('sort') === 'clients_desc')>
+                    Most Clients
+                </option>
+        
+                <option value="tokens_desc" @selected(request('sort') === 'tokens_desc')>
+                    Most Tokens Used
+                </option>
+        
+                <option value="campaigns_asc" @selected(request('sort') === 'campaigns_asc')>
+                    Least Campaigns
+                </option>
+        
+                <option value="clients_asc" @selected(request('sort') === 'clients_asc')>
+                    Least Clients
+                </option>
+        
+                <option value="tokens_asc" @selected(request('sort') === 'tokens_asc')>
+                    Least Tokens Used
+                </option>
+        
+                <option value="name_asc" @selected(request('sort') === 'name_asc')>
+                    Name A-Z
+                </option>
+        
+                <option value="name_desc" @selected(request('sort') === 'name_desc')>
+                    Name Z-A
+                </option>
+        
+                <option value="oldest" @selected(request('sort') === 'oldest')>
+                    Oldest First
+                </option>
+            </select>
+        
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+                Apply
+            </button>
+        </form>
             <table class="dashboard-table">
                 <thead>
                     <tr>
@@ -138,6 +214,15 @@
                                         </form>
                                     @endif
 
+                                    <span>•</span>
+
+                                    <button
+                                        class="simple-mini-btn red"
+                                        type="button"
+                                        data-open-modal="deleteAgencyModal{{ $agencyUser->id }}"
+                                    >
+                                        Delete
+                                    </button>
                                 </div>
                             </td>
 
@@ -175,11 +260,19 @@
                         <span>⚙</span>
                         Configuration
                     </a>
-
+                    <a href="{{ route('admin.campaigns.index') }}" class="shortcut-card">
+                        <span>▦</span>
+                        Campaigns
+                    </a>
                     <a href="{{ url('/admin/logs') }}" class="shortcut-card">
                         <span>◷</span>
                         LLM Logs
                     </a>
+                    <a href="{{ route('admin.usage.index') }}" class="shortcut-card">
+                        <span>$</span>
+                        Usage & Cost
+                    </a>
+
                 </div>
             </div>
 
@@ -245,6 +338,32 @@
             </div>
         </form>
     </x-modal>
+<x-modal
+    id="deleteAgencyModal{{ $agencyUser->id }}"
+    title="Delete Agency User"
+    subtitle="This action cannot be undone."
+>
+    <form method="POST" action="{{ route('admin.users.destroy', $agencyUser) }}">
+        @csrf
+        @method('DELETE')
+
+        <div class="validation-box">
+            Are you sure you want to delete
+            <strong>{{ $agencyUser->name }}</strong>?
+            This will remove the agency account and related data depending on your database cascade rules.
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn btn-danger" type="submit">
+                Yes, Delete User
+            </button>
+
+            <button class="btn btn-secondary" type="button" data-close-modal>
+                Cancel
+            </button>
+        </div>
+    </form>
+</x-modal>
 
 @endforeach
 
@@ -339,14 +458,58 @@
     </div>
 
 </x-modal>
-@if ($errors->createAgency->any())
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+    
+        /*
+        |--------------------------------------------------------------------------
+        | Reopen Create Agency Modal If Validation Fails
+        |--------------------------------------------------------------------------
+        */
+    
+        @if ($errors->createAgency->any())
             document
                 .getElementById('createAgencyModal')
                 ?.classList.add('show');
+        @endif
+    
+    
+        /*
+        |--------------------------------------------------------------------------
+        | Agency Table Live Filters
+        |--------------------------------------------------------------------------
+        */
+    
+        const form =
+            document.getElementById('agencyFiltersForm');
+    
+        const search =
+            document.getElementById('agencySearch');
+    
+        if (!form) {
+            return;
+        }
+    
+        let searchTimeout;
+    
+        search?.addEventListener('input', () => {
+            clearTimeout(searchTimeout);
+    
+            searchTimeout = setTimeout(() => {
+                form.submit();
+            }, 450);
         });
+    
+        form
+            .querySelectorAll('select')
+            .forEach((select) => {
+                select.addEventListener('change', () => {
+                    form.submit();
+                });
+            });
+    });
     </script>
-@endif
+
 
 @endsection

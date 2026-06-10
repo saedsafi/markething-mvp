@@ -313,15 +313,13 @@
                     <div class="profile-side-divider"></div>
             
                     <form
-                        method="POST"
-                        action="{{ route('agency.campaign-posts.regenerate', $post) }}"
-                        onsubmit="showAiLoading('Regenerating Post...', 'Claude is creating a fresh version of this post.'); return confirm('Regenerate this post? This will overwrite the current generated content.');"                    >
-            
-                        @csrf
-            
-                        <div class="modal-actions">
-            
-                            <button
+                    method="POST"
+                    action="{{ route('agency.campaign-posts.regenerate', $post) }}"
+                >
+                    @csrf
+                
+                    <div class="modal-actions">
+                        <button
                             class="btn btn-regenerate"
                             type="submit"
                             @disabled($post->regeneration_count >= 1)
@@ -329,10 +327,8 @@
                             ✦
                             {{ $post->regeneration_count >= 1 ? 'Regeneration Used' : 'Regenerate Post' }}
                         </button>
-            
-                        </div>
-            
-                    </form>
+                    </div>
+                </form>
             
                 </div>
             
@@ -434,42 +430,164 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-
-    document.querySelectorAll('[data-copy-post]')
-        .forEach((button) => {
-
-            button.addEventListener('click', () => {
-
-                const modal =
-                    button.closest('form');
-
-                const textareas =
-                    modal.querySelectorAll('textarea');
-
-                let combined = '';
-
-                textareas.forEach((textarea) => {
-
-                    combined +=
-                        textarea.value + '\n\n';
+    document.addEventListener('DOMContentLoaded', () => {
+    
+        /*
+        |--------------------------------------------------------------------------
+        | Copy Post Content
+        |--------------------------------------------------------------------------
+        */
+    
+        document
+            .querySelectorAll('[data-copy-post]')
+            .forEach((button) => {
+    
+                button.addEventListener('click', () => {
+    
+                    const form =
+                        button.closest('form');
+    
+                    if (!form) {
+                        return;
+                    }
+    
+                    const textareas =
+                        form.querySelectorAll('textarea');
+    
+                    let combined = '';
+    
+                    textareas.forEach((textarea) => {
+                        combined += textarea.value + '\n\n';
+                    });
+    
+                    navigator.clipboard.writeText(
+                        combined.trim()
+                    );
+    
+                    button.textContent = 'Copied!';
+    
+                    setTimeout(() => {
+                        button.textContent = 'Copy Content';
+                    }, 1800);
                 });
-
-                navigator.clipboard
-                    .writeText(combined);
-
-                button.textContent =
-                    'Copied!';
-
-                setTimeout(() => {
-
-                    button.textContent =
-                        'Copy Content';
-
-                }, 1800);
             });
+    
+    
+        /*
+        |--------------------------------------------------------------------------
+        | Per-post Unsaved Changes Protection
+        |--------------------------------------------------------------------------
+        */
+    
+        document
+            .querySelectorAll('[id^="postModal"]')
+            .forEach((modal) => {
+    
+                const editForm =
+                    modal.querySelector(
+                        'form[action*="campaign-posts"][method="POST"]:not([action*="regenerate"])'
+                    );
+    
+                if (!editForm) {
+                    return;
+                }
+    
+                let isDirty = false;
+                let isSubmitted = false;
+    
+                editForm.dataset.dirty = 'false';
+    
+                editForm
+                    .querySelectorAll('textarea')
+                    .forEach((textarea) => {
+    
+                        textarea.addEventListener('input', () => {
+                            isDirty = true;
+                            isSubmitted = false;
+                            editForm.dataset.dirty = 'true';
+                        });
+                    });
+    
+                editForm.addEventListener('submit', () => {
+                    isSubmitted = true;
+                    isDirty = false;
+                    editForm.dataset.dirty = 'false';
+                });
+    
+                modal
+                    .querySelectorAll('[data-close-modal]')
+                    .forEach((closeButton) => {
+    
+                        closeButton.addEventListener('click', (event) => {
+    
+                            if (!isDirty || isSubmitted) {
+                                return;
+                            }
+    
+                            const confirmed = confirm(
+                                'You have unsaved changes in this post. Close anyway?'
+                            );
+    
+                            if (!confirmed) {
+                                event.preventDefault();
+                                event.stopImmediatePropagation();
+                            }
+                        });
+                    });
+    
+                const regenerateForm =
+                    modal.querySelector(
+                        'form[action*="regenerate"]'
+                    );
+    
+                regenerateForm?.addEventListener('submit', (event) => {
+    
+                    if (isDirty && !isSubmitted) {
+    
+                        const confirmed = confirm(
+                            'You have unsaved edits. Regenerating will overwrite them. Continue?'
+                        );
+    
+                        if (!confirmed) {
+                            event.preventDefault();
+                            event.stopImmediatePropagation();
+                            return;
+                        }
+                    }
+    
+                    editForm.dataset.dirty = 'false';
+    
+                    showAiLoading(
+                        'Regenerating Post...',
+                        'Claude is creating a fresh version of this post.'
+                    );
+                });
+            });
+    
+    
+        /*
+        |--------------------------------------------------------------------------
+        | Browser Refresh / Navigation Warning
+        |--------------------------------------------------------------------------
+        */
+    
+        window.addEventListener('beforeunload', (event) => {
+    
+            const hasDirtyPost =
+                Array
+                    .from(
+                        document.querySelectorAll(
+                            '[id^="postModal"] form[data-dirty="true"]'
+                        )
+                    )
+                    .length > 0;
+    
+            if (hasDirtyPost) {
+                event.preventDefault();
+                event.returnValue = '';
+            }
         });
-});
-</script>
+    });
+    </script>
 
 @endsection

@@ -148,15 +148,26 @@ class CampaignController extends Controller
             ],
         ]);
 
-        app(CampaignGenerationService::class)
-            ->generate($campaign);
-
-        return redirect()
-            ->route('agency.campaigns.show', $campaign)
-            ->with(
-                'success',
-                'Campaign generated successfully.'
-            );
+        try {
+            app(CampaignGenerationService::class)
+                ->generate($campaign);
+        
+            return redirect()
+                ->route('agency.campaigns.show', $campaign)
+                ->with(
+                    'success',
+                    'Campaign generated successfully.'
+                );
+        
+        } catch (\Throwable $e) {
+        
+            return redirect()
+                ->route('agency.campaigns.show', $campaign)
+                ->withErrors([
+                    'generation' =>
+                        'Campaign generation failed. Please try again or adjust the campaign details.',
+                ]);
+        }
     }
 
     public function show(

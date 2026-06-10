@@ -9,7 +9,7 @@ use App\Models\PromptTemplate;
 use App\Models\PromptVersion;
 use App\Models\TestPromptVersion;
 use App\Services\AI\ClaudeService;
-use App\Services\LlmLogService;
+use App\Services\AI\LlmLogService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;

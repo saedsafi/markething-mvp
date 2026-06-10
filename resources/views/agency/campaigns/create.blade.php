@@ -29,11 +29,12 @@
     @endif
 
     <form
-        method="POST"
-        action="{{ route('agency.campaigns.store') }}"
-        onsubmit="showAiLoading('Generating Campaign...', 'Claude is building your campaign posts. Please do not refresh or click back.');"
-        class="campaign-builder-layout"
-    >
+    id="campaignCreateForm"
+    method="POST"
+    action="{{ route('agency.campaigns.store') }}"
+    class="campaign-builder-layout"
+    novalidate
+>
 
         @csrf
 
@@ -344,9 +345,13 @@
 
                 <div class="save-actions">
 
-                    <button class="btn btn-primary full-btn" type="submit">
-                        Generate Campaign
-                    </button>
+                    <button
+                    id="generateCampaignBtn"
+                    class="btn btn-primary"
+                    type="submit"
+                >
+                    Generate Campaign
+                </button>
 
                     <a
                         href="{{ route('agency.dashboard') }}"
@@ -366,48 +371,141 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-
-    const clientSelect = document.getElementById('clientSelect');
-    const personaSelect = document.getElementById('personaSelect');
-
-    function populatePersonas() {
-
-        personaSelect.innerHTML = `
-            <option value="">
-                Select persona
-            </option>
-        `;
-
-        const selectedOption =
-            clientSelect.options[clientSelect.selectedIndex];
-
-        if (!selectedOption || !selectedOption.dataset.personas) {
-            return;
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('campaignCreateForm');
+        const generateButton = document.getElementById('generateCampaignBtn');
+    
+        const clientSelect = document.getElementById('clientSelect');
+        const personaSelect = document.getElementById('personaSelect');
+    
+        let formChanged = false;
+        let formSubmitted = false;
+    
+        if (generateButton) {
+            generateButton.disabled = false;
+            generateButton.textContent = 'Generate Campaign';
         }
-
-        const personas =
-            JSON.parse(selectedOption.dataset.personas);
-
-        personas.forEach((persona) => {
-
-            const option = document.createElement('option');
-
-            option.value = persona.id;
-            option.textContent = persona.name;
-
-            if ("{{ old('persona_id') }}" == persona.id) {
-                option.selected = true;
+    
+        function populatePersonas() {
+            personaSelect.innerHTML = `
+                <option value="">
+                    Select persona
+                </option>
+            `;
+    
+            const selectedOption =
+                clientSelect.options[clientSelect.selectedIndex];
+    
+            if (!selectedOption || !selectedOption.dataset.personas) {
+                return;
             }
-
-            personaSelect.appendChild(option);
+    
+            const personas =
+                JSON.parse(selectedOption.dataset.personas);
+    
+            personas.forEach((persona) => {
+                const option = document.createElement('option');
+    
+                option.value = persona.id;
+                option.textContent = persona.name;
+    
+                if ("{{ old('persona_id') }}" == persona.id) {
+                    option.selected = true;
+                }
+    
+                personaSelect.appendChild(option);
+            });
+        }
+    
+        populatePersonas();
+    
+        clientSelect?.addEventListener('change', populatePersonas);
+    
+        form?.querySelectorAll('input, textarea, select').forEach((field) => {
+            field.addEventListener('input', () => {
+                formChanged = true;
+            });
+    
+            field.addEventListener('change', () => {
+                formChanged = true;
+            });
         });
-    }
-
-    populatePersonas();
-
-    clientSelect.addEventListener('change', populatePersonas);
-});
-</script>
-
+    
+        function validateCampaignForm() {
+            const name = form.querySelector('[name="name"]')?.value.trim();
+            const objective = form.querySelector('[name="objective"]')?.value.trim();
+            const clientId = form.querySelector('[name="client_id"]')?.value;
+            const personaId = form.querySelector('[name="persona_id"]')?.value;
+            const startDate = form.querySelector('[name="start_date"]')?.value;
+            const endDate = form.querySelector('[name="end_date"]')?.value;
+            const postsCount = form.querySelector('[name="requested_posts_count"]')?.value;
+            const channels = form.querySelectorAll('[name="channels[]"]:checked');
+    
+            if (!name) return 'Please enter a campaign name.';
+            if (!objective) return 'Please enter a campaign objective.';
+            if (!clientId) return 'Please select a client profile.';
+            if (!personaId) return 'Please select a persona.';
+            if (!startDate) return 'Please select a start date.';
+            if (!endDate) return 'Please select an end date.';
+            if (endDate <= startDate) return 'End date must be after the start date.';
+            if (channels.length === 0) return 'Please select at least one channel.';
+            if (!postsCount || Number(postsCount) < 1) return 'Please enter the requested posts count.';
+    
+            return null;
+        }
+    
+        form?.addEventListener('submit', (event) => {
+            event.preventDefault();
+    
+            const error = validateCampaignForm();
+    
+            if (error) {
+                alert(error);
+                return;
+            }
+    
+            formSubmitted = true;
+    
+            if (generateButton) {
+                generateButton.disabled = true;
+                generateButton.textContent = 'Generating...';
+            }
+    
+            showAiLoading(
+                'Generating Campaign...',
+                'Claude is building your campaign posts. Please do not refresh or click back.'
+            );
+    
+            form.submit();
+        });
+    
+        window.addEventListener('beforeunload', (event) => {
+            if (formChanged && !formSubmitted) {
+                event.preventDefault();
+                event.returnValue = '';
+            }
+        });
+    
+        document.querySelectorAll('a[href]').forEach((link) => {
+            link.addEventListener('click', (event) => {
+                const href = link.getAttribute('href');
+    
+                if (!href || href.startsWith('#') || href.startsWith('javascript:')) {
+                    return;
+                }
+    
+                if (formChanged && !formSubmitted) {
+                    const confirmed = confirm(
+                        'You have unsaved campaign changes. Leave this page?'
+                    );
+    
+                    if (!confirmed) {
+                        event.preventDefault();
+                    }
+                }
+            });
+        });
+    });
+    </script>
+    
 @endsection

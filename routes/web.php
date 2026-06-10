@@ -171,6 +171,10 @@ Route::middleware([
     Route::patch('/users/{user}/reactivate', [UserController::class, 'reactivate'])
         ->name('admin.users.reactivate');
 
+    /*Route::delete('/admin/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])
+        ->name('admin.users.destroy');    */
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])
+        ->name('admin.users.destroy');
     /*
     |--------------------------------------------------------------------------
     | Prompt Editor
@@ -228,6 +232,32 @@ Route::middleware([
 
     Route::get('/logs', [\App\Http\Controllers\Admin\LlmLogController::class, 'index'])
     ->name('admin.logs.index');
+
+    Route::get(
+        '/usage',
+        [\App\Http\Controllers\Admin\UsageController::class, 'index']
+    )->name('admin.usage.index');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Campaign Management
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get(
+        '/campaigns',
+        [\App\Http\Controllers\Admin\CampaignController::class, 'index']
+    )->name('admin.campaigns.index');
+
+    Route::get(
+        '/campaigns/{campaign}',
+        [\App\Http\Controllers\Admin\CampaignController::class, 'show']
+    )->name('admin.campaigns.show');
+
+    Route::delete(
+        '/campaigns/{campaign}',
+        [\App\Http\Controllers\Admin\CampaignController::class, 'destroy']
+    )->name('admin.campaigns.destroy');
 
 });
 

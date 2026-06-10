@@ -5562,3 +5562,272 @@ PROMPT EDITOR FINAL FIX
     justify-content: flex-end;
     gap: 12px;
 }
+
+
+.prompt-protection-box {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 18px;
+    border-radius: 22px;
+    background: #f8f7ff;
+    border: 1px solid rgba(109, 93, 252, 0.14);
+    margin-bottom: 20px;
+}
+
+.prompt-protection-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    color: white;
+    flex-shrink: 0;
+}
+
+.prompt-protection-box strong {
+    display: block;
+    margin-bottom: 6px;
+    color: #111827;
+    font-weight: 800;
+}
+
+.prompt-protection-box p {
+    margin: 0;
+    color: #6b7280;
+    line-height: 1.6;
+}
+
+/* Responsive tall modal fix */
+
+.modal-overlay {
+    padding: 24px;
+    overflow-y: auto;
+    align-items: flex-start;
+}
+
+.modal-card {
+    margin: auto;
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+}
+
+.modal-card::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-card::-webkit-scrollbar-thumb {
+    background: rgba(109, 93, 252, 0.25);
+    border-radius: 999px;
+}
+
+@media (max-width: 640px) {
+    .modal-overlay {
+        padding: 18px;
+    }
+
+    .modal-card {
+        width: 100%;
+        max-height: calc(100vh - 36px);
+        border-radius: 24px;
+    }
+}
+
+/*filter */
+.agency-filters {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.agency-filters .form-input {
+    flex: 1;
+    min-width: 320px;
+}
+
+.agency-filters .form-select {
+    min-width: 180px;
+}
+
+.agency-filters .btn {
+    flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+    .agency-filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .agency-filters .form-input,
+    .agency-filters .form-select,
+    .agency-filters .btn {
+        width: 100%;
+        min-width: unset;
+    }
+}
+
+.agency-filters {
+    display: grid;
+    grid-template-columns: minmax(260px, 1fr) 200px 230px;
+    gap: 1rem;
+    align-items: center;
+    margin: 1.5rem 0 2rem;
+}
+
+.agency-filters .form-input,
+.agency-filters .form-select {
+    height: 56px;
+    border-radius: 18px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    padding: 0 1.25rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #111827;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
+}
+
+.agency-filters .form-select {
+    appearance: none;
+    cursor: pointer;
+    background-image:
+        linear-gradient(45deg, transparent 50%, #6d5dfc 50%),
+        linear-gradient(135deg, #6d5dfc 50%, transparent 50%);
+    background-position:
+        calc(100% - 22px) 23px,
+        calc(100% - 16px) 23px;
+    background-size: 6px 6px;
+    background-repeat: no-repeat;
+    padding-right: 2.75rem;
+}
+
+.agency-filters .btn {
+    height: 56px;
+    border-radius: 18px;
+    padding: 0 1.75rem;
+    display: none;
+
+}
+
+@media (max-width: 900px) {
+    .agency-filters {
+        grid-template-columns: 1fr;
+    }
+}
+
+.agency-filters {
+    margin: 1.5rem 0 2rem;
+}
+
+/* logs filter */
+.date-range-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.date-range-group span {
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+#llmLogsFiltersForm {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr 1fr 1.2fr 1.4fr auto;
+    gap: 1rem;
+    align-items: end;
+    margin: 1.5rem 0 2rem;
+}
+
+.date-range-filter {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.date-range-filter label {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: #6b7280;
+}
+
+.date-range-inputs {
+    height: 58px;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0 0.9rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
+}
+
+.date-range-inputs input[type="date"] {
+    width: 100%;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.date-range-inputs span {
+    color: #8b5cf6;
+    font-weight: 900;
+}
+
+.date-range-inputs input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.75;
+}
+
+@media (max-width: 1200px) {
+    #llmLogsFiltersForm {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .date-range-filter {
+        grid-column: span 2;
+    }
+}
+
+@media (max-width: 768px) {
+    #llmLogsFiltersForm {
+        grid-template-columns: 1fr;
+    }
+
+    .date-range-filter {
+        grid-column: span 2;
+    }
+}
+
+.logs-filters {
+    margin-bottom: 1rem;
+}
+@media (max-width: 768px) {
+
+    #llmLogsFiltersForm {
+        grid-template-columns: 1fr;
+    }
+
+    .date-range-filter {
+        grid-column: auto;
+    }
+
+    .logs-clear-btn {
+        width: 100%;
+    }
+}
+
+.dashboard-table th:nth-child(8),
+.dashboard-table td:nth-child(8) {
+    width: 90px;
+    white-space: nowrap;
+}

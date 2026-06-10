@@ -7,38 +7,100 @@ use App\Http\Requests\Admin\IssueTemporaryPasswordRequest;
 use App\Http\Requests\Admin\StoreAgencyUserRequest;
 use App\Http\Requests\Admin\UpdateAgencyUserRequest;
 use App\Models\User;
-use App\Models\LlmLog;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class UserController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $users = User::query()
+        $query = User::query()
             ->where('role', 'agency')
             ->withCount([
                 'clients',
                 'campaigns',
             ])
             ->withSum('llmLogs', 'input_tokens')
-            ->withSum('llmLogs', 'output_tokens')
-            ->latest()
-            ->get();
+            ->withSum('llmLogs', 'output_tokens');
+
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "{$search}%");
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        switch ($request->sort) {
+            case 'campaigns_desc':
+                $query->orderByDesc('campaigns_count');
+                break;
+
+            case 'campaigns_asc':
+                $query->orderBy('campaigns_count');
+                break;
+
+            case 'clients_desc':
+                $query->orderByDesc('clients_count');
+                break;
+
+            case 'clients_asc':
+                $query->orderBy('clients_count');
+                break;
+
+            case 'tokens_desc':
+                $query->orderByRaw(
+                    'COALESCE(llm_logs_sum_input_tokens, 0) + COALESCE(llm_logs_sum_output_tokens, 0) DESC'
+                );
+                break;
+
+            case 'tokens_asc':
+                $query->orderByRaw(
+                    'COALESCE(llm_logs_sum_input_tokens, 0) + COALESCE(llm_logs_sum_output_tokens, 0) ASC'
+                );
+                break;
+
+            case 'name_asc':
+                $query->orderBy('name');
+                break;
+
+            case 'name_desc':
+                $query->orderByDesc('name');
+                break;
+
+            case 'oldest':
+                $query->oldest();
+                break;
+
+            default:
+                $query->latest();
+                break;
+        }
+
+        $users = $query->get();
 
         $users->each(function ($user) {
-
             $user->total_tokens_used =
                 ($user->llm_logs_sum_input_tokens ?? 0)
                 +
                 ($user->llm_logs_sum_output_tokens ?? 0);
         });
 
+        $allAgencyUsers = User::query()
+            ->where('role', 'agency')
+            ->get();
+
         return view('admin.dashboard', [
             'users' => $users,
-            'totalAgencies' => $users->count(),
-            'activeAccounts' => $users->where('status', 'active')->count(),
-            'inactiveAccounts' => $users->where('status', 'inactive')->count(),
+            'totalAgencies' => $allAgencyUsers->count(),
+            'activeAccounts' => $allAgencyUsers->where('status', 'active')->count(),
+            'inactiveAccounts' => $allAgencyUsers->where('status', 'inactive')->count(),
         ]);
     }
 
@@ -126,5 +188,16 @@ class UserController extends Controller
         ]);
 
         return back()->with('success', 'Agency user reactivated successfully.');
+    }
+
+    public function destroy(User $user): RedirectResponse
+    {
+        abort_if(! $user->isAgency(), 404);
+
+        $user->delete();
+
+        return redirect()
+            ->route('admin.dashboard')
+            ->with('success', 'Agency user deleted successfully.');
     }
 }

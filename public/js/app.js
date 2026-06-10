@@ -404,6 +404,8 @@ document.querySelectorAll('[data-reactivate-client]').forEach((button) => {
 
 /* STEP 7 CAMPAIGN BUILDER */
 
+/*
+
 const campaignSections = document.querySelectorAll('[data-campaign-section]');
 const campaignNextButtons = document.querySelectorAll('[data-campaign-next]');
 const campaignPrevButtons = document.querySelectorAll('[data-campaign-prev]');
@@ -626,12 +628,6 @@ generateCampaignBtn?.addEventListener('click', () => {
         }
     }, 1000);
 
-    /*
-        Frontend demo behavior:
-        - Real backend should redirect when generation is done after the required wait behavior.
-        - For frontend testing, we redirect after 6 seconds so you do not need to wait 60 seconds every time.
-        - To test the timeout UI, change shouldSimulateTimeout to true.
-    */
 
     const shouldSimulateTimeout = false;
 
@@ -671,7 +667,7 @@ window.addEventListener('beforeunload', (event) => {
 
     event.preventDefault();
     event.returnValue = '';
-});
+}); */
 
 /* STEP 8 CAMPAIGN OUTPUT VIEWER */
 

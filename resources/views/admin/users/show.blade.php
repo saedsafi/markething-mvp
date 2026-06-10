@@ -87,7 +87,13 @@
                 </form>
 
             @endif
-
+            <button
+                class="btn btn-danger"
+                type="button"
+                data-open-modal="deleteAgencyModal"
+            >
+                Delete Agency
+            </button>
         </div>
 
     </div>
@@ -308,5 +314,34 @@
     </form>
 
 </x-modal>
+<x-modal
+    id="deleteAgencyModal"
+    title="Delete Agency User"
+    subtitle="This action cannot be undone."
+>
+    <form method="POST" action="{{ route('admin.users.destroy', $agencyUser) }}">
+        @csrf
+        @method('DELETE')
 
+        <div class="validation-box">
+            Are you sure you want to delete
+            <strong>{{ $agencyUser->name }}</strong>?
+            This may remove related clients, personas, campaigns, and logs depending on your database rules.
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn btn-danger" type="submit">
+                Yes, Delete Agency
+            </button>
+
+            <button
+                class="btn btn-secondary"
+                type="button"
+                data-close-modal
+            >
+                Cancel
+            </button>
+        </div>
+    </form>
+</x-modal>
 @endsection

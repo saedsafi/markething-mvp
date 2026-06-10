@@ -19,13 +19,20 @@
                 Prompt Editor
             </a>
 
-            <a href="{{ url('/admin/settings') }}" class="sidebar-link" data-route="/admin/settings">
-                Settings
+            <a href="{{ url('/admin/campaigns') }}" class="sidebar-link" data-route="/admin/campaigns">
+                Campaigns
             </a>
 
             <a href="{{ url('/admin/logs') }}" class="sidebar-link" data-route="/admin/logs">
                 LLM Logs
             </a>
+            <a href="{{ url('/admin/usage') }}" class="sidebar-link" data-route="/admin/usage">
+                Usage & Cost
+            </a>
+            <a href="{{ url('/admin/settings') }}" class="sidebar-link" data-route="/admin/settings">
+                Settings
+            </a>
+
 
         @else
 

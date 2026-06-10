@@ -84,7 +84,7 @@
 
                 <div>
                     <span class="prompt-meta-label">
-                        Current Live Prompt
+                        Current Live AI Instructions
                     </span>
 
                     <h3>
@@ -149,16 +149,36 @@
             value="{{ $template->id }}"
         >
 
+        <div class="prompt-protection-box">
+            <div class="prompt-protection-icon">🔒</div>
+        
+            <div>
+                <strong>Protected system structure</strong>
+        
+                <p>
+                    MARKETHING automatically injects business context, brand information,
+                    persona data, campaign details, dates, channels, and output rules.
+                    Edit only the natural-language AI instructions below.
+                </p>
+            </div>
+        </div>
+        
         <div class="form-group">
             <label class="form-label">
-                Live Prompt Content
+                Live AI Instructions
             </label>
-
+        
             <textarea
                 name="content"
                 class="form-textarea prompt-editor-textarea"
+                placeholder="Write the AI instructions, tone, strategy, and writing rules..."
                 required
             >{{ old('content', $activeVersion?->content) }}</textarea>
+        
+            <p class="input-helper">
+                Safe edits: tone, strategy, writing style, language rules, marketing direction.
+                Be careful with variables and JSON/output rules.
+            </p>
         </div>
 
         <div class="modal-actions">
@@ -184,23 +204,23 @@
 
 <x-modal
     id="testPromptModal{{ $template->id }}"
-    title="Test Prompt"
-    subtitle="Create and manage prompt versions used exclusively by the predetermined test account.">
+    title="Create Test Prompt Version"
+    subtitle="Safely test prompt changes before promoting them to live."
+>
 
-    <div class="test-account-info">
-
-        <strong>
-            Test Account
-        </strong>
+    <div class="prompt-protection-box">
+        <div class="prompt-protection-icon">🧪</div>
     
-        <p>
-            Active test prompt versions are only used by users marked with
-            <code>uses_test_prompts = true</code>.
-        </p>
+        <div>
+            <strong>Test prompt safety</strong>
     
+            <p>
+                This version is used only by users marked with
+                <code>uses_test_prompts = true</code>. Edit the AI instructions below,
+                then save it as a test version before promoting it to live.
+            </p>
+        </div>
     </div>
-
-
     <form
         method="POST"
         action="{{ route('admin.prompts.test-versions.store') }}"
@@ -209,7 +229,7 @@
 
         <div class="form-group">
             <label class="form-label">
-                Test Prompt Version
+                Test AI Instructions
             </label>
 
             <textarea

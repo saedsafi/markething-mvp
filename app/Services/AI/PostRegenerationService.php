@@ -3,7 +3,7 @@
 namespace App\Services\AI;
 
 use App\Models\CampaignPost;
-use App\Services\LlmLogService;
+use App\Services\AI\LlmLogService;
 
 class PostRegenerationService
 {
@@ -18,6 +18,17 @@ class PostRegenerationService
             'client',
             'persona',
         ]);
+        $snapshot =
+        $campaign->snapshot ?? [];
+        
+        $snapshotClient =
+            $snapshot['client'] ?? [];
+        
+        $snapshotPersona =
+            $snapshot['persona'] ?? [];
+        
+        $snapshotCampaign =
+            $snapshot['campaign'] ?? [];
 
         $promptVersion =
             app(PromptTemplateService::class)
@@ -37,43 +48,46 @@ class PostRegenerationService
                     [
 
                         'business_context' =>
-                            $campaign->client
-                                ->business_context,
+                            $snapshotClient['business_context']
+                            ?? '',
 
                         'business_info' =>
                             json_encode(
-                                $campaign->client
-                                    ->business_info,
+                                $snapshotClient['business_info']
+                                ?? [],
                                 JSON_PRETTY_PRINT |
                                 JSON_UNESCAPED_UNICODE
                             ),
 
                         'brand_info' =>
                             json_encode(
-                                $campaign->client
-                                    ->brand_info,
+                                $snapshotClient['brand_info']
+                                ?? [],
                                 JSON_PRETTY_PRINT |
                                 JSON_UNESCAPED_UNICODE
                             ),
 
                         'persona' =>
                             json_encode(
-                                $campaign->persona
-                                    ->answers,
+                                $snapshotPersona['answers']
+                                ?? [],
                                 JSON_PRETTY_PRINT |
                                 JSON_UNESCAPED_UNICODE
                             ),
 
                         'campaign_objective' =>
-                            $campaign->objective,
+                            $snapshotCampaign['objective']
+                            ?? $campaign->objective,
 
                         'campaign_description' =>
-                            $campaign->description,
+                            $snapshotCampaign['description']
+                            ?? $campaign->description,
 
                         'channels' =>
                             implode(
                                 ', ',
-                                $campaign->channels
+                                $snapshotCampaign['channels']
+                                ?? $campaign->channels
                             ),
                     ]
                 );

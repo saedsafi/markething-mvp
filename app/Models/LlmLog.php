@@ -27,18 +27,17 @@ class LlmLog extends Model
         'latency_ms',
         'status',
         'error_message',
+        'estimated_cost_usd',
+        'retry_count',
     ];
 
     protected $casts = [
-
-        'assembled_prompt' => 'array',
-    
-        'response' => 'array',
-    
+        'assembled_prompt' => 'string',
+        'response' => 'string',
         'input_tokens' => 'integer',
-    
         'output_tokens' => 'integer',
-    
+        'estimated_cost_usd' => 'decimal:6',
+        'retry_count' => 'integer',
         'latency_ms' => 'integer',
     ];
 

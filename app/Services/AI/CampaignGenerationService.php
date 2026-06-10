@@ -15,6 +15,7 @@ class CampaignGenerationService
     ): void {
 
         $compiledPrompt = null;
+        $promptVersion = null;
 
         try {
 
@@ -24,6 +25,18 @@ class CampaignGenerationService
                 'client',
                 'persona',
             ]);
+
+            $snapshot =
+                $campaign->snapshot ?? [];
+
+            $snapshotClient =
+                $snapshot['client'] ?? [];
+
+            $snapshotPersona =
+                $snapshot['persona'] ?? [];
+
+            $snapshotCampaign =
+                $snapshot['campaign'] ?? [];
 
             $promptVersion =
                 app(PromptTemplateService::class)
@@ -43,54 +56,59 @@ class CampaignGenerationService
                         [
 
                             'business_context' =>
-                                $campaign->client
-                                    ->business_context,
+                                $snapshotClient['business_context']
+                                ?? '',
 
                             'business_info' =>
                                 json_encode(
-                                    $campaign->client
-                                        ->business_info,
+                                    $snapshotClient['business_info']
+                                    ?? [],
                                     JSON_PRETTY_PRINT |
                                     JSON_UNESCAPED_UNICODE
                                 ),
 
                             'brand_info' =>
                                 json_encode(
-                                    $campaign->client
-                                        ->brand_info,
+                                    $snapshotClient['brand_info']
+                                    ?? [],
                                     JSON_PRETTY_PRINT |
                                     JSON_UNESCAPED_UNICODE
                                 ),
 
                             'persona' =>
                                 json_encode(
-                                    $campaign->persona
-                                        ->answers,
+                                    $snapshotPersona['answers']
+                                    ?? [],
                                     JSON_PRETTY_PRINT |
                                     JSON_UNESCAPED_UNICODE
                                 ),
 
                             'campaign_objective' =>
-                                $campaign->objective,
+                                $snapshotCampaign['objective']
+                                ?? $campaign->objective,
 
                             'campaign_description' =>
-                                $campaign->description,
+                                $snapshotCampaign['description']
+                                ?? $campaign->description,
 
                             'channels' =>
                                 implode(
                                     ', ',
-                                    $campaign->channels
+                                    $snapshotCampaign['channels']
+                                    ?? $campaign->channels
                                 ),
 
                             'posts_count' =>
-                                $campaign
-                                    ->requested_posts_count,
+                                $snapshotCampaign['requested_posts_count']
+                                ?? $campaign->requested_posts_count,
 
                             'start_date' =>
-                                $campaign->start_date,
+                                $snapshotCampaign['start_date']
+                                ?? $campaign->start_date,
 
                             'end_date' =>
-                                $campaign->end_date,
+                                $snapshotCampaign['end_date']
+                                ?? $campaign->end_date,
                         ]
                     );
 
@@ -134,7 +152,10 @@ CRITICAL OUTPUT RULES:
 - Response MUST end with ].
 
 Generate exactly ' .
-                        $campaign->requested_posts_count .
+                        (
+                            $snapshotCampaign['requested_posts_count']
+                            ?? $campaign->requested_posts_count
+                        ) .
                         ' posts.
 '
                     );
@@ -150,12 +171,6 @@ Generate exactly ' .
                     ->parseCampaignPosts(
                         $result['content']
                     );
-
-            /*
-            |--------------------------------------------------------------------------
-            | Remove duplicate captions
-            |--------------------------------------------------------------------------
-            */
 
             $posts = collect($posts)
                 ->unique('caption')
@@ -178,18 +193,19 @@ Generate exactly ' .
                         $post['sequence_number']
                         ?? ($index + 1),
 
-                    'scheduled_date' =>
+                        'scheduled_date' =>
 
                         ! empty($post['scheduled_date'])
-
+                    
                         ? Carbon::parse(
                             $post['scheduled_date']
                         )
-
-                        : null,
+                    
+                        : Carbon::parse(
+                            $campaign->start_date
+                        )->addDays($index),
 
                     'channel' =>
-
                         in_array(
                             strtolower(
                                 $post['channel']
@@ -197,12 +213,10 @@ Generate exactly ' .
                             ),
                             $allowedChannels
                         )
-
-                        ? strtolower(
-                            $post['channel']
-                        )
-
-                        : 'instagram',
+                            ? strtolower(
+                                $post['channel']
+                            )
+                            : 'instagram',
 
                     'media_type' =>
                         $post['media_type']
@@ -313,8 +327,7 @@ Generate exactly ' .
                         ),
 
                     'prompt_version_id' =>
-                        $promptVersion->id
-                        ?? null,
+                        $promptVersion?->id,
 
                     'assembled_prompt' =>
                         $compiledPrompt,

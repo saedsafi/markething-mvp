@@ -6,9 +6,25 @@ use App\Models\LlmLog;
 
 class LlmLogService
 {
-    public function create(
-        array $data
-    ): LlmLog {
+    public function create(array $data): LlmLog
+    {
+        $inputTokens =
+            (int) ($data['input_tokens'] ?? 0);
+
+        $outputTokens =
+            (int) ($data['output_tokens'] ?? 0);
+
+        $model =
+            $data['model']
+            ?? config('ai.anthropic.model');
+
+        $estimatedCostUsd =
+            $data['estimated_cost_usd']
+            ?? $this->estimateCost(
+                $model,
+                $inputTokens,
+                $outputTokens
+            );
 
         return LlmLog::create([
 
@@ -34,7 +50,7 @@ class LlmLogService
                 $data['provider'] ?? null,
 
             'model' =>
-                $data['model'] ?? null,
+                $model,
 
             'prompt_version_id' =>
                 $data['prompt_version_id'] ?? null,
@@ -50,13 +66,19 @@ class LlmLogService
                 ),
 
             'input_tokens' =>
-                $data['input_tokens'] ?? 0,
+                $inputTokens,
 
             'output_tokens' =>
-                $data['output_tokens'] ?? 0,
+                $outputTokens,
+
+            'estimated_cost_usd' =>
+                $estimatedCostUsd,
+
+            'retry_count' =>
+                (int) ($data['retry_count'] ?? 0),
 
             'latency_ms' =>
-                $data['latency_ms'] ?? 0,
+                (int) ($data['latency_ms'] ?? 0),
 
             'status' =>
                 $data['status'] ?? 'success',
@@ -66,10 +88,69 @@ class LlmLogService
         ]);
     }
 
-    protected function toJsonIfNeeded(
-        mixed $value
-    ): mixed {
+    protected function estimateCost(
+        ?string $model,
+        int $inputTokens,
+        int $outputTokens
+    ): float {
 
+        /*
+        |--------------------------------------------------------------------------
+        | Estimated Anthropic Pricing
+        |--------------------------------------------------------------------------
+        | Update these numbers if the provider/model pricing changes.
+        |
+        | Formula:
+        | input cost  = input tokens / 1,000,000 × input price
+        | output cost = output tokens / 1,000,000 × output price
+        |--------------------------------------------------------------------------
+        */
+
+        $pricing = match ($model) {
+
+            'claude-3-5-sonnet-20241022',
+            'claude-3-5-sonnet-latest',
+            'claude-sonnet-4-5',
+            'claude-sonnet-4-5-20250929' => [
+                'input' => 3.00,
+                'output' => 15.00,
+            ],
+
+            'claude-3-opus-20240229',
+            'claude-opus-4-7',
+            'claude-opus-4-7-latest' => [
+                'input' => 15.00,
+                'output' => 75.00,
+            ],
+
+            'claude-3-haiku-20240307',
+            'claude-3-5-haiku-latest' => [
+                'input' => 0.25,
+                'output' => 1.25,
+            ],
+
+            default => [
+                'input' => 3.00,
+                'output' => 15.00,
+            ],
+        };
+
+        $inputCost =
+            ($inputTokens / 1_000_000)
+            * $pricing['input'];
+
+        $outputCost =
+            ($outputTokens / 1_000_000)
+            * $pricing['output'];
+
+        return round(
+            $inputCost + $outputCost,
+            6
+        );
+    }
+
+    protected function toJsonIfNeeded(mixed $value): mixed
+    {
         if (
             is_array($value) ||
             is_object($value)
