@@ -412,12 +412,18 @@
                         Back To Dashboard
                     </a>
 
+                    @if ($campaign->client && ! $campaign->client->trashed())
                     <a
                         href="{{ route('agency.clients.show', $campaign->client) }}"
                         class="btn btn-primary full-btn"
                     >
                         View Client
                     </a>
+                @else
+                    <button class="btn btn-danger full-btn" type="button" disabled>
+                        Client Deleted
+                    </button>
+                @endif
 
                 </div>
 

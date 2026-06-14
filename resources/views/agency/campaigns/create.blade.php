@@ -286,9 +286,6 @@
                         required
                     >
 
-                    <p class="input-helper">
-                        Maximum allowed depends on selected date range and channels.
-                    </p>
 
                 </div>
 
@@ -447,7 +444,7 @@
             if (!personaId) return 'Please select a persona.';
             if (!startDate) return 'Please select a start date.';
             if (!endDate) return 'Please select an end date.';
-            if (endDate <= startDate) return 'End date must be after the start date.';
+            if (endDate < startDate) return 'End date cannot be before the start date.';
             if (channels.length === 0) return 'Please select at least one channel.';
             if (!postsCount || Number(postsCount) < 1) return 'Please enter the requested posts count.';
     
@@ -473,7 +470,7 @@
     
             showAiLoading(
                 'Generating Campaign...',
-                'Claude is building your campaign posts. Please do not refresh or click back.'
+                'MARKEthing is building your campaign posts. Please do not refresh or click back.'
             );
     
             form.submit();
