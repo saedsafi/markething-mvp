@@ -1026,6 +1026,16 @@ const progressItems = document.querySelectorAll('[data-step-progress-item]');
 let currentStep = 0;
 
 function showStep(index) {
+
+    if (
+        !steps.length ||
+        !prevBtn ||
+        !nextBtn ||
+        !submitBtn
+    ) {
+        return;
+    }
+
     steps.forEach((step, i) => {
         step.classList.toggle('active', i === index);
     });
@@ -1040,9 +1050,18 @@ function showStep(index) {
             ((index + 1) / steps.length * 100) + '%';
     }
 
-    prevBtn.style.display = index === 0 ? 'none' : 'inline-flex';
-    nextBtn.style.display = index === steps.length - 1 ? 'none' : 'inline-flex';
-    submitBtn.style.display = index === steps.length - 1 ? 'inline-flex' : 'none';
+    prevBtn.style.display =
+        index === 0 ? 'none' : 'inline-flex';
+
+    nextBtn.style.display =
+        index === steps.length - 1
+            ? 'none'
+            : 'inline-flex';
+
+    submitBtn.style.display =
+        index === steps.length - 1
+            ? 'inline-flex'
+            : 'none';
 }
 
 nextBtn?.addEventListener('click', () => {

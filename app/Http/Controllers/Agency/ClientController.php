@@ -53,28 +53,57 @@ class ClientController extends Controller
             'name' => $request->name,
             'industry' => $request->industry,
             'business_context' => $request->business_context,
+
             'business_info' => [
-                'business_offer' => $request->business_offer,
+                'industry' => $request->industry,
+                'industry_other' => $request->industry_other,
+                'business_type' => $request->business_type,
+                'business_type_other' => $request->business_type_other,
+                'country' => $request->country,
+                'city' => $request->city ?? [],
+                'price_tier' => $request->price_tier,
+                'differentiator' => $request->differentiator,
+                'brand_positioning' => $request->brand_positioning ?? [],
+                'brand_avoids' => $request->brand_avoids ?? [],
+                'brand_avoids_other' => $request->brand_avoids_other,
+                'business_age' => $request->business_age,
             ],
+
             'brand_info' => [
-                'brand_voice' => $request->brand_voice,
-                'brand_personality' => $request->brand_personality,
-                'brand_values' => $request->brand_values,
+                'arabic_dialect' => $request->arabic_dialect,
+                'emoji_usage' => $request->emoji_usage,
+                'english_usage' => $request->english_usage,
+                'words_to_avoid' => $request->words_to_avoid,
+                'caption_samples' => $request->caption_samples,
+                'conversion_actions' => $request->conversion_actions ?? [],
+                'conversion' => [
+                    'location' => $request->conversion_location,
+                    'whatsapp' => $request->conversion_whatsapp,
+                    'phone' => $request->conversion_phone,
+                    'delivery_app' => $request->conversion_delivery_app,
+                    'website' => $request->conversion_website,
+                    'booking' => $request->conversion_booking,
+                    'social_dm' => $request->conversion_social_dm,
+                    'signup' => $request->conversion_signup,
+                ],
             ],
+
             'status' => 'active',
         ]);
 
-        if ($request->filled('persona_name')) {
-            $client->personas()->create([
-                'name' => $request->persona_name,
-                'age_range' => $request->persona_age_range,
-                'answers' => [
-                    'description' => $request->persona_description,
-                    'channel' => 'Instagram',
-                ],
-                'status' => 'active',
-            ]);
-        }
+        $client->personas()->create([
+            'name' => $request->persona_name,
+            'age_range' => $request->persona_age_range,
+            'answers' => [
+                'gender' => $request->persona_gender,
+                'who' => $request->persona_who,
+                'buyer_is_user' => $request->persona_buyer_is_user,
+                'decider' => $request->persona_decider,
+                'priorities' => $request->persona_priorities ?? [],
+                'objection' => $request->persona_objection,
+            ],
+            'status' => 'active',
+        ]);
 
         return redirect()
             ->route('agency.clients.show', $client)
@@ -112,15 +141,58 @@ class ClientController extends Controller
             'name' => $request->name,
             'industry' => $request->industry,
             'business_context' => $request->business_context,
+
             'business_info' => [
-                'business_offer' => $request->business_offer,
+                'industry' => $request->industry,
+                'industry_other' => $request->industry_other,
+                'business_type' => $request->business_type,
+                'business_type_other' => $request->business_type_other,
+                'country' => $request->country,
+                'city' => $request->city ?? [],
+                'price_tier' => $request->price_tier,
+                'differentiator' => $request->differentiator,
+                'brand_positioning' => $request->brand_positioning ?? [],
+                'brand_avoids' => $request->brand_avoids ?? [],
+                'brand_avoids_other' => $request->brand_avoids_other,
+                'business_age' => $request->business_age,
             ],
+
             'brand_info' => [
-                'brand_voice' => $request->brand_voice,
-                'brand_personality' => $request->brand_personality,
-                'brand_values' => $request->brand_values,
+                'arabic_dialect' => $request->arabic_dialect,
+                'emoji_usage' => $request->emoji_usage,
+                'english_usage' => $request->english_usage,
+                'words_to_avoid' => $request->words_to_avoid,
+                'caption_samples' => $request->caption_samples,
+                'conversion_actions' => $request->conversion_actions ?? [],
+                'conversion' => [
+                    'location' => $request->conversion_location,
+                    'whatsapp' => $request->conversion_whatsapp,
+                    'phone' => $request->conversion_phone,
+                    'delivery_app' => $request->conversion_delivery_app,
+                    'website' => $request->conversion_website,
+                    'booking' => $request->conversion_booking,
+                    'social_dm' => $request->conversion_social_dm,
+                    'signup' => $request->conversion_signup,
+                ],
             ],
         ]);
+
+        $persona = $client->personas()->first();
+
+        if ($persona && $request->filled('persona_name')) {
+            $persona->update([
+                'name' => $request->persona_name,
+                'age_range' => $request->persona_age_range,
+                'answers' => [
+                    'gender' => $request->persona_gender,
+                    'who' => $request->persona_who,
+                    'buyer_is_user' => $request->persona_buyer_is_user,
+                    'decider' => $request->persona_decider,
+                    'priorities' => $request->persona_priorities ?? [],
+                    'objection' => $request->persona_objection,
+                ],
+            ]);
+        }
 
         return redirect()
             ->route('agency.clients.show', $client)

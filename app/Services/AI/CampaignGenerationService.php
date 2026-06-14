@@ -231,8 +231,9 @@ Generate exactly ' .
                         ?? '',
 
                     'hashtags' =>
-                        $post['hashtags']
-                        ?? '',
+                    is_array($post['hashtags'] ?? null)
+                        ? implode(' ', $post['hashtags'])
+                        : ($post['hashtags'] ?? ''),
 
                     'creative_direction' =>
                         $post['creative_direction']

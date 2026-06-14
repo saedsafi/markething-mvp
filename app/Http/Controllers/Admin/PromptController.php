@@ -19,6 +19,7 @@ class PromptController extends Controller
     public function index(): View
     {
         $templates = PromptTemplate::query()
+            ->where('is_active', true)
             ->with([
                 'currentVersion',
                 'versions' => fn ($query) => $query->latest(),

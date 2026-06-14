@@ -57,7 +57,7 @@
         <div class="hero-actions">
 
             <button
-                class="btn btn-secondary"
+                class="btn btn-primary"
                 type="button"
                 data-open-modal="tempPasswordModal"
             >

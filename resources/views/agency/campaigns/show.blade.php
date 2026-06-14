@@ -559,7 +559,7 @@
     
                     showAiLoading(
                         'Regenerating Post...',
-                        'Claude is creating a fresh version of this post.'
+                        'Creating a new version of this post.'
                     );
                 });
             });

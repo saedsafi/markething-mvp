@@ -7,8 +7,8 @@
 @section(
     'page-subtitle',
     isset($isEditing)
-        ? 'Update business context, brand identity, and personas.'
-        : 'Create a structured business profile for AI-powered campaign generation.'
+        ? 'Update business context, business details, brand rules, and persona.'
+        : 'Create a structured client profile for AI-powered campaign generation.'
 )
 
 @section('user-name', auth()->user()->name ?? 'Nova Marketing')
@@ -33,16 +33,109 @@
 
     $businessContextValue = old('business_context', $client->business_context ?? '');
 
+    $selectedCities = old('city', $businessInfo['city'] ?? []);
+    $selectedBrandPositioning = old('brand_positioning', $businessInfo['brand_positioning'] ?? []);
+    $selectedBrandAvoids = old('brand_avoids', $businessInfo['brand_avoids'] ?? []);
+    $selectedConversionActions = old('conversion_actions', $brandInfo['conversion_actions'] ?? []);
+    $selectedPersonaPriorities = old('persona_priorities', $personaAnswers['priorities'] ?? []);
+
+    $conversion = $brandInfo['conversion'] ?? [];
+
     $aiDisabled = false;
 
     $steps = [
-        'Business Details',
         'Business Context',
-        'Business Offer',
-        'Brand Basics',
-        'Brand Personality',
+        'Business Fundamentals',
+        'Market Positioning',
+        'Brand Voice & Rules',
+        'Marketing Mechanics',
         'Persona Basics',
-        'Persona Description',
+        'Persona Motivations',
+    ];
+
+    $industries = [
+        'Food & Beverage',
+        'Retail',
+        'E-commerce',
+        'Beauty & Personal Care',
+        'Health & Wellness',
+        'Fitness',
+        'Education',
+        'Professional Services',
+        'Creative Services',
+        'Real Estate',
+        'Hospitality',
+        'Tech',
+        'Other',
+    ];
+
+    $countries = [
+        'Palestine',
+        'Jordan',
+        'Saudi Arabia',
+        'UAE',
+        'Egypt',
+        'Lebanon',
+        'Other',
+    ];
+
+    $cities = [
+        'Ramallah',
+        'Bethlehem',
+        'Nablus',
+        'Jerusalem',
+        'Hebron',
+        'Gaza',
+        'Jericho',
+        'Tulkarm',
+        'Jenin',
+        'Another Palestinian city',
+        'West Bank-wide',
+        'Online only',
+    ];
+
+    $brandPositioningOptions = [
+        'Authentic & local',
+        'Fast & convenient',
+        'Specialist',
+        'Friendly & approachable',
+        'Trendy & modern',
+        'Traditional & heritage',
+        'Professional & trustworthy',
+        'Innovative',
+    ];
+
+    $brandAvoidsOptions = [
+        'Luxury',
+        'Budget or discount',
+        'Corporate or stiff',
+        'Old-fashioned or traditional',
+        'Trendy or trend-chasing',
+        'Exclusive or elitist',
+        'Pushy or salesy',
+        'Casual or unserious',
+        'Other',
+    ];
+
+    $conversionActions = [
+        'Visit the store / location',
+        'Order / inquire via WhatsApp',
+        'Call us',
+        'Order via delivery app',
+        'Buy on our website',
+        'Book an appointment',
+        'Message us on Instagram / Facebook',
+        'Subscribe / sign up',
+    ];
+
+    $personaPriorities = [
+        'Price & offers',
+        'Quality',
+        'Speed & convenience',
+        'Trust & safety',
+        'Prestige & status',
+        'New & trendy',
+        'Personal service & care',
     ];
 @endphp
 
@@ -84,11 +177,11 @@
                         </span>
 
                         <h2 class="section-title" data-current-step-title>
-                            Business Details
+                            Business Context
                         </h2>
 
                         <p class="section-description" data-current-step-description>
-                            Start with the basic business identity.
+                            Paste the main business context AI Assist will use later.
                         </p>
                     </div>
                 </div>
@@ -104,48 +197,25 @@
                 <div
                     class="client-step-panel active"
                     data-client-step="0"
-                    data-step-title="Business Details"
-                    data-step-description="Start with the basic business identity."
-                >
-                    <div class="form-grid">
-
-                        <div class="form-group">
-                            <label class="form-label">Business Name</label>
-
-                            <input
-                                type="text"
-                                name="name"
-                                class="form-input"
-                                placeholder="Bloom Café"
-                                value="{{ old('name', $client->name ?? '') }}"
-                                required
-                            >
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Industry</label>
-
-                            <input
-                                type="text"
-                                name="industry"
-                                class="form-input"
-                                placeholder="Coffee Shop"
-                                value="{{ old('industry', $client->industry ?? '') }}"
-                            >
-                        </div>
-
-                    </div>
-                </div>
-
-                {{-- STEP 2 --}}
-                <div
-                    class="client-step-panel"
-                    data-client-step="1"
                     data-step-title="Business Context"
                     data-step-description="Paste the main business context AI Assist will use later."
                 >
                     <div class="form-group">
+                        <label class="form-label">
+                            Business Name
+                        </label>
 
+                        <input
+                            type="text"
+                            name="name"
+                            class="form-input"
+                            placeholder="Bloom Café"
+                            value="{{ old('name', $client->name ?? '') }}"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
                         <label class="form-label">
                             Business Context
                         </label>
@@ -155,12 +225,12 @@
                             class="form-textarea"
                             maxlength="{{ $businessContextMax }}"
                             data-business-context-source
-                            placeholder="Describe the business, products, services, audience, goals, and unique positioning..."
+                            placeholder="Paste a business bio, about-us text, previous captions, or your own description..."
                         >{{ $businessContextValue }}</textarea>
 
                         <div class="ai-field-footer">
                             <p>
-                                This is the source context AI Assist uses for the fields below.
+                                This is the source context AI Assist uses for supported fields.
                             </p>
 
                             <span data-business-context-counter>
@@ -175,75 +245,433 @@
 
                             <div class="examples-box">
                                 <p>
-                                    Example: “We are a local coffee shop serving specialty coffee, pastries, and quiet workspace seating for students and remote workers.”
+                                    “We are a local coffee shop serving specialty coffee, pastries, and workspace seating for students and remote workers.”
                                 </p>
 
                                 <p>
-                                    Example: “Our brand sells handmade gold jewelry for women who want elegant gifts, bridal sets, and everyday luxury pieces.”
+                                    “Our brand sells handmade gold jewelry for women who want elegant gifts, bridal sets, and everyday luxury pieces.”
                                 </p>
 
                                 <p>
-                                    Example: “We are a burger restaurant focused on juicy chicken and beef burgers, fresh toppings, and fast delivery.”
+                                    “We are a burger restaurant focused on juicy chicken and beef burgers, fresh toppings, and fast delivery.”
                                 </p>
                             </div>
                         </details>
+                    </div>
+                </div>
+
+                {{-- STEP 2 --}}
+                <div
+                    class="client-step-panel"
+                    data-client-step="1"
+                    data-step-title="Business Fundamentals"
+                    data-step-description="Define the business category, location, price tier, and differentiator."
+                >
+                    <div class="form-grid">
+
+                        <div class="form-group">
+                            <label class="form-label">Industry</label>
+                            <p class="input-helper">What kind of business is this?</p>
+
+                            <select
+                                name="industry"
+                                class="form-select"
+                                data-industry-select
+                                required
+                            >
+                                <option value="">Select industry</option>
+
+                                @foreach ($industries as $industry)
+                                    <option
+                                        value="{{ $industry }}"
+                                        @selected(old('industry', $businessInfo['industry'] ?? $client->industry ?? '') === $industry)
+                                    >
+                                        {{ $industry }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div
+                            class="form-group conditional-field"
+                            data-industry-other-field
+                        >
+                            <label class="form-label">Other Industry</label>
+
+                            <input
+                                type="text"
+                                name="industry_other"
+                                class="form-input"
+                                maxlength="50"
+                                value="{{ old('industry_other', $businessInfo['industry_other'] ?? '') }}"
+                                placeholder="Write the industry"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Business Type</label>
+                            <p class="input-helper">Pick the closest match.</p>
+
+                            <select
+                                name="business_type"
+                                class="form-select"
+                                data-business-type-select
+                                required
+                            >
+                                <option value="">Select business type</option>
+
+                                @php
+                                    $businessTypeValue = old('business_type', $businessInfo['business_type'] ?? '');
+                                @endphp
+
+                                @foreach ([
+                                    'Restaurant',
+                                    'Cafe',
+                                    'Bakery',
+                                    'Jewelry',
+                                    'Clothing',
+                                    'Salon',
+                                    'Cosmetics brand',
+                                    'Clinic',
+                                    'Gym',
+                                    'Training center',
+                                    'Marketing agency',
+                                    'Photography',
+                                    'Real estate agency',
+                                    'Hotel',
+                                    'Software',
+                                    'SaaS',
+                                    'Other',
+                                ] as $type)
+                                    <option
+                                        value="{{ $type }}"
+                                        @selected($businessTypeValue === $type)
+                                    >
+                                        {{ $type }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div
+                            class="form-group conditional-field"
+                            data-business-type-other-field
+                        >
+                            <label class="form-label">Other Business Type</label>
+
+                            <input
+                                type="text"
+                                name="business_type_other"
+                                class="form-input"
+                                maxlength="50"
+                                value="{{ old('business_type_other', $businessInfo['business_type_other'] ?? '') }}"
+                                placeholder="Write the business type"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Country</label>
+                            <p class="input-helper">Where is the business based?</p>
+                        
+                            <select
+                                name="country"
+                                class="form-select"
+                                data-country-select
+                                required
+                            >
+                                <option value="">Select country</option>
+                        
+                                @foreach ($countries as $country)
+                                    <option
+                                        value="{{ $country }}"
+                                        @selected(old('country', $businessInfo['country'] ?? '') === $country)
+                                    >
+                                        {{ $country }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">City</label>
+                            <p class="input-helper">Which cities does the business serve? Pick all that apply.</p>
+                        
+                            <div
+                                class="city-grid"
+                                data-palestine-cities
+                            >
+                                @foreach ($cities as $city)
+                                    <label class="city-option">
+                                        <input
+                                            type="checkbox"
+                                            name="city[]"
+                                            value="{{ $city }}"
+                                            @checked(in_array($city, $selectedCities ?? [], true))
+                                        >
+                        
+                                        <span>{{ $city }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                        
+                            <div
+                                class="empty-selection-card hidden"
+                                data-city-placeholder
+                            >
+                                <span>📍</span>
+                        
+                                <div>
+                                    <strong>City selection unavailable</strong>
+                        
+                                    <p>
+                                        City presets are currently available only for Palestine.
+                                        Additional countries will be added in future versions.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Price Tier</label>
+                            <p class="input-helper">How do prices compare to others in the same category?</p>
+
+                            <input
+                                type="range"
+                                name="price_tier"
+                                min="1"
+                                max="5"
+                                class="form-range"
+                                value="{{ old('price_tier', $businessInfo['price_tier'] ?? 3) }}"
+                                data-price-tier-range
+                                required
+                            >
+
+                            <p class="input-helper">
+                                Selected:
+                                <strong data-price-tier-label>
+                                    {{ old('price_tier', $businessInfo['price_tier'] ?? 3) }}
+                                </strong>
+                                / 5
+                            </p>
+                        </div>
 
                     </div>
+
+                    <x-ai-assist-field
+                        label="What sets this business apart?"
+                        name="differentiator"
+                        :value="old('differentiator', $businessInfo['differentiator'] ?? '')"
+                        question-key="differentiator"
+                        :client-id="$editing ? $client->id : null"
+                        :max="200"
+                        :disabled="$aiDisabled"
+                        placeholder="e.g., The only roastery in Ramallah sourcing beans from small Palestinian farms"
+                        footer="In a line or two, what makes this business different from similar ones?"
+                    />
                 </div>
 
                 {{-- STEP 3 --}}
                 <div
                     class="client-step-panel"
                     data-client-step="2"
-                    data-step-title="Business Offer"
-                    data-step-description="Describe what this business offers to customers."
+                    data-step-title="Market Positioning"
+                    data-step-description="Define how the brand should and should not come across."
                 >
-                    <x-ai-assist-field
-                        label="Business Offer"
-                        name="business_offer"
-                        :value="old('business_offer', $businessInfo['business_offer'] ?? '')"
-                        question-key="business_offer"
-                        :client-id="$editing ? $client->id : null"
-                        :max="5000"
-                        :disabled="$aiDisabled"
-                        placeholder="What does this business offer?"
-                        footer="AI Assist uses the Business Context above to draft this answer."
-                    />
+                    <div class="form-group">
+                        <label class="form-label">Brand Positioning</label>
+                        <p class="input-helper">How should the brand come across? Pick up to 2.</p>
+
+                        <div class="checkbox-grid other-option" data-max-checks="2">
+                            @foreach ($brandPositioningOptions as $option)
+                                <label class="checkbox-row">
+                                    <input
+                                        type="checkbox"
+                                        name="brand_positioning[]"
+                                        value="{{ $option }}"
+                                        @checked(in_array($option, $selectedBrandPositioning ?? [], true))
+                                    >
+
+                                    <span>{{ $option }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">What this brand avoids being</label>
+                        <p class="input-helper">Anything the brand should never come across as? Pick up to 3 or skip.</p>
+
+                        <div class="checkbox-grid other-option" data-max-checks="3">
+                            @foreach ($brandAvoidsOptions as $option)
+                                <label class="checkbox-row">
+                                    <input
+                                        type="checkbox"
+                                        name="brand_avoids[]"
+                                        value="{{ $option }}"
+                                        @checked(in_array($option, $selectedBrandAvoids ?? [], true))
+                                        data-brand-avoids-option
+                                    >
+
+                                    <span>{{ $option }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <div
+                        class="form-group conditional-field"
+                        data-brand-avoids-other-field
+                    >
+                        <label class="form-label">Other Avoided Trait</label>
+
+                        <input
+                            type="text"
+                            name="brand_avoids_other"
+                            class="form-input"
+                            maxlength="60"
+                            value="{{ old('brand_avoids_other', $businessInfo['brand_avoids_other'] ?? '') }}"
+                            placeholder="Write what the brand avoids"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Business Age</label>
+                        <p class="input-helper">How long has the business been running?</p>
+
+                        <select
+                            name="business_age"
+                            class="form-select"
+                            required
+                        >
+                            <option value="">Select business age</option>
+
+                            @foreach ([
+                                'Just launched (under 6 months)',
+                                'Growing (6 months – 2 years)',
+                                'Established (2–10 years)',
+                                'Mature (10+ years)',
+                            ] as $option)
+                                <option
+                                    value="{{ $option }}"
+                                    @selected(old('business_age', $businessInfo['business_age'] ?? '') === $option)
+                                >
+                                    {{ $option }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
 
                 {{-- STEP 4 --}}
                 <div
                     class="client-step-panel"
                     data-client-step="3"
-                    data-step-title="Brand Basics"
-                    data-step-description="Define the basic tone and values of the brand."
+                    data-step-title="Brand Voice & Rules"
+                    data-step-description="Set Arabic style, emoji usage, English usage, and content rules."
                 >
                     <div class="form-grid">
 
                         <div class="form-group">
-                            <label class="form-label">Brand Voice</label>
+                            <label class="form-label">Arabic Variety / Dialect</label>
+                            <p class="input-helper">Which kind of Arabic should the content be written in?</p>
 
-                            <input
-                                type="text"
-                                name="brand_voice"
-                                class="form-input"
-                                placeholder="Modern, playful, minimal"
-                                value="{{ old('brand_voice', $brandInfo['brand_voice'] ?? '') }}"
+                            <select
+                                name="arabic_dialect"
+                                class="form-select"
+                                required
                             >
+                                <option value="">Select Arabic style</option>
+
+                                @foreach ([
+                                    'Modern Standard Arabic — فصحى',
+                                    'Palestinian / Levantine colloquial — عامية',
+                                    'Gulf colloquial — خليجي',
+                                    'Egyptian colloquial — مصري',
+                                    'White / neutral spoken Arabic — محايدة لهجة',
+                                    'Mix of MSA + colloquial',
+                                ] as $option)
+                                    <option
+                                        value="{{ $option }}"
+                                        @selected(old('arabic_dialect', $brandInfo['arabic_dialect'] ?? '') === $option)
+                                    >
+                                        {{ $option }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Brand Values</label>
+                            <label class="form-label">Emoji Usage</label>
+                            <p class="input-helper">How often should posts use emojis?</p>
 
-                            <input
-                                type="text"
-                                name="brand_values"
-                                class="form-input"
-                                placeholder="Authenticity, creativity, wellness"
-                                value="{{ old('brand_values', $brandInfo['brand_values'] ?? '') }}"
+                            <select
+                                name="emoji_usage"
+                                class="form-select"
+                                required
                             >
+                                <option value="">Select emoji usage</option>
+
+                                @foreach (['None', 'Minimal', 'Moderate', 'Liberal'] as $option)
+                                    <option
+                                        value="{{ $option }}"
+                                        @selected(old('emoji_usage', $brandInfo['emoji_usage'] ?? '') === $option)
+                                    >
+                                        {{ $option }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
 
+                        <div class="form-group">
+                            <label class="form-label">English Usage</label>
+                            <p class="input-helper">Should posts include English, or stay fully Arabic?</p>
+
+                            <select
+                                name="english_usage"
+                                class="form-select"
+                                required
+                            >
+                                <option value="">Select English usage</option>
+
+                                @foreach ([
+                                    'Arabic only',
+                                    'Arabic, common English terms allowed',
+                                    'Arabic + brand/product names kept in English',
+                                ] as $option)
+                                    <option
+                                        value="{{ $option }}"
+                                        @selected(old('english_usage', $brandInfo['english_usage'] ?? '') === $option)
+                                    >
+                                        {{ $option }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Words & phrases to avoid</label>
+                        <p class="input-helper">Any words or phrases the content should never use? Leave blank if none.</p>
+
+                        <textarea
+                            name="words_to_avoid"
+                            class="form-textarea"
+                            maxlength="5000"
+                            placeholder="e.g., never say ‘cheap’; avoid heavy ‘offer / sale’ language"
+                        >{{ old('words_to_avoid', $brandInfo['words_to_avoid'] ?? '') }}</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Caption Samples</label>
+                        <p class="input-helper">Paste a couple of real posts that already sound the way you want. Optional.</p>
+
+                        <textarea
+                            name="caption_samples"
+                            class="form-textarea"
+                            maxlength="5000"
+                            placeholder="Paste 1–2 existing posts that sound the way you want."
+                        >{{ old('caption_samples', $brandInfo['caption_samples'] ?? '') }}</textarea>
                     </div>
                 </div>
 
@@ -251,20 +679,121 @@
                 <div
                     class="client-step-panel"
                     data-client-step="4"
-                    data-step-title="Brand Personality"
-                    data-step-description="Describe how the brand behaves and communicates."
+                    data-step-title="Marketing Mechanics"
+                    data-step-description="Define how customers take action with this business."
                 >
-                    <x-ai-assist-field
-                        label="Brand Personality"
-                        name="brand_personality"
-                        :value="old('brand_personality', $brandInfo['brand_personality'] ?? '')"
-                        question-key="brand_personality"
-                        :client-id="$editing ? $client->id : null"
-                        :max="5000"
-                        :disabled="$aiDisabled"
-                        placeholder="Describe how the brand behaves and communicates."
-                        footer="AI Assist uses the Business Context above to draft this answer."
-                    />
+                    <div class="form-group">
+                        <label class="form-label">Conversion Actions</label>
+                        <p class="input-helper">How do customers take action? Pick all that apply, then fill in the details.</p>
+
+                        <div class="checkbox-grid other-option">
+                            @foreach ($conversionActions as $action)
+                                <label class="checkbox-row">
+                                    <input
+                                        type="checkbox"
+                                        name="conversion_actions[]"
+                                        value="{{ $action }}"
+                                        @checked(in_array($action, $selectedConversionActions ?? [], true))
+                                        data-conversion-action
+                                    >
+
+                                    <span>{{ $action }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+
+                        <div class="form-group conditional-field" data-conversion-detail="Visit the store / location">
+                            <label class="form-label">Address or Area</label>
+                            <input
+                                type="text"
+                                name="conversion_location"
+                                class="form-input"
+                                value="{{ old('conversion_location', $conversion['location'] ?? '') }}"
+                                placeholder="e.g., Rafidia, Nablus"
+                            >
+                        </div>
+
+                        <div class="form-group conditional-field" data-conversion-detail="Order / inquire via WhatsApp">
+                            <label class="form-label">WhatsApp Number</label>
+                            <input
+                                type="text"
+                                name="conversion_whatsapp"
+                                class="form-input"
+                                value="{{ old('conversion_whatsapp', $conversion['whatsapp'] ?? '') }}"
+                                placeholder="+970..."
+                            >
+                        </div>
+
+                        <div class="form-group conditional-field" data-conversion-detail="Call us">
+                            <label class="form-label">Phone Number</label>
+                            <input
+                                type="text"
+                                name="conversion_phone"
+                                class="form-input"
+                                value="{{ old('conversion_phone', $conversion['phone'] ?? '') }}"
+                                placeholder="+970..."
+                            >
+                        </div>
+
+                        <div class="form-group conditional-field" data-conversion-detail="Order via delivery app">
+                            <label class="form-label">Delivery App Name(s)</label>
+                            <input
+                                type="text"
+                                name="conversion_delivery_app"
+                                class="form-input"
+                                value="{{ old('conversion_delivery_app', $conversion['delivery_app'] ?? '') }}"
+                                placeholder="e.g., Careem, local delivery app"
+                            >
+                        </div>
+
+                        <div class="form-group conditional-field" data-conversion-detail="Buy on our website">
+                            <label class="form-label">Website URL</label>
+                            <input
+                                type="text"
+                                name="conversion_website"
+                                class="form-input"
+                                value="{{ old('conversion_website', $conversion['website'] ?? '') }}"
+                                placeholder="https://..."
+                            >
+                        </div>
+
+                        <div class="form-group conditional-field" data-conversion-detail="Book an appointment">
+                            <label class="form-label">Booking Link or Method</label>
+                            <input
+                                type="text"
+                                name="conversion_booking"
+                                class="form-input"
+                                value="{{ old('conversion_booking', $conversion['booking'] ?? '') }}"
+                                placeholder="Booking link or booking instructions"
+                            >
+                        </div>
+
+                        <div class="form-group conditional-field" data-conversion-detail="Message us on Instagram / Facebook">
+                            <label class="form-label">Instagram / Facebook Handle</label>
+                            <input
+                                type="text"
+                                name="conversion_social_dm"
+                                class="form-input"
+                                value="{{ old('conversion_social_dm', $conversion['social_dm'] ?? '') }}"
+                                placeholder="@brandname"
+                            >
+                        </div>
+
+                        <div class="form-group conditional-field" data-conversion-detail="Subscribe / sign up">
+                            <label class="form-label">Signup Link</label>
+                            <input
+                                type="text"
+                                name="conversion_signup"
+                                class="form-input"
+                                value="{{ old('conversion_signup', $conversion['signup'] ?? '') }}"
+                                placeholder="https://..."
+                            >
+                        </div>
+
+                    </div>
                 </div>
 
                 {{-- STEP 6 --}}
@@ -278,25 +807,87 @@
 
                         <div class="form-group">
                             <label class="form-label">Persona Name</label>
+                            <p class="input-helper">A short name so you can recognize this audience later.</p>
 
                             <input
                                 type="text"
                                 name="persona_name"
                                 class="form-input"
-                                placeholder="Young Professionals"
+                                maxlength="50"
+                                placeholder="e.g., Young mothers"
                                 value="{{ old('persona_name', $primaryPersona->name ?? '') }}"
+                                required
                             >
                         </div>
 
                         <div class="form-group">
+                            <label class="form-label">Gender</label>
+                            <p class="input-helper">Who is this content speaking to?</p>
+
+                            <select
+                                name="persona_gender"
+                                class="form-select"
+                                required
+                            >
+                                <option value="">Select gender</option>
+
+                                @foreach ([
+                                    'Women — feminine address',
+                                    'Men — masculine address',
+                                    'Mixed (everyone) — inclusive forms',
+                                ] as $option)
+                                    <option
+                                        value="{{ $option }}"
+                                        @selected(old('persona_gender', $personaAnswers['gender'] ?? '') === $option)
+                                    >
+                                        {{ $option }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="form-group">
                             <label class="form-label">Age Range</label>
+                            <p class="input-helper">Roughly how old is this audience?</p>
+
+                            <select
+                                name="persona_age_range"
+                                class="form-select"
+                                required
+                            >
+                                <option value="">Select age range</option>
+
+                                @foreach ([
+                                    '13–17',
+                                    '18–24',
+                                    '25–34',
+                                    '35–44',
+                                    '45–60',
+                                    '60+',
+                                    'All ages',
+                                ] as $option)
+                                    <option
+                                        value="{{ $option }}"
+                                        @selected(old('persona_age_range', $primaryPersona->age_range ?? '') === $option)
+                                    >
+                                        {{ $option }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Who is this audience, in one line?</label>
+                            <p class="input-helper">The type of person or their situation.</p>
 
                             <input
                                 type="text"
-                                name="persona_age_range"
+                                name="persona_who"
                                 class="form-input"
-                                placeholder="25 - 35"
-                                value="{{ old('persona_age_range', $primaryPersona->age_range ?? '') }}"
+                                maxlength="80"
+                                placeholder="e.g., New mothers buying for their first baby"
+                                value="{{ old('persona_who', $personaAnswers['who'] ?? '') }}"
+                                required
                             >
                         </div>
 
@@ -307,19 +898,83 @@
                 <div
                     class="client-step-panel"
                     data-client-step="6"
-                    data-step-title="Persona Description"
-                    data-step-description="Describe interests, lifestyle, behavior, and motivations."
+                    data-step-title="Persona Motivations"
+                    data-step-description="Define buyer relationship, priorities, and objections."
                 >
+                    <div class="form-group">
+                        <label class="form-label">Is the buyer the same as the person who uses the product?</label>
+                        <p class="input-helper">Who pays and who actually uses it — are they the same person?</p>
+
+                        <select
+                            name="persona_buyer_is_user"
+                            class="form-select"
+                            data-persona-buyer-select
+                            required
+                        >
+                            <option value="">Select answer</option>
+
+                            @foreach ([
+                                'Yes — they buy it and use it themselves',
+                                'No — they buy it for someone else',
+                                'No — someone else buys it for them',
+                            ] as $option)
+                                <option
+                                    value="{{ $option }}"
+                                    @selected(old('persona_buyer_is_user', $personaAnswers['buyer_is_user'] ?? '') === $option)
+                                >
+                                    {{ $option }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div
+                        class="form-group conditional-field"
+                        data-persona-decider-field
+                    >
+                        <label class="form-label">Who actually decides or pays?</label>
+                        <p class="input-helper">Required when the buyer and user are not the same.</p>
+
+                        <input
+                            type="text"
+                            name="persona_decider"
+                            class="form-input"
+                            maxlength="60"
+                            placeholder="e.g., the mother, the company’s HR manager, the husband"
+                            value="{{ old('persona_decider', $personaAnswers['decider'] ?? '') }}"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">What matters most to them?</label>
+                        <p class="input-helper">Pick up to 2. What does this audience care about most?</p>
+
+                        <div class="checkbox-grid other-option" data-max-checks="2">
+                            @foreach ($personaPriorities as $priority)
+                                <label class="checkbox-row">
+                                    <input
+                                        type="checkbox"
+                                        name="persona_priorities[]"
+                                        value="{{ $priority }}"
+                                        @checked(in_array($priority, $selectedPersonaPriorities ?? [], true))
+                                    >
+
+                                    <span>{{ $priority }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+
                     <x-ai-assist-field
-                        label="Persona Description"
-                        name="persona_description"
-                        :value="old('persona_description', $personaAnswers['description'] ?? '')"
-                        question-key="persona_description"
+                        label="What makes them hesitate?"
+                        name="persona_objection"
+                        :value="old('persona_objection', $personaAnswers['objection'] ?? '')"
+                        question-key="persona_objection"
                         :client-id="$editing ? $client->id : null"
-                        :max="5000"
+                        :max="150"
                         :disabled="$aiDisabled"
-                        placeholder="Describe interests, lifestyle, behavior, and motivations."
-                        footer="AI Assist uses the Business Context above to draft this persona description."
+                        placeholder="e.g., They worry the quality won’t match the price, or they’ve been let down before."
+                        footer="What stops them from buying — price worries, trust, habit? Optional."
                     />
                 </div>
 
@@ -440,6 +1095,7 @@
         </button>
     </div>
 </x-modal>
+
 <x-modal
     id="replaceConfirmationModal"
     title="Replace Existing Text"
@@ -533,16 +1189,6 @@
             .querySelectorAll('[data-unsaved-leave-link]')
             .forEach((link) => {
                 link.addEventListener('click', (event) => {
-                    const href = link.getAttribute('href');
-    
-                    if (
-                        !href ||
-                        href.startsWith('#') ||
-                        href.startsWith('javascript:')
-                    ) {
-                        return;
-                    }
-    
                     if (formChanged && !formSubmitted) {
                         const confirmed = confirm(
                             'You have unsaved changes. Leave this page?'
@@ -554,6 +1200,223 @@
                     }
                 });
             });
+    
+        /*
+        |--------------------------------------------------------------------------
+        | Conditional Fields
+        |--------------------------------------------------------------------------
+        */
+    
+        function toggleField(field, shouldShow) {
+            if (!field) {
+                return;
+            }
+    
+            field.style.display = shouldShow ? 'block' : 'none';
+    
+            field
+                .querySelectorAll('input, select, textarea')
+                .forEach((input) => {
+                    if (!shouldShow) {
+                        input.value = '';
+                        input.required = false;
+                    }
+                });
+        }
+    
+        function refreshConditionals() {
+            const industrySelect = document.querySelector('[data-industry-select]');
+            const businessTypeSelect = document.querySelector('[data-business-type-select]');
+            const brandAvoidsOther = document.querySelector('[data-brand-avoids-other-field]');
+            const personaBuyerSelect = document.querySelector('[data-persona-buyer-select]');
+    
+            toggleField(
+                document.querySelector('[data-industry-other-field]'),
+                industrySelect?.value === 'Other'
+            );
+    
+            toggleField(
+                document.querySelector('[data-business-type-other-field]'),
+                businessTypeSelect?.value === 'Other'
+            );
+    
+            const brandAvoidsOtherChecked =
+                Array
+                    .from(document.querySelectorAll('[data-brand-avoids-option]'))
+                    .some((checkbox) => checkbox.value === 'Other' && checkbox.checked);
+    
+            toggleField(
+                brandAvoidsOther,
+                brandAvoidsOtherChecked
+            );
+    
+            const personaNeedsDecider =
+                personaBuyerSelect &&
+                personaBuyerSelect.value &&
+                personaBuyerSelect.value !== 'Yes — they buy it and use it themselves';
+    
+            const personaDeciderField =
+                document.querySelector('[data-persona-decider-field]');
+    
+            toggleField(
+                personaDeciderField,
+                personaNeedsDecider
+            );
+    
+            personaDeciderField
+                ?.querySelector('input')
+                ?.toggleAttribute('required', Boolean(personaNeedsDecider));
+    
+            document
+                .querySelectorAll('[data-conversion-detail]')
+                .forEach((detailField) => {
+                    const action =
+                        detailField.dataset.conversionDetail;
+    
+                    const isChecked =
+                        document.querySelector(
+                            `[data-conversion-action][value="${CSS.escape(action)}"]`
+                        )?.checked;
+    
+                    toggleField(detailField, Boolean(isChecked));
+    
+                    const input =
+                        detailField.querySelector('input');
+    
+                    if (!input) {
+                        return;
+                    }
+    
+                    input.required =
+                        Boolean(isChecked) &&
+                        action !== 'Message us on Instagram / Facebook';
+                });
+        }
+    
+        document
+            .querySelectorAll(
+                '[data-industry-select], [data-business-type-select], [data-persona-buyer-select], [data-brand-avoids-option], [data-conversion-action]'
+            )
+            .forEach((field) => {
+                field.addEventListener('change', refreshConditionals);
+            });
+    
+        refreshConditionals();
+        /*
+        |--------------------------------------------------------------------------
+        | Palestine City Visibility
+        |--------------------------------------------------------------------------
+        */
+
+        const countrySelect =
+            document.querySelector('[data-country-select]');
+
+        const cityGrid =
+            document.querySelector('[data-palestine-cities]');
+
+        const cityPlaceholder =
+            document.querySelector('[data-city-placeholder]');
+
+        function refreshCountryCities() {
+            if (!countrySelect) {
+                return;
+            }
+
+            const isPalestine =
+                countrySelect.value === 'Palestine';
+
+            cityGrid?.classList.toggle(
+                'hidden',
+                !isPalestine
+            );
+
+            cityPlaceholder?.classList.toggle(
+                'hidden',
+                isPalestine
+            );
+
+            cityGrid
+                ?.querySelectorAll('input[type="checkbox"]')
+                .forEach((checkbox) => {
+                    checkbox.required = false;
+
+                    if (!isPalestine) {
+                        checkbox.checked = false;
+                    }
+                });
+        }
+
+        countrySelect?.addEventListener(
+            'change',
+            refreshCountryCities
+        );
+
+        refreshCountryCities();
+        /*
+        |--------------------------------------------------------------------------
+        | Multi-select Limits
+        |--------------------------------------------------------------------------
+        */
+    
+        document
+            .querySelectorAll('[data-max-checks]')
+            .forEach((group) => {
+                const max =
+                    Number(group.dataset.maxChecks || 0);
+    
+                const checkboxes =
+                    group.querySelectorAll('input[type="checkbox"]');
+    
+                checkboxes.forEach((checkbox) => {
+                    checkbox.addEventListener('change', () => {
+                        const checked =
+                            group.querySelectorAll('input[type="checkbox"]:checked');
+    
+                        if (checked.length > max) {
+                            checkbox.checked = false;
+    
+                            alert(
+                                'You can select up to ' + max + ' options only.'
+                            );
+                        }
+    
+                        refreshConditionals();
+                    });
+                });
+            });
+    
+        /*
+        |--------------------------------------------------------------------------
+        | Price Tier Label
+        |--------------------------------------------------------------------------
+        */
+    
+        const priceRange =
+            document.querySelector('[data-price-tier-range]');
+    
+        const priceLabel =
+            document.querySelector('[data-price-tier-label]');
+    
+        function updatePriceLabel() {
+            if (!priceRange || !priceLabel) {
+                return;
+            }
+    
+            const labels = {
+                1: '1 — Budget',
+                2: '2 — Affordable',
+                3: '3 — Mid-range',
+                4: '4 — Premium',
+                5: '5 — Luxury',
+            };
+    
+            priceLabel.textContent =
+                labels[priceRange.value] || priceRange.value;
+        }
+    
+        priceRange?.addEventListener('input', updatePriceLabel);
+    
+        updatePriceLabel();
     
         /*
         |--------------------------------------------------------------------------
@@ -875,19 +1738,25 @@
                         business_context: businessContext?.value || '',
     
                         business_info: {
-                            business_offer:
-                                document.querySelector('[name="business_offer"]')?.value || '',
+                            industry:
+                                document.querySelector('[name="industry"]')?.value || '',
+    
+                            business_type:
+                                document.querySelector('[name="business_type"]')?.value || '',
+    
+                            differentiator:
+                                document.querySelector('[name="differentiator"]')?.value || '',
                         },
     
                         brand_info: {
-                            brand_voice:
-                                document.querySelector('[name="brand_voice"]')?.value || '',
+                            arabic_dialect:
+                                document.querySelector('[name="arabic_dialect"]')?.value || '',
     
-                            brand_values:
-                                document.querySelector('[name="brand_values"]')?.value || '',
+                            emoji_usage:
+                                document.querySelector('[name="emoji_usage"]')?.value || '',
     
-                            brand_personality:
-                                document.querySelector('[name="brand_personality"]')?.value || '',
+                            english_usage:
+                                document.querySelector('[name="english_usage"]')?.value || '',
                         },
                     }),
                 });
@@ -971,5 +1840,5 @@
         });
     });
     </script>
-
-@endsection
+    
+    @endsection

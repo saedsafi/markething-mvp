@@ -1,11 +1,17 @@
 <aside class="sidebar" id="sidebar">
 
-    <div class="logo sidebar-logo">
-        <div class="logo-box"></div>
-        <h1>MARKETHING</h1>
+    <a
+    href="{{ auth()->user()->isFounder() ? route('admin.dashboard') : route('agency.dashboard') }}"
+    class="brand-logo"
+>
+    <div class="logo-box"></div>
 
-        <button class="sidebar-close" id="sidebarClose" type="button">×</button>
-    </div>
+    <img
+        src="{{ asset('images/logo.svg') }}"
+        alt="MARKETHING"
+        class="brand-text"
+    >
+</a>
 
     <nav class="sidebar-menu">
 

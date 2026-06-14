@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'MARKETHING')</title>
 
+    <link rel="icon" type="image/svg+xml" href="{{ asset('images/icon.svg') }}">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 </head>
 <body>

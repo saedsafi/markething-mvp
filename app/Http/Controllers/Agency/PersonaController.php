@@ -34,8 +34,12 @@ class PersonaController extends Controller
             'name' => $request->name,
             'age_range' => $request->age_range,
             'answers' => [
-                'description' => $request->description,
-                'channel' => $request->channel,
+                'gender' => $request->gender,
+                'who' => $request->who,
+                'buyer_is_user' => $request->buyer_is_user,
+                'decider' => $request->decider,
+                'priorities' => $request->priorities ?? [],
+                'objection' => $request->objection,
             ],
             'status' => 'active',
         ]);
@@ -51,8 +55,12 @@ class PersonaController extends Controller
             'name' => $request->name,
             'age_range' => $request->age_range,
             'answers' => [
-                'description' => $request->description,
-                'channel' => $request->channel,
+                'gender' => $request->gender,
+                'who' => $request->who,
+                'buyer_is_user' => $request->buyer_is_user,
+                'decider' => $request->decider,
+                'priorities' => $request->priorities ?? [],
+                'objection' => $request->objection,
             ],
         ]);
 
