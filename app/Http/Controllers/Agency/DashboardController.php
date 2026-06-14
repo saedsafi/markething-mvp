@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Agency;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use App\Models\LlmLog;
+use App\Services\AppSettingService;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -44,6 +47,23 @@ class DashboardController extends Controller
             ->where('status', 'failed')
             ->count();
 
+
+
+        $aiAssistDailyLimit = app(\App\Services\AppSettingService::class)
+            ->int('ai_assist_daily_limit', 50);
+        
+        $aiAssistUsedToday = \App\Models\LlmLog::query()
+            ->where('user_id', auth()->id())
+            ->where('call_type', 'ai_assist')
+            ->whereDate('created_at', now()->toDateString())
+            ->count();
+        
+        $aiAssistPercentage =
+            $aiAssistDailyLimit > 0
+                ? min(100, ($aiAssistUsedToday / $aiAssistDailyLimit) * 100)
+                : 0;
+
+
         return view('agency.dashboard', [
             'clients' => $clients,
             'campaigns' => $campaigns,
@@ -54,6 +74,10 @@ class DashboardController extends Controller
 
             'generatedCampaigns' => $generatedCampaigns,
             'failedCampaigns' => $failedCampaigns,
+
+            'aiAssistDailyLimit' => $aiAssistDailyLimit,
+            'aiAssistUsedToday' => $aiAssistUsedToday,
+            'aiAssistPercentage' => $aiAssistPercentage,
         ]);
     }
 }

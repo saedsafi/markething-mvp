@@ -321,6 +321,8 @@ Route::patch('/clients/{client}/deactivate', [\App\Http\Controllers\Agency\Clien
 Route::patch('/clients/{client}/reactivate', [\App\Http\Controllers\Agency\ClientController::class, 'reactivate'])
 ->name('agency.clients.reactivate');
 
+Route::delete('/clients/{client}', [\App\Http\Controllers\Agency\ClientController::class, 'destroy'])
+    ->name('agency.clients.destroy');
 /*
 |--------------------------------------------------------------------------
 | Personas
@@ -338,6 +340,9 @@ Route::patch('/personas/{persona}/deactivate', [\App\Http\Controllers\Agency\Per
 
 Route::patch('/personas/{persona}/reactivate', [\App\Http\Controllers\Agency\PersonaController::class, 'reactivate'])
 ->name('agency.personas.reactivate');
+
+Route::delete('/personas/{persona}', [PersonaController::class, 'destroy'])
+    ->name('agency.personas.destroy');
     /*
     |--------------------------------------------------------------------------
     | Campaigns

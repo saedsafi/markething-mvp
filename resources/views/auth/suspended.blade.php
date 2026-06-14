@@ -8,9 +8,13 @@
 
     <div class="auth-card suspended-card">
 
-        <div class="logo">
+        <div class="logo auth-logo">
             <div class="logo-box"></div>
-            <h1>MARKETHING</h1>
+        
+            <img
+                src="{{ asset('images/logo.svg') }}"
+                alt="MARKETHING"
+            >
         </div>
 
         <div class="suspended-icon">!</div>

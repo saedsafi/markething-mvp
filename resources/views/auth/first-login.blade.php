@@ -6,15 +6,22 @@
 
 <div class="auth-wrapper">
 
-    <div class="auth-card">
+    <div class="auth-card first-login-card">
+        <div class="first-login-glow"></div>
 
-        <div class="logo">
+        <div class="logo auth-logo">
             <div class="logo-box"></div>
-            <h1>MARKETHING</h1>
+
+            <img
+                src="{{ asset('images/logo.svg') }}"
+                alt="MARKETHING"
+            >
         </div>
 
-        <div class="auth-badge">First Login Required</div>
-
+        <div class="auth-badge first-login-badge">
+            Security Setup
+        </div>
+        
         <h2 class="auth-title">Secure Your Account</h2>
 
         <p class="auth-subtitle">
@@ -63,6 +70,18 @@
             </button>
 
         </form>
+
+        <div class="security-tip">
+            <div class="security-tip-icon">🛡️</div>
+        
+            <div>
+                <strong>Security Check</strong>
+        
+                <p>
+                    This is a one-time step required for all new agency accounts.
+                </p>
+            </div>
+        </div>
 
     </div>
 

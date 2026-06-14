@@ -6027,7 +6027,6 @@ PROMPT EDITOR FINAL FIX
 }
 
 
-/*branding*/
 /* BRANDING */
 .brand-logo {
     display: flex;
@@ -6056,4 +6055,387 @@ PROMPT EDITOR FINAL FIX
         height: 24px;
         max-width: 150px;
     }
+}
+
+
+/* Auth branding */
+
+.auth-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.auth-logo .logo-box {
+    flex-shrink: 0;
+}
+
+.auth-logo img {
+    height: 32px;
+    width: auto;
+    max-width: 190px;
+    object-fit: contain;
+}
+
+.first-login-card {
+    border: 1px solid rgba(124, 58, 237, 0.18);
+    background:
+        radial-gradient(circle at top right, rgba(124, 58, 237, 0.10), transparent 35%),
+        #ffffff;
+}
+
+.first-login-card .auth-badge {
+    background: rgba(124, 58, 237, 0.10);
+    color: #7b34ba;
+    border: 1px solid rgba(124, 58, 237, 0.18);
+}
+
+.first-login-card .primary-btn {
+    background: linear-gradient(135deg, #7b34ba, #f68674);
+}
+
+.suspended-card {
+    border: 1px solid rgba(239, 68, 68, 0.20);
+    background:
+        radial-gradient(circle at top right, rgba(239, 68, 68, 0.10), transparent 35%),
+        #ffffff;
+}
+
+@media (max-width: 768px) {
+    .auth-logo img {
+        height: 28px;
+        max-width: 160px;
+    }
+}
+
+/* First Login Experience */
+
+.first-login-card {
+    position: relative;
+    overflow: hidden;
+
+    border: 1px solid rgba(124, 58, 237, 0.18);
+
+    background:
+        radial-gradient(
+            circle at top right,
+            rgba(124, 58, 237, 0.10),
+            transparent 35%
+        ),
+        linear-gradient(
+            180deg,
+            #ffffff,
+            #faf8ff
+        );
+}
+
+.first-login-glow {
+    position: absolute;
+    top: -80px;
+    right: -80px;
+
+    width: 180px;
+    height: 180px;
+
+    background: rgba(124, 58, 237, 0.08);
+
+    border-radius: 50%;
+
+    pointer-events: none;
+}
+
+.first-login-badge {
+    background: rgba(124, 58, 237, 0.10);
+    color: #7b34ba;
+
+    border: 1px solid rgba(124, 58, 237, 0.18);
+
+    font-weight: 700;
+}
+
+.first-login-card .auth-title {
+    color: #7b34ba;
+}
+
+.first-login-card .primary-btn {
+    background:
+        linear-gradient(
+            135deg,
+            #7b34ba,
+            #f68674
+        );
+}
+
+.security-tip {
+    margin-top: 1.5rem;
+
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+
+    padding: 1rem;
+
+    border-radius: 16px;
+
+    background: rgba(124, 58, 237, 0.05);
+
+    border: 1px solid rgba(124, 58, 237, 0.10);
+}
+
+.security-tip-icon {
+    font-size: 1.4rem;
+    line-height: 1;
+}
+
+.security-tip strong {
+    display: block;
+    margin-bottom: 0.25rem;
+
+    color: #7b34ba;
+}
+
+.security-tip p {
+    margin: 0;
+
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+/* RESPONSIVENESSS FIX */
+.limit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.limit-remaining {
+    flex-shrink: 0;
+
+    font-size: 0.82rem;
+    font-weight: 700;
+
+    color: var(--primary-color);
+
+    background: rgba(124, 58, 237, 0.08);
+
+    padding: 0.35rem 0.75rem;
+
+    border-radius: 999px;
+}
+
+@media (max-width: 768px) {
+
+    .limit-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .limit-remaining {
+        align-self: flex-start;
+    }
+}
+
+
+/* Agency dashboard responsive fixes */
+
+@media (max-width: 900px) {
+    .agency-dashboard-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .agency-dashboard-main-column,
+    .agency-side-stack {
+        min-width: 0;
+        width: 100%;
+    }
+
+    .agency-stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .dashboard-main,
+    .dashboard-content-wrapper,
+    .agency-dashboard {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    .dashboard-hero {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1.25rem;
+    }
+
+    .dashboard-hero h2 {
+        font-size: 1.8rem;
+        line-height: 1.15;
+    }
+
+    .dashboard-hero p {
+        font-size: 0.95rem;
+    }
+
+    .hero-actions {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .hero-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .agency-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .agency-dashboard-grid {
+        display: block;
+    }
+
+    .agency-dashboard-main-column,
+    .agency-side-stack {
+        width: 100%;
+    }
+
+    .agency-table-card,
+    .table-card,
+    .stat-card {
+        width: 100%;
+        max-width: 100%;
+        border-radius: 24px;
+        padding: 1.25rem;
+        overflow: hidden;
+    }
+
+    .dashboard-table {
+        min-width: 620px;
+    }
+
+    .table-card {
+        overflow-x: auto;
+    }
+
+    .quick-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .limit-row {
+        width: 100%;
+    }
+
+    .limit-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .limit-bar {
+        width: 100%;
+    }
+}
+
+@media (max-width: 430px) {
+    .dashboard-content-wrapper {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .agency-dashboard {
+        gap: 1.25rem;
+    }
+
+    .dashboard-hero,
+    .agency-table-card,
+    .table-card,
+    .stat-card {
+        padding: 1rem;
+        border-radius: 22px;
+    }
+
+    .section-title {
+        font-size: 1.35rem;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+    }
+
+    .completion-item {
+        padding: 0.9rem;
+        font-size: 0.95rem;
+    }
+
+    .limit-row strong {
+        font-size: 1rem;
+    }
+
+    .limit-row p {
+        font-size: 0.9rem;
+    }
+}
+
+#addPersonaModal .form-input,
+#addPersonaModal .form-textarea,
+#addPersonaModal .form-select,
+[id^="editPersonaModal"] .form-input,
+[id^="editPersonaModal"] .form-textarea,
+[id^="editPersonaModal"] .form-select {
+    width: 100%;
+    border-radius: 18px;
+    border: 1px solid #e8eaf3;
+    background: #fff;
+    color: #111827;
+    font-weight: 700;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
+}
+
+#addPersonaModal .form-input,
+#addPersonaModal .form-select,
+[id^="editPersonaModal"] .form-input,
+[id^="editPersonaModal"] .form-select {
+    height: 58px;
+    padding: 0 1.25rem;
+}
+
+#addPersonaModal .form-textarea,
+[id^="editPersonaModal"] .form-textarea {
+    min-height: 140px;
+    padding: 1rem 1.25rem;
+    resize: vertical;
+}
+
+#addPersonaModal .form-select,
+[id^="editPersonaModal"] .form-select {
+    appearance: none;
+    padding-right: 3rem;
+    cursor: pointer;
+    background-image:
+        linear-gradient(45deg, transparent 50%, #7c3aed 50%),
+        linear-gradient(135deg, #7c3aed 50%, transparent 50%);
+    background-position:
+        calc(100% - 24px) 26px,
+        calc(100% - 17px) 26px;
+    background-size: 7px 7px;
+    background-repeat: no-repeat;
+}
+
+#addPersonaModal .form-input:focus,
+#addPersonaModal .form-textarea:focus,
+#addPersonaModal .form-select:focus,
+[id^="editPersonaModal"] .form-input:focus,
+[id^="editPersonaModal"] .form-textarea:focus,
+[id^="editPersonaModal"] .form-select:focus {
+    outline: none;
+    border-color: #7c3aed;
+    box-shadow:
+        0 0 0 4px rgba(124, 58, 237, 0.12),
+        0 16px 36px rgba(124, 58, 237, 0.12);
 }

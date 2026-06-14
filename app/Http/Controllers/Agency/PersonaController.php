@@ -113,4 +113,13 @@ class PersonaController extends Controller
     {
         abort_if($persona->client->user_id !== $request->user()->id, 403);
     }
+
+    public function destroy(Request $request, Persona $persona): RedirectResponse
+{
+    $this->authorizePersona($request, $persona);
+
+    $persona->delete();
+
+    return back()->with('success', 'Persona deleted successfully.');
+}
 }

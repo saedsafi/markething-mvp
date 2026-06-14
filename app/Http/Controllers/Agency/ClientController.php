@@ -9,6 +9,7 @@ use App\Models\Client;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\DB;
 
 class ClientController extends Controller
 {
@@ -116,9 +117,15 @@ class ClientController extends Controller
 
         $client->load(['personas', 'campaigns']);
 
-        return view('agency.clients.show', [
-            'client' => $client,
-        ]);
+        $personaLimit = app(\App\Services\AppSettingService::class)
+        ->int('max_personas_per_client', 5);
+    
+    return view('agency.clients.show', [
+        'client' => $client,
+        'personaLimit' => $personaLimit,
+        'aiDisabled' => blank($client->business_context),
+    ]);
+    
     }
 
     public function edit(Request $request, Client $client): View
@@ -237,4 +244,18 @@ class ClientController extends Controller
     {
         abort_if($client->user_id !== $request->user()->id, 403);
     }
+
+    public function destroy(Request $request, Client $client): RedirectResponse
+{
+    $this->authorizeClient($request, $client);
+
+    DB::transaction(function () use ($client) {
+        $client->personas()->delete();
+        $client->delete();
+    });
+
+    return redirect()
+        ->route('agency.clients.index')
+        ->with('success', 'Client profile deleted successfully.');
+}
 }

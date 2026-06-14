@@ -8,9 +8,13 @@
 
     <div class="auth-card">
 
-        <div class="logo">
+        <div class="logo auth-logo">
             <div class="logo-box"></div>
-            <h1>MARKETHING</h1>
+        
+            <img
+                src="{{ asset('images/logo.svg') }}"
+                alt="MARKETHING"
+            >
         </div>
 
         <h2 class="auth-title">Welcome Back</h2>

@@ -4,21 +4,17 @@ namespace App\Services\AI;
 
 use App\Models\Campaign;
 use App\Models\CampaignPost;
-use App\Services\AI\LlmLogService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class CampaignGenerationService
 {
-    public function generate(
-        Campaign $campaign
-    ): void {
-
+    public function generate(Campaign $campaign): void
+    {
         $compiledPrompt = null;
         $promptVersion = null;
 
         try {
-
             DB::beginTransaction();
 
             $campaign->load([
@@ -26,27 +22,18 @@ class CampaignGenerationService
                 'persona',
             ]);
 
-            $snapshot =
-                $campaign->snapshot ?? [];
+            $snapshot = $campaign->snapshot ?? [];
 
-            $snapshotClient =
-                $snapshot['client'] ?? [];
-
-            $snapshotPersona =
-                $snapshot['persona'] ?? [];
-
-            $snapshotCampaign =
-                $snapshot['campaign'] ?? [];
+            $snapshotClient = $snapshot['client'] ?? [];
+            $snapshotPersona = $snapshot['persona'] ?? [];
+            $snapshotCampaign = $snapshot['campaign'] ?? [];
 
             $promptVersion =
                 app(PromptTemplateService::class)
                     ->getActiveMasterPrompt();
 
             if (! $promptVersion) {
-
-                throw new \Exception(
-                    'No active master prompt found.'
-                );
+                throw new \Exception('No active master prompt found.');
             }
 
             $compiledPrompt =
@@ -54,61 +41,45 @@ class CampaignGenerationService
                     ->compile(
                         $promptVersion->content,
                         [
-
                             'business_context' =>
-                                $snapshotClient['business_context']
-                                ?? '',
+                                $snapshotClient['business_context'] ?? '',
 
                             'business_info' =>
                                 json_encode(
-                                    $snapshotClient['business_info']
-                                    ?? [],
-                                    JSON_PRETTY_PRINT |
-                                    JSON_UNESCAPED_UNICODE
+                                    $snapshotClient['business_info'] ?? [],
+                                    JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
                                 ),
 
                             'brand_info' =>
                                 json_encode(
-                                    $snapshotClient['brand_info']
-                                    ?? [],
-                                    JSON_PRETTY_PRINT |
-                                    JSON_UNESCAPED_UNICODE
+                                    $snapshotClient['brand_info'] ?? [],
+                                    JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
                                 ),
 
                             'persona' =>
                                 json_encode(
-                                    $snapshotPersona['answers']
-                                    ?? [],
-                                    JSON_PRETTY_PRINT |
-                                    JSON_UNESCAPED_UNICODE
+                                    $snapshotPersona['answers'] ?? [],
+                                    JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
                                 ),
 
                             'campaign_objective' =>
-                                $snapshotCampaign['objective']
-                                ?? $campaign->objective,
+                                $snapshotCampaign['objective'] ?? $campaign->objective,
 
                             'campaign_description' =>
-                                $snapshotCampaign['description']
-                                ?? $campaign->description,
+                                $snapshotCampaign['description'] ?? $campaign->description,
 
                             'channels' =>
-                                implode(
-                                    ', ',
-                                    $snapshotCampaign['channels']
-                                    ?? $campaign->channels
-                                ),
+                                implode(', ', $snapshotCampaign['channels'] ?? $campaign->channels),
 
                             'posts_count' =>
                                 $snapshotCampaign['requested_posts_count']
                                 ?? $campaign->requested_posts_count,
 
                             'start_date' =>
-                                $snapshotCampaign['start_date']
-                                ?? $campaign->start_date,
+                                $snapshotCampaign['start_date'] ?? $campaign->start_date,
 
                             'end_date' =>
-                                $snapshotCampaign['end_date']
-                                ?? $campaign->end_date,
+                                $snapshotCampaign['end_date'] ?? $campaign->end_date,
                         ]
                     );
 
@@ -139,7 +110,6 @@ Do NOT wrap JSON in code blocks.
             $result =
                 app(ClaudeService::class)
                     ->generate(
-
                         $compiledPrompt . '
 
 CRITICAL OUTPUT RULES:
@@ -161,10 +131,7 @@ Generate exactly ' .
                     );
 
             $latency =
-                (int) (
-                    (microtime(true) - $startedAt)
-                    * 1000
-                );
+                (int) ((microtime(true) - $startedAt) * 1000);
 
             $posts =
                 app(AIResponseParser::class)
@@ -172,72 +139,144 @@ Generate exactly ' .
                         $result['content']
                     );
 
-            $posts = collect($posts)
-                ->unique('caption')
-                ->values()
-                ->toArray();
+            $requestedPostsCount =
+                (int) (
+                    $snapshotCampaign['requested_posts_count']
+                    ?? $campaign->requested_posts_count
+                );
+
+            $campaignStartDate =
+                Carbon::parse(
+                    $snapshotCampaign['start_date']
+                    ?? $campaign->start_date
+                )->toDateString();
+
+            $campaignEndDate =
+                Carbon::parse(
+                    $snapshotCampaign['end_date']
+                    ?? $campaign->end_date
+                )->toDateString();
 
             $allowedChannels = [
                 'instagram',
                 'facebook',
             ];
 
+            /*
+            |--------------------------------------------------------------------------
+            | Validate generated post count
+            |--------------------------------------------------------------------------
+            */
+
+            if (count($posts) !== $requestedPostsCount) {
+                throw new \Exception(
+                    'Claude returned ' . count($posts) . " posts, but {$requestedPostsCount} were requested."
+                );
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Validate generated schedule constraints
+            |--------------------------------------------------------------------------
+            */
+
+            $seenScheduleSlots = [];
+
             foreach ($posts as $index => $post) {
+                $channel =
+                    strtolower($post['channel'] ?? '');
 
+                if (! in_array($channel, $allowedChannels, true)) {
+                    throw new \Exception(
+                        'Generated post #' . ($index + 1) . ' has an invalid channel.'
+                    );
+                }
+
+                if (empty($post['scheduled_date'])) {
+                    throw new \Exception(
+                        'Generated post #' . ($index + 1) . ' is missing scheduled_date.'
+                    );
+                }
+
+                $scheduledDate =
+                    Carbon::parse(
+                        $post['scheduled_date']
+                    )->toDateString();
+
+                if (
+                    $scheduledDate < $campaignStartDate ||
+                    $scheduledDate > $campaignEndDate
+                ) {
+                    throw new \Exception(
+                        'Generated post #' . ($index + 1) . ' has a scheduled date outside the campaign date range.'
+                    );
+                }
+
+                $slotKey =
+                    $channel . '|' . $scheduledDate;
+
+                if (isset($seenScheduleSlots[$slotKey])) {
+                    throw new \Exception(
+                        "Claude returned more than one {$channel} post on {$scheduledDate}."
+                    );
+                }
+
+                $seenScheduleSlots[$slotKey] = true;
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Remove duplicate captions
+            |--------------------------------------------------------------------------
+            */
+
+            $posts = collect($posts)
+                ->unique('caption')
+                ->values()
+                ->toArray();
+
+            if (count($posts) !== $requestedPostsCount) {
+                throw new \Exception(
+                    'Claude returned duplicate captions, causing the generated post count to be lower than requested.'
+                );
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Persist generated posts
+            |--------------------------------------------------------------------------
+            */
+
+            foreach ($posts as $index => $post) {
                 CampaignPost::create([
-
                     'campaign_id' =>
                         $campaign->id,
 
                     'sequence_number' =>
-                        $post['sequence_number']
-                        ?? ($index + 1),
+                        $post['sequence_number'] ?? ($index + 1),
 
-                        'scheduled_date' =>
-
-                        ! empty($post['scheduled_date'])
-                    
-                        ? Carbon::parse(
-                            $post['scheduled_date']
-                        )
-                    
-                        : Carbon::parse(
-                            $campaign->start_date
-                        )->addDays($index),
+                    'scheduled_date' =>
+                        Carbon::parse($post['scheduled_date']),
 
                     'channel' =>
-                        in_array(
-                            strtolower(
-                                $post['channel']
-                                ?? ''
-                            ),
-                            $allowedChannels
-                        )
-                            ? strtolower(
-                                $post['channel']
-                            )
-                            : 'instagram',
+                        strtolower($post['channel']),
 
                     'media_type' =>
-                        $post['media_type']
-                        ?? 'image',
+                        $post['media_type'] ?? 'image',
 
                     'summary' =>
-                        $post['summary']
-                        ?? null,
+                        $post['summary'] ?? null,
 
                     'caption' =>
-                        $post['caption']
-                        ?? '',
+                        $post['caption'] ?? '',
 
                     'hashtags' =>
-                    is_array($post['hashtags'] ?? null)
-                        ? implode(' ', $post['hashtags'])
-                        : ($post['hashtags'] ?? ''),
+                        is_array($post['hashtags'] ?? null)
+                            ? implode(' ', $post['hashtags'])
+                            : ($post['hashtags'] ?? ''),
 
                     'creative_direction' =>
-                        $post['creative_direction']
-                        ?? '',
+                        $post['creative_direction'] ?? '',
 
                     'is_edited' => false,
                 ]);
@@ -249,7 +288,6 @@ Generate exactly ' .
 
             app(LlmLogService::class)
                 ->create([
-
                     'user_id' =>
                         $campaign->user_id,
 
@@ -266,9 +304,7 @@ Generate exactly ' .
                         'anthropic',
 
                     'model' =>
-                        config(
-                            'ai.anthropic.model'
-                        ),
+                        config('ai.anthropic.model'),
 
                     'prompt_version_id' =>
                         $promptVersion->id,
@@ -280,15 +316,15 @@ Generate exactly ' .
                         $result['content'],
 
                     'input_tokens' =>
-                        $result['input_tokens']
-                        ?? 0,
+                        $result['input_tokens'] ?? 0,
 
                     'output_tokens' =>
-                        $result['output_tokens']
-                        ?? 0,
+                        $result['output_tokens'] ?? 0,
 
                     'latency_ms' =>
                         $latency,
+
+                    'retry_count' => 0,
 
                     'status' =>
                         'success',
@@ -297,7 +333,6 @@ Generate exactly ' .
             DB::commit();
 
         } catch (\Throwable $e) {
-
             DB::rollBack();
 
             $campaign->update([
@@ -306,7 +341,6 @@ Generate exactly ' .
 
             app(LlmLogService::class)
                 ->create([
-
                     'user_id' =>
                         $campaign->user_id,
 
@@ -323,9 +357,7 @@ Generate exactly ' .
                         'anthropic',
 
                     'model' =>
-                        config(
-                            'ai.anthropic.model'
-                        ),
+                        config('ai.anthropic.model'),
 
                     'prompt_version_id' =>
                         $promptVersion?->id,
@@ -341,7 +373,10 @@ Generate exactly ' .
 
                     'latency_ms' => 0,
 
-                    'status' => 'failed',
+                    'retry_count' => 0,
+
+                    'status' =>
+                        'failed',
 
                     'error_message' =>
                         $e->getMessage(),

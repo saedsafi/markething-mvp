@@ -295,17 +295,29 @@
                 <div class="limit-list">
 
                     <div class="limit-row">
+                        <div class="limit-header">
 
                         <div>
                             <strong>Client Profiles</strong>
 
                             <p>
                                 {{ $activeClients }}
-                                active of
+                                used of
                                 {{ auth()->user()->client_limit }}
-                                allowed.
+                                available.
                             </p>
+
                         </div>
+                        <span class="limit-remaining">
+                            {{
+                                max(
+                                    0,
+                                    auth()->user()->client_limit - $activeClients
+                                )
+                            }}
+                            left
+                        </span>
+                    </div>
 
                         @php
                             $clientPercentage =
@@ -325,19 +337,30 @@
 
                     <div class="limit-row">
 
-                        <div>
-                            <strong>Daily AI Assist</strong>
-
-                            <p>
-                                {{ auth()->user()->daily_ai_assist_limit }}
-                                daily assist actions available.
-                            </p>
+                        <div class="limit-header">
+                    
+                            <div>
+                                <strong>Daily AI Assist</strong>
+                    
+                                <p>
+                                    {{ $aiAssistUsedToday }}
+                                    used of
+                                    {{ $aiAssistDailyLimit }}
+                                    available today.
+                                </p>
+                            </div>
+                    
+                            <span class="limit-remaining">
+                                {{ max(0, $aiAssistDailyLimit - $aiAssistUsedToday) }}
+                                left
+                            </span>
+                    
                         </div>
-
+                    
                         <div class="limit-bar">
-                            <span style="width:35%;"></span>
+                            <span style="width:{{ $aiAssistPercentage }}%;"></span>
                         </div>
-
+                    
                     </div>
 
                 </div>
