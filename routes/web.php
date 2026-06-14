@@ -171,10 +171,14 @@ Route::middleware([
     Route::patch('/users/{user}/reactivate', [UserController::class, 'reactivate'])
         ->name('admin.users.reactivate');
 
-    /*Route::delete('/admin/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])
-        ->name('admin.users.destroy');    */
+
     Route::delete('/users/{user}', [UserController::class, 'destroy'])
         ->name('admin.users.destroy');
+
+        Route::delete(
+            '/clients/{client}',
+            [\App\Http\Controllers\Admin\ClientController::class, 'destroy']
+        )->name('admin.clients.destroy');
     /*
     |--------------------------------------------------------------------------
     | Prompt Editor

@@ -6,10 +6,19 @@
     'placeholder' => 'Write your answer...',
     'footer' => 'AI Assist uses the Business Context and your extra popup input to draft this field.',
     'max' => 500,
-    'disabled' => false,
+    'disabled' => null,
     'questionKey' => null,
     'clientId' => null,
 ])
+
+@php
+    $isDisabled =
+        $disabled === true ||
+        $disabled === 1 ||
+        $disabled === '1';
+
+    $hasQuestionKey = filled($questionKey);
+@endphp
 
 <div
     class="ai-field"
@@ -18,7 +27,6 @@
     data-client-id="{{ $clientId }}"
     data-character-limit="{{ $max }}"
 >
-
     <div class="ai-field-header">
 
         <label class="form-label">
@@ -34,8 +42,11 @@
             data-question-key="{{ $questionKey }}"
             data-client-id="{{ $clientId }}"
             data-character-limit="{{ $max }}"
-            @disabled($disabled || ! $questionKey)
-                >
+            @if ($isDisabled || ! $hasQuestionKey)
+                disabled
+                title="Add a description of the business at the top of the profile to enable AI Assist."
+            @endif
+        >
             ✦ Help me answer this
         </button>
 
@@ -66,7 +77,7 @@
         Try refining your business context above for better drafts.
     </p>
 
-    @if ($disabled)
+    @if ($isDisabled)
         <p class="input-helper">
             Add a description of the business at the top of the profile to enable AI Assist.
         </p>

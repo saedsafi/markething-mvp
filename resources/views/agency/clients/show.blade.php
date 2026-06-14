@@ -536,17 +536,16 @@
                                     </div>
                                 </div>
 
-                                <x-ai-assist-field
-                                label="What makes them hesitate?"
-                                name="objection"
-                                :value="old('objection', $answers['objection'] ?? '')"
-                                :questionKey="'persona_objection'"
-                                :clientId="$client->id"
-                                :max="150"
-                                :disabled="false"
-                                placeholder="e.g., They worry the quality won’t match the price, or they’ve been let down before."
-                                footer="What stops them from buying — price worries, trust, habit? Optional."
-                            />
+                                    <x-ai-assist-field
+                                    label="What makes them hesitate?"
+                                    name="objection"
+                                    :value="old('objection', $answers['objection'] ?? '')"
+                                    question-key="persona_objection"
+                                    :client-id="$client->id"
+                                    :max="150"
+                                    placeholder="e.g., They worry the quality won’t match the price, or they’ve been let down before."
+                                    footer="What stops them from buying — price worries, trust, habit? Optional."
+                                    />
 
                                 <div class="modal-actions">
                                     <button class="btn btn-primary" type="submit">
@@ -774,14 +773,13 @@
         label="What makes them hesitate?"
         name="objection"
         :value="old('objection')"
-        :questionKey="'persona_objection'"
-        :clientId="$client->id"
+        question-key="persona_objection"
+        :client-id="$client->id"
         :max="150"
-        :disabled="false"
         placeholder="e.g., They worry the quality won’t match the price, or they’ve been let down before."
         footer="What stops them from buying — price worries, trust, habit? Optional."
     />
-    
+        
         <div class="modal-actions">
             <button class="btn btn-primary" type="submit">
                 Add Persona
@@ -923,11 +921,12 @@
                 activeTextarea.readOnly = true;
     
                 try {
-                    showAiLoading(
-                        'Drafting Answer...',
-                        'MARKETHING is generating a response using your Business Context.'
-                    );
-    
+if (typeof showAiLoading === 'function') {
+    showAiLoading(
+        'Drafting Answer...',
+        'MARKETHING is generating a response using your Business Context.'
+    );
+}
                     const csrfToken =
                         document
                             .querySelector('meta[name="csrf-token"]')
@@ -1024,8 +1023,9 @@
                         'Couldn’t draft an answer. Try again in a moment.'
                     );
                 } finally {
-                    hideAiLoading();
-    
+                    if (typeof hideAiLoading === 'function') {
+                        hideAiLoading();
+                    }    
                     button.disabled = false;
                     button.textContent = originalText;
                     activeTextarea.readOnly = false;
@@ -1036,5 +1036,17 @@
         });
     });
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document
+                .querySelectorAll('#addPersonaModal .ai-assist-btn, [id^="editPersonaModal"] .ai-assist-btn')
+                .forEach((button) => {
+                    button.disabled = false;
+                    button.removeAttribute('disabled');
+                    button.removeAttribute('title');
+                    button.classList.remove('disabled-ai');
+                });
+        });
+        </script>
 @endsection
 

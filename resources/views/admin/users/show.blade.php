@@ -133,6 +133,7 @@
                         <th>Personas</th>
                         <th>Campaigns</th>
                         <th>Created</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
 
@@ -171,13 +172,27 @@
                             <td>
                                 {{ $client->created_at->format('M Y') }}
                             </td>
+                            <td>
+                                <form
+                                    method="POST"
+                                    action="{{ route('admin.clients.destroy', $client) }}"
+                                    data-confirm="Delete this client profile permanently? Existing campaign snapshots will remain protected."
+                                >
+                                    @csrf
+                                    @method('DELETE')
+                            
+                                    <button class="mini-btn danger" type="submit">
+                                        Delete
+                                    </button>
+                                </form>
+                            </td>
 
                         </tr>
 
                     @empty
 
                         <tr>
-                            <td colspan="5">
+                            <td colspan="6">
                                 No client profiles yet.
                             </td>
                         </tr>
