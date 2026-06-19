@@ -29,8 +29,22 @@ class ClientController extends Controller
         ]);
     }
 
-    public function create(): View
+    public function create(Request $request): View|RedirectResponse
     {
+        $user = $request->user();
+    
+        $activeClientCount = $user->clients()
+            ->where('status', 'active')
+            ->count();
+    
+        if ($activeClientCount >= $user->client_limit) {
+            return redirect()
+                ->route('agency.clients.index')
+                ->withErrors([
+                    'client_limit' => 'You’ve reached your client profiles limit.',
+                ]);
+        }
+    
         return view('agency.clients.create');
     }
 

@@ -6455,3 +6455,9 @@ PROMPT EDITOR FINAL FIX
 .ai-field {
     position: relative;
 }
+
+.form-label.required::after {
+    content: " *";
+    color: #ef4444;
+    font-weight: 900;
+}

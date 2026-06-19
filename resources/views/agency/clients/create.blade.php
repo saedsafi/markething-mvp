@@ -201,7 +201,7 @@
                     data-step-description="Paste the main business context AI Assist will use later."
                 >
                     <div class="form-group">
-                        <label class="form-label">
+                        <label class="form-label required">
                             Business Name
                         </label>
 
@@ -216,7 +216,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">
+                        <label class="form-label required">
                             Business Context
                         </label>
 
@@ -226,7 +226,8 @@
                             maxlength="{{ $businessContextMax }}"
                             data-business-context-source
                             placeholder="Paste a business bio, about-us text, previous captions, or your own description..."
-                        >{{ $businessContextValue }}</textarea>
+                            required
+                            >{{ $businessContextValue }}</textarea>
 
                         <div class="ai-field-footer">
                             <p>
@@ -270,7 +271,7 @@
                     <div class="form-grid">
 
                         <div class="form-group">
-                            <label class="form-label">Industry</label>
+                            <label class="form-label required">Industry</label>
                             <p class="input-helper">What kind of business is this?</p>
 
                             <select
@@ -309,15 +310,16 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Business Type</label>
+                            <label class="form-label required">Business Type</label>
                             <p class="input-helper">Pick the closest match.</p>
 
                             <select
-                                name="business_type"
-                                class="form-select"
-                                data-business-type-select
-                                required
-                            >
+                            name="business_type"
+                            class="form-select"
+                            data-business-type-select
+                            data-current-value="{{ old('business_type', $businessInfo['business_type'] ?? '') }}"
+                            required
+                        >
                                 <option value="">Select business type</option>
 
                                 @php
@@ -370,7 +372,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Country</label>
+                            <label class="form-label required">Country</label>
                             <p class="input-helper">Where is the business based?</p>
                         
                             <select
@@ -432,7 +434,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Price Tier</label>
+                            <label class="form-label required">Price Tier</label>
                             <p class="input-helper">How do prices compare to others in the same category?</p>
 
                             <input
@@ -467,6 +469,7 @@
                         :disabled="$aiDisabled"
                         placeholder="e.g., The only roastery in Ramallah sourcing beans from small Palestinian farms"
                         footer="In a line or two, what makes this business different from similar ones?"
+                        required
                     />
                 </div>
 
@@ -478,7 +481,7 @@
                     data-step-description="Define how the brand should and should not come across."
                 >
                     <div class="form-group">
-                        <label class="form-label">Brand Positioning</label>
+                        <label class="form-label required">Brand Positioning</label>
                         <p class="input-helper">How should the brand come across? Pick up to 2.</p>
 
                         <div class="checkbox-grid other-option" data-max-checks="2">
@@ -535,7 +538,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Business Age</label>
+                        <label class="form-label required">Business Age</label>
                         <p class="input-helper">How long has the business been running?</p>
 
                         <select
@@ -572,7 +575,7 @@
                     <div class="form-grid">
 
                         <div class="form-group">
-                            <label class="form-label">Arabic Variety / Dialect</label>
+                            <label class="form-label required">Arabic Variety / Dialect</label>
                             <p class="input-helper">Which kind of Arabic should the content be written in?</p>
 
                             <select
@@ -601,7 +604,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Emoji Usage</label>
+                            <label class="form-label required">Emoji Usage</label>
                             <p class="input-helper">How often should posts use emojis?</p>
 
                             <select
@@ -623,7 +626,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">English Usage</label>
+                            <label class="form-label required">English Usage</label>
                             <p class="input-helper">Should posts include English, or stay fully Arabic?</p>
 
                             <select
@@ -683,7 +686,7 @@
                     data-step-description="Define how customers take action with this business."
                 >
                     <div class="form-group">
-                        <label class="form-label">Conversion Actions</label>
+                        <label class="form-label required">Conversion Actions</label>
                         <p class="input-helper">How do customers take action? Pick all that apply, then fill in the details.</p>
 
                         <div class="checkbox-grid other-option">
@@ -806,7 +809,7 @@
                     <div class="form-grid">
 
                         <div class="form-group">
-                            <label class="form-label">Persona Name</label>
+                            <label class="form-label required">Persona Name</label>
                             <p class="input-helper">A short name so you can recognize this audience later.</p>
 
                             <input
@@ -821,7 +824,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Gender</label>
+                            <label class="form-label required">Gender</label>
                             <p class="input-helper">Who is this content speaking to?</p>
 
                             <select
@@ -847,7 +850,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Age Range</label>
+                            <label class="form-label required">Age Range</label>
                             <p class="input-helper">Roughly how old is this audience?</p>
 
                             <select
@@ -877,7 +880,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Who is this audience, in one line?</label>
+                            <label class="form-label required">Who is this audience, in one line?</label>
                             <p class="input-helper">The type of person or their situation.</p>
 
                             <input
@@ -902,7 +905,7 @@
                     data-step-description="Define buyer relationship, priorities, and objections."
                 >
                     <div class="form-group">
-                        <label class="form-label">Is the buyer the same as the person who uses the product?</label>
+                        <label class="form-label required">Is the buyer the same as the person who uses the product?</label>
                         <p class="input-helper">Who pays and who actually uses it — are they the same person?</p>
 
                         <select
@@ -946,7 +949,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">What matters most to them?</label>
+                        <label class="form-label required">What matters most to them?</label>
                         <p class="input-helper">Pick up to 2. What does this audience care about most?</p>
 
                         <div class="checkbox-grid other-option" data-max-checks="2">
@@ -1158,25 +1161,28 @@
         let formSubmitted = false;
         let dailyLimitReached = false;
     
-        /*
-        |--------------------------------------------------------------------------
-        | Unsaved Changes Protection
-        |--------------------------------------------------------------------------
-        */
+        const businessTypesByIndustry = {
+            'Food & Beverage': ['Restaurant', 'Cafe', 'Bakery', 'Specialty food product', 'Catering', 'Bar', 'Juice & smoothie bar', 'Sweets & desserts', 'Food truck', 'Other'],
+            'Retail': ['Clothing', 'Accessories', 'Home goods', 'Specialty retail', 'Electronics', 'Books & stationery', 'Toys & gifts', 'Jewelry', 'Furniture', 'Other'],
+            'E-commerce': ['Online clothing store', 'Online specialty products', 'Handmade & crafts', 'Multi-category online store', 'Other'],
+            'Beauty & Personal Care': ['Salon', 'Spa', 'Cosmetics brand', 'Skincare brand', 'Barbershop', 'Nail salon', 'Perfume brand', 'Beauty clinic', 'Other'],
+            'Health & Wellness': ['Clinic', 'Dental practice', 'Medical center', 'Pharmacy', 'Nutrition & diet', 'Physiotherapy', 'Alternative medicine', 'Mental health practice', 'Other'],
+            'Fitness': ['Gym', 'Personal training', 'Yoga studio', 'CrossFit box', 'Sports club', 'Fitness brand', 'Martial arts studio', 'Other'],
+            'Education': ['School', 'Nursery & kindergarten', 'Training center', 'Language institute', 'Online courses', 'Tutoring', 'University & college', 'Educational content', 'Other'],
+            'Professional Services': ['Law firm', 'Accounting', 'Consulting', 'Marketing agency', 'Engineering', 'Architecture', 'IT services', 'Translation services', 'HR & recruitment', 'Other'],
+            'Creative Services': ['Photography', 'Videography', 'Graphic design', 'Branding studio', 'Content production', 'Printing services', 'Event planning', 'Interior design', 'Other'],
+            'Real Estate': ['Real estate agency', 'Property developer', 'Property management', 'Brokerage', 'Vacation rentals', 'Other'],
+            'Hospitality': ['Hotel', 'Guesthouse', 'Resort', 'Event venue', 'Travel agency', 'Tourism services', 'Co-working space', 'Other'],
+            'Tech': ['Software', 'SaaS', 'Mobile app', 'Tech startup', 'IT solutions', 'E-commerce platform', 'Fintech', 'EdTech', 'Other'],
+            'Other': ['Other'],
+        };
     
         form?.querySelectorAll('input, textarea, select').forEach((field) => {
-            field.addEventListener('input', () => {
-                formChanged = true;
-            });
-    
-            field.addEventListener('change', () => {
-                formChanged = true;
-            });
+            field.addEventListener('input', () => formChanged = true);
+            field.addEventListener('change', () => formChanged = true);
         });
     
-        form?.addEventListener('submit', () => {
-            formSubmitted = true;
-        });
+        form?.addEventListener('submit', () => formSubmitted = true);
     
         window.addEventListener('beforeunload', (event) => {
             if (formChanged && !formSubmitted) {
@@ -1185,43 +1191,39 @@
             }
         });
     
-        document
-            .querySelectorAll('[data-unsaved-leave-link]')
-            .forEach((link) => {
-                link.addEventListener('click', (event) => {
-                    if (formChanged && !formSubmitted) {
-                        const confirmed = confirm(
-                            'You have unsaved changes. Leave this page?'
-                        );
+        function refreshBusinessTypeOptions() {
+            const industrySelect = document.querySelector('[data-industry-select]');
+            const businessTypeSelect = document.querySelector('[data-business-type-select]');
     
-                        if (!confirmed) {
-                            event.preventDefault();
-                        }
-                    }
-                });
+            if (!industrySelect || !businessTypeSelect) return;
+    
+            const currentValue = businessTypeSelect.dataset.currentValue || businessTypeSelect.value;
+            const options = businessTypesByIndustry[industrySelect.value] || [];
+    
+            businessTypeSelect.innerHTML = '<option value="">Select business type</option>';
+    
+            options.forEach((type) => {
+                const option = document.createElement('option');
+                option.value = type;
+                option.textContent = type;
+                option.selected = currentValue === type;
+                businessTypeSelect.appendChild(option);
             });
     
-        /*
-        |--------------------------------------------------------------------------
-        | Conditional Fields
-        |--------------------------------------------------------------------------
-        */
+            businessTypeSelect.dataset.currentValue = businessTypeSelect.value;
+        }
     
         function toggleField(field, shouldShow) {
-            if (!field) {
-                return;
-            }
+            if (!field) return;
     
             field.style.display = shouldShow ? 'block' : 'none';
     
-            field
-                .querySelectorAll('input, select, textarea')
-                .forEach((input) => {
-                    if (!shouldShow) {
-                        input.value = '';
-                        input.required = false;
-                    }
-                });
+            field.querySelectorAll('input, select, textarea').forEach((input) => {
+                if (!shouldShow) {
+                    input.value = '';
+                    input.required = false;
+                }
+            });
         }
     
         function refreshConditionals() {
@@ -1230,177 +1232,108 @@
             const brandAvoidsOther = document.querySelector('[data-brand-avoids-other-field]');
             const personaBuyerSelect = document.querySelector('[data-persona-buyer-select]');
     
-            toggleField(
-                document.querySelector('[data-industry-other-field]'),
-                industrySelect?.value === 'Other'
-            );
+            toggleField(document.querySelector('[data-industry-other-field]'), industrySelect?.value === 'Other');
+            toggleField(document.querySelector('[data-business-type-other-field]'), businessTypeSelect?.value === 'Other');
     
-            toggleField(
-                document.querySelector('[data-business-type-other-field]'),
-                businessTypeSelect?.value === 'Other'
-            );
+            const brandAvoidsOtherChecked = Array
+                .from(document.querySelectorAll('[data-brand-avoids-option]'))
+                .some((checkbox) => checkbox.value === 'Other' && checkbox.checked);
     
-            const brandAvoidsOtherChecked =
-                Array
-                    .from(document.querySelectorAll('[data-brand-avoids-option]'))
-                    .some((checkbox) => checkbox.value === 'Other' && checkbox.checked);
-    
-            toggleField(
-                brandAvoidsOther,
-                brandAvoidsOtherChecked
-            );
+            toggleField(brandAvoidsOther, brandAvoidsOtherChecked);
     
             const personaNeedsDecider =
                 personaBuyerSelect &&
                 personaBuyerSelect.value &&
                 personaBuyerSelect.value !== 'Yes — they buy it and use it themselves';
     
-            const personaDeciderField =
-                document.querySelector('[data-persona-decider-field]');
-    
-            toggleField(
-                personaDeciderField,
-                personaNeedsDecider
-            );
+            const personaDeciderField = document.querySelector('[data-persona-decider-field]');
+            toggleField(personaDeciderField, personaNeedsDecider);
     
             personaDeciderField
                 ?.querySelector('input')
                 ?.toggleAttribute('required', Boolean(personaNeedsDecider));
     
-            document
-                .querySelectorAll('[data-conversion-detail]')
-                .forEach((detailField) => {
-                    const action =
-                        detailField.dataset.conversionDetail;
+            document.querySelectorAll('[data-conversion-detail]').forEach((detailField) => {
+                const action = detailField.dataset.conversionDetail;
     
-                    const isChecked =
-                        document.querySelector(
-                            `[data-conversion-action][value="${CSS.escape(action)}"]`
-                        )?.checked;
+                const isChecked = document.querySelector(
+                    `[data-conversion-action][value="${CSS.escape(action)}"]`
+                )?.checked;
     
-                    toggleField(detailField, Boolean(isChecked));
+                toggleField(detailField, Boolean(isChecked));
     
-                    const input =
-                        detailField.querySelector('input');
+                const input = detailField.querySelector('input');
     
-                    if (!input) {
-                        return;
-                    }
-    
-                    input.required =
-                        Boolean(isChecked) &&
-                        action !== 'Message us on Instagram / Facebook';
-                });
+                if (input) {
+                    input.required = Boolean(isChecked) && action !== 'Message us on Instagram / Facebook';
+                }
+            });
         }
     
-        document
-            .querySelectorAll(
-                '[data-industry-select], [data-business-type-select], [data-persona-buyer-select], [data-brand-avoids-option], [data-conversion-action]'
-            )
-            .forEach((field) => {
-                field.addEventListener('change', refreshConditionals);
-            });
+        document.querySelector('[data-industry-select]')?.addEventListener('change', () => {
+            const businessTypeSelect = document.querySelector('[data-business-type-select]');
     
-        refreshConditionals();
-        /*
-        |--------------------------------------------------------------------------
-        | Palestine City Visibility
-        |--------------------------------------------------------------------------
-        */
-
-        const countrySelect =
-            document.querySelector('[data-country-select]');
-
-        const cityGrid =
-            document.querySelector('[data-palestine-cities]');
-
-        const cityPlaceholder =
-            document.querySelector('[data-city-placeholder]');
-
-        function refreshCountryCities() {
-            if (!countrySelect) {
-                return;
+            if (businessTypeSelect) {
+                businessTypeSelect.dataset.currentValue = '';
             }
-
-            const isPalestine =
-                countrySelect.value === 'Palestine';
-
-            cityGrid?.classList.toggle(
-                'hidden',
-                !isPalestine
-            );
-
-            cityPlaceholder?.classList.toggle(
-                'hidden',
-                isPalestine
-            );
-
-            cityGrid
-                ?.querySelectorAll('input[type="checkbox"]')
-                .forEach((checkbox) => {
-                    checkbox.required = false;
-
-                    if (!isPalestine) {
-                        checkbox.checked = false;
-                    }
-                });
-        }
-
-        countrySelect?.addEventListener(
-            'change',
-            refreshCountryCities
-        );
-
-        refreshCountryCities();
-        /*
-        |--------------------------------------------------------------------------
-        | Multi-select Limits
-        |--------------------------------------------------------------------------
-        */
+    
+            refreshBusinessTypeOptions();
+            refreshConditionals();
+        });
     
         document
-            .querySelectorAll('[data-max-checks]')
-            .forEach((group) => {
-                const max =
-                    Number(group.dataset.maxChecks || 0);
+            .querySelectorAll('[data-business-type-select], [data-persona-buyer-select], [data-brand-avoids-option], [data-conversion-action]')
+            .forEach((field) => field.addEventListener('change', refreshConditionals));
     
-                const checkboxes =
-                    group.querySelectorAll('input[type="checkbox"]');
+        refreshBusinessTypeOptions();
+        refreshConditionals();
     
-                checkboxes.forEach((checkbox) => {
-                    checkbox.addEventListener('change', () => {
-                        const checked =
-                            group.querySelectorAll('input[type="checkbox"]:checked');
+        const countrySelect = document.querySelector('[data-country-select]');
+        const cityGrid = document.querySelector('[data-palestine-cities]');
+        const cityPlaceholder = document.querySelector('[data-city-placeholder]');
     
-                        if (checked.length > max) {
-                            checkbox.checked = false;
+        function refreshCountryCities() {
+            if (!countrySelect) return;
     
-                            alert(
-                                'You can select up to ' + max + ' options only.'
-                            );
-                        }
+            const isPalestine = countrySelect.value === 'Palestine';
     
-                        refreshConditionals();
-                    });
+            cityGrid?.classList.toggle('hidden', !isPalestine);
+            cityPlaceholder?.classList.toggle('hidden', isPalestine);
+    
+            cityGrid?.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
+                checkbox.required = false;
+    
+                if (!isPalestine) {
+                    checkbox.checked = false;
+                }
+            });
+        }
+    
+        countrySelect?.addEventListener('change', refreshCountryCities);
+        refreshCountryCities();
+    
+        document.querySelectorAll('[data-max-checks]').forEach((group) => {
+            const max = Number(group.dataset.maxChecks || 0);
+    
+            group.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
+                checkbox.addEventListener('change', () => {
+                    const checked = group.querySelectorAll('input[type="checkbox"]:checked');
+    
+                    if (checked.length > max) {
+                        checkbox.checked = false;
+                        alert('You can select up to ' + max + ' options only.');
+                    }
+    
+                    refreshConditionals();
                 });
             });
+        });
     
-        /*
-        |--------------------------------------------------------------------------
-        | Price Tier Label
-        |--------------------------------------------------------------------------
-        */
-    
-        const priceRange =
-            document.querySelector('[data-price-tier-range]');
-    
-        const priceLabel =
-            document.querySelector('[data-price-tier-label]');
+        const priceRange = document.querySelector('[data-price-tier-range]');
+        const priceLabel = document.querySelector('[data-price-tier-label]');
     
         function updatePriceLabel() {
-            if (!priceRange || !priceLabel) {
-                return;
-            }
+            if (!priceRange || !priceLabel) return;
     
             const labels = {
                 1: '1 — Budget',
@@ -1410,36 +1343,19 @@
                 5: '5 — Luxury',
             };
     
-            priceLabel.textContent =
-                labels[priceRange.value] || priceRange.value;
+            priceLabel.textContent = labels[priceRange.value] || priceRange.value;
         }
     
         priceRange?.addEventListener('input', updatePriceLabel);
-    
         updatePriceLabel();
     
-        /*
-        |--------------------------------------------------------------------------
-        | AI Assist Enable / Disable
-        |--------------------------------------------------------------------------
-        */
-    
         function refreshAiButtons() {
-            const hasContext =
-                businessContext &&
-                businessContext.value.trim().length > 0;
-    
             aiButtons.forEach((button) => {
-                button.disabled = !hasContext || dailyLimitReached;
+                button.disabled = dailyLimitReached;
     
-                if (!hasContext) {
+                if (dailyLimitReached) {
                     button.classList.add('disabled-ai');
-                    button.title =
-                        'Add a description of the business at the top of the profile to enable AI Assist.';
-                } else if (dailyLimitReached) {
-                    button.classList.add('disabled-ai');
-                    button.title =
-                        'Daily AI assist limit reached. Resets at midnight.';
+                    button.title = 'Daily AI assist limit reached. Resets at midnight.';
                 } else {
                     button.classList.remove('disabled-ai');
                     button.title = '';
@@ -1450,21 +1366,13 @@
         if (businessContext && businessCounter) {
             businessContext.addEventListener('input', () => {
                 businessCounter.textContent =
-                    businessContext.value.length +
-                    '/' +
-                    businessContext.getAttribute('maxlength');
+                    businessContext.value.length + '/' + businessContext.getAttribute('maxlength');
     
                 refreshAiButtons();
             });
         }
     
         refreshAiButtons();
-    
-        /*
-        |--------------------------------------------------------------------------
-        | Step Wizard
-        |--------------------------------------------------------------------------
-        */
     
         const steps = document.querySelectorAll('[data-client-step]');
         const nextBtn = document.querySelector('[data-next-step]');
@@ -1479,9 +1387,7 @@
         let currentStep = 0;
     
         function showStep(index) {
-            steps.forEach((step, i) => {
-                step.classList.toggle('active', i === index);
-            });
+            steps.forEach((step, i) => step.classList.toggle('active', i === index));
     
             progressItems.forEach((item, i) => {
                 const icon = item.querySelector('span');
@@ -1490,80 +1396,146 @@
                 item.classList.toggle('active', i === index);
     
                 if (icon) {
-                    if (i < index) {
-                        icon.textContent = '✓';
-                    } else if (i === index) {
-                        icon.textContent = '•';
-                    } else {
-                        icon.textContent = i + 1;
-                    }
+                    icon.textContent = i < index ? '✓' : (i === index ? '•' : i + 1);
                 }
             });
     
             const activePanel = steps[index];
     
             if (currentStepTitle && activePanel) {
-                currentStepTitle.textContent =
-                    activePanel.dataset.stepTitle || '';
+                currentStepTitle.textContent = activePanel.dataset.stepTitle || '';
             }
     
             if (currentStepDescription && activePanel) {
-                currentStepDescription.textContent =
-                    activePanel.dataset.stepDescription || '';
+                currentStepDescription.textContent = activePanel.dataset.stepDescription || '';
             }
     
             if (progressFill) {
-                progressFill.style.width =
-                    (((index + 1) / steps.length) * 100) + '%';
+                progressFill.style.width = (((index + 1) / steps.length) * 100) + '%';
             }
     
             if (stepCounter) {
-                stepCounter.textContent =
-                    'Step ' + (index + 1) + ' of ' + steps.length;
+                stepCounter.textContent = 'Step ' + (index + 1) + ' of ' + steps.length;
             }
     
             if (prevBtn) {
-                prevBtn.style.display =
-                    index === 0 ? 'none' : 'inline-flex';
+                prevBtn.style.display = index === 0 ? 'none' : 'inline-flex';
             }
     
             if (nextBtn) {
-                nextBtn.style.display =
-                    index === steps.length - 1 ? 'none' : 'inline-flex';
+                nextBtn.style.display = index === steps.length - 1 ? 'none' : 'inline-flex';
             }
     
             if (submitBtn) {
-                submitBtn.style.display =
-                    index === steps.length - 1 ? 'inline-flex' : 'none';
+                submitBtn.style.display = index === steps.length - 1 ? 'inline-flex' : 'none';
             }
     
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth',
-            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     
-        nextBtn?.addEventListener('click', () => {
+        function isHiddenByConditional(field) {
+            const wrapper = field.closest('.conditional-field');
+            return wrapper && wrapper.style.display === 'none';
+        }
+    
+        function validateCurrentStep() {
+            const activeStep = steps[currentStep];
+    
+            if (!activeStep) return true;
+    
+            const requiredFields = activeStep.querySelectorAll(
+                'input[required], select[required], textarea[required]'
+            );
+    
+            for (const field of requiredFields) {
+                if (isHiddenByConditional(field)) continue;
+                if (field.type === 'checkbox') continue;
+    
+                const value = String(field.value || '').trim();
+    
+                if (!value) {
+                    field.focus();
+                    alert('Please fill all required fields before continuing.');
+                    return false;
+                }
+            }
+    
+            if (activeStep.querySelector('[name="conversion_actions[]"]')) {
+                if (activeStep.querySelectorAll('[name="conversion_actions[]"]:checked').length === 0) {
+                    alert('Please select at least one conversion action before continuing.');
+                    return false;
+                }
+            }
+    
+            if (activeStep.querySelector('[name="brand_positioning[]"]')) {
+                if (activeStep.querySelectorAll('[name="brand_positioning[]"]:checked').length === 0) {
+                    alert('Please select at least one brand positioning option before continuing.');
+                    return false;
+                }
+            }
+    
+            if (activeStep.querySelector('[name="city[]"]') && countrySelect?.value === 'Palestine') {
+                if (activeStep.querySelectorAll('[name="city[]"]:checked').length === 0) {
+                    alert('Please select at least one city before continuing.');
+                    return false;
+                }
+            }
+    
+            if (activeStep.querySelector('[name="persona_priorities[]"]')) {
+                if (activeStep.querySelectorAll('[name="persona_priorities[]"]:checked').length === 0) {
+                    alert('Please select at least one persona priority before continuing.');
+                    return false;
+                }
+            }
+    
+            return true;
+        }
+    
+        nextBtn?.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+    
+            refreshConditionals();
+    
+            if (!validateCurrentStep()) {
+                return false;
+            }
+    
             if (currentStep < steps.length - 1) {
                 currentStep++;
                 showStep(currentStep);
             }
+    
+            return false;
         });
     
-        prevBtn?.addEventListener('click', () => {
+        prevBtn?.addEventListener('click', (event) => {
+            event.preventDefault();
+    
             if (currentStep > 0) {
                 currentStep--;
                 showStep(currentStep);
             }
         });
     
-        showStep(currentStep);
+        form?.addEventListener('keydown', (event) => {
+            if (event.key !== 'Enter') return;
     
-        /*
-        |--------------------------------------------------------------------------
-        | AI Assist Modal
-        |--------------------------------------------------------------------------
-        */
+            const tag = event.target.tagName.toLowerCase();
+    
+            if (tag === 'textarea') return;
+    
+            event.preventDefault();
+            event.stopImmediatePropagation();
+    
+            if (currentStep < steps.length - 1) {
+                nextBtn?.click();
+            } else {
+                submitBtn?.click();
+            }
+        });
+    
+        showStep(currentStep);
     
         let activeFieldWrapper = null;
         let activeTextarea = null;
@@ -1575,34 +1547,39 @@
         const runBtn = document.getElementById('runAiAssistBtn');
     
         aiButtons.forEach((button) => {
-            button.addEventListener('click', () => {
-                if (button.disabled) {
-                    return;
+            button.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+    
+                const hasContext = businessContext && businessContext.value.trim().length > 0;
+    
+                if (!hasContext) {
+                    alert("Fill in the business context field at the beginning to activate ‘Help me answer this’ feature.");
+                    return false;
                 }
     
-                activeFieldWrapper =
-                    button.closest('[data-ai-field]');
+                if (dailyLimitReached) {
+                    alert('Daily AI assist limit reached. Resets at midnight.');
+                    return false;
+                }
     
-                activeTextarea =
-                    activeFieldWrapper.querySelector('[data-ai-target-field]');
+                activeFieldWrapper = button.closest('[data-ai-field]');
+                activeTextarea = activeFieldWrapper?.querySelector('[data-ai-target-field]');
     
-                labelEl.textContent =
-                    button.dataset.aiLabel || 'AI Assist';
+                if (!activeFieldWrapper || !activeTextarea) return false;
     
-                helperEl.textContent =
-                    button.dataset.aiHelper || 'Add extra details if needed.';
-    
+                labelEl.textContent = button.dataset.aiLabel || 'AI Assist';
+                helperEl.textContent = button.dataset.aiHelper || 'Add extra details if needed.';
                 extraInput.value = '';
     
-                modal.classList.add('active');
-                modal.classList.add('show');
+                modal.classList.add('active', 'show');
+    
+                return false;
             });
         });
     
         function shouldSkipReplaceConfirmation() {
-            return localStorage.getItem(
-                'markething_ai_assist_skip_replace_confirmation'
-            ) === 'true';
+            return localStorage.getItem('markething_ai_assist_skip_replace_confirmation') === 'true';
         }
     
         function askBeforeReplacing() {
@@ -1613,36 +1590,23 @@
                 const checkbox = document.getElementById('replaceDontAskAgain');
     
                 if (!replaceModal || !confirmBtn || !cancelBtn) {
-                    resolve(
-                        window.confirm(
-                            'This will replace your current text. Continue?'
-                        )
-                    );
-    
+                    resolve(window.confirm('This will replace your current text. Continue?'));
                     return;
                 }
     
-                if (checkbox) {
-                    checkbox.checked = false;
-                }
+                if (checkbox) checkbox.checked = false;
     
-                replaceModal.classList.add('show');
-                replaceModal.classList.add('active');
+                replaceModal.classList.add('show', 'active');
     
                 const cleanup = () => {
-                    replaceModal.classList.remove('show');
-                    replaceModal.classList.remove('active');
-    
+                    replaceModal.classList.remove('show', 'active');
                     confirmBtn.removeEventListener('click', onConfirm);
                     cancelBtn.removeEventListener('click', onCancel);
                 };
     
                 const onConfirm = () => {
                     if (checkbox?.checked) {
-                        localStorage.setItem(
-                            'markething_ai_assist_skip_replace_confirmation',
-                            'true'
-                        );
+                        localStorage.setItem('markething_ai_assist_skip_replace_confirmation', 'true');
                     }
     
                     cleanup();
@@ -1659,37 +1623,23 @@
             });
         }
     
-        runBtn?.addEventListener('click', async () => {
-            if (!activeFieldWrapper || !activeTextarea) {
-                return;
+        runBtn?.addEventListener('click', async (event) => {
+            event.preventDefault();
+    
+            if (!activeFieldWrapper || !activeTextarea) return;
+    
+            const existingValue = activeTextarea.value.trim();
+    
+            if (existingValue.length > 0 && !shouldSkipReplaceConfirmation()) {
+                const confirmed = await askBeforeReplacing();
+                if (!confirmed) return;
             }
     
-            const existingValue =
-                activeTextarea.value.trim();
+            const button = activeFieldWrapper.querySelector('[data-open-ai-assist]');
+            const warning = activeFieldWrapper.querySelector('[data-ai-soft-warning]');
+            const clicks = Number(activeTextarea.dataset.aiCurrentClicks || 0) + 1;
     
-            if (
-                existingValue.length > 0 &&
-                !shouldSkipReplaceConfirmation()
-            ) {
-                const confirmed =
-                    await askBeforeReplacing();
-    
-                if (!confirmed) {
-                    return;
-                }
-            }
-    
-            const button =
-                activeFieldWrapper.querySelector('[data-open-ai-assist]');
-    
-            const warning =
-                activeFieldWrapper.querySelector('[data-ai-soft-warning]');
-    
-            const clicks =
-                Number(activeTextarea.dataset.aiCurrentClicks || 0) + 1;
-    
-            activeTextarea.dataset.aiCurrentClicks =
-                clicks;
+            activeTextarea.dataset.aiCurrentClicks = clicks;
     
             if (clicks >= 3 && warning) {
                 warning.classList.remove('hidden');
@@ -1701,8 +1651,7 @@
             activeTextarea.readOnly = true;
     
             try {
-                modal.classList.remove('active');
-                modal.classList.remove('show');
+                modal.classList.remove('active', 'show');
     
                 showAiLoading(
                     'Drafting Answer...',
@@ -1710,100 +1659,64 @@
                 );
     
                 const csrfToken =
-                    document
-                        .querySelector('meta[name="csrf-token"]')
-                        ?.getAttribute('content') || '{{ csrf_token() }}';
+                    document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
     
                 const response = await fetch('{{ route('agency.ai-assist') }}', {
                     method: 'POST',
                     credentials: 'same-origin',
-    
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': csrfToken,
                         'X-Requested-With': 'XMLHttpRequest',
                     },
-    
                     body: JSON.stringify({
-                        ...(button.dataset.clientId
-                            ? { client_id: button.dataset.clientId }
-                            : {}),
-    
+                        ...(button.dataset.clientId ? { client_id: button.dataset.clientId } : {}),
                         question_key: button.dataset.questionKey,
                         question_label: button.dataset.aiLabel,
                         input: extraInput.value,
                         character_limit: button.dataset.characterLimit,
                         extra_instructions: extraInput.value,
                         business_context: businessContext?.value || '',
-    
                         business_info: {
-                            industry:
-                                document.querySelector('[name="industry"]')?.value || '',
-    
-                            business_type:
-                                document.querySelector('[name="business_type"]')?.value || '',
-    
-                            differentiator:
-                                document.querySelector('[name="differentiator"]')?.value || '',
+                            industry: document.querySelector('[name="industry"]')?.value || '',
+                            business_type: document.querySelector('[name="business_type"]')?.value || '',
+                            differentiator: document.querySelector('[name="differentiator"]')?.value || '',
                         },
-    
                         brand_info: {
-                            arabic_dialect:
-                                document.querySelector('[name="arabic_dialect"]')?.value || '',
-    
-                            emoji_usage:
-                                document.querySelector('[name="emoji_usage"]')?.value || '',
-    
-                            english_usage:
-                                document.querySelector('[name="english_usage"]')?.value || '',
+                            arabic_dialect: document.querySelector('[name="arabic_dialect"]')?.value || '',
+                            emoji_usage: document.querySelector('[name="emoji_usage"]')?.value || '',
+                            english_usage: document.querySelector('[name="english_usage"]')?.value || '',
                         },
                     }),
                 });
     
-                const data =
-                    await response.json();
+                const data = await response.json();
     
                 if (response.status === 429) {
                     dailyLimitReached = true;
                     refreshAiButtons();
-    
-                    alert(
-                        data.message ||
-                        'Daily AI assist limit reached. Resets at midnight.'
-                    );
-    
+                    alert(data.message || 'Daily AI assist limit reached. Resets at midnight.');
                     return;
                 }
     
                 if (!response.ok || !data.success) {
-                    alert(
-                        data.message ||
-                        'Couldn’t draft an answer. Try again in a moment.'
-                    );
-    
+                    alert(data.message || 'Couldn’t draft an answer. Try again in a moment.');
                     return;
                 }
     
-                activeTextarea.value =
-                    data.text;
-    
+                activeTextarea.value = data.text;
                 formChanged = true;
     
-                const counter =
-                    activeFieldWrapper.querySelector('[data-character-counter]');
+                const counter = activeFieldWrapper.querySelector('[data-character-counter]');
     
                 if (counter) {
                     counter.textContent =
-                        activeTextarea.value.length +
-                        '/' +
-                        button.dataset.characterLimit;
+                        activeTextarea.value.length + '/' + button.dataset.characterLimit;
                 }
     
             } catch (error) {
-                alert(
-                    'Couldn’t draft an answer. Try again in a moment.'
-                );
+                alert('Couldn’t draft an answer. Try again in a moment.');
             } finally {
                 hideAiLoading();
     
@@ -1815,26 +1728,14 @@
             }
         });
     
-        /*
-        |--------------------------------------------------------------------------
-        | Character Counters
-        |--------------------------------------------------------------------------
-        */
-    
         document.querySelectorAll('[data-ai-target-field]').forEach((textarea) => {
-            const wrapper =
-                textarea.closest('[data-ai-field]');
-    
-            const counter =
-                wrapper?.querySelector('[data-character-counter]');
-    
-            const max =
-                textarea.getAttribute('maxlength');
+            const wrapper = textarea.closest('[data-ai-field]');
+            const counter = wrapper?.querySelector('[data-character-counter]');
+            const max = textarea.getAttribute('maxlength');
     
             textarea.addEventListener('input', () => {
                 if (counter) {
-                    counter.textContent =
-                        textarea.value.length + '/' + max;
+                    counter.textContent = textarea.value.length + '/' + max;
                 }
             });
         });

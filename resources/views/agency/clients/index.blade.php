@@ -40,9 +40,19 @@
         </div>
 
         <div class="hero-actions">
+            @if (($activeClients ?? 0) >= auth()->user()->client_limit)
+            <button
+                class="btn btn-primary"
+                type="button"
+                onclick="alert('You’ve reached your client profiles limit.')"
+            >
+                + Create Client Profile
+            </button>
+        @else
             <a href="{{ route('agency.clients.create') }}" class="btn btn-primary">
                 + Create Client Profile
             </a>
+        @endif
         </div>
 
     </div>

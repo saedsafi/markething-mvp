@@ -2,6 +2,7 @@
     'label',
     'name',
     'value' => '',
+    'required' => false,
     'helper' => 'Add any extra details that may help MARKETHING draft a better answer.',
     'placeholder' => 'Write your answer...',
     'footer' => 'AI Assist uses the Business Context and your extra popup input to draft this field.',
@@ -29,7 +30,7 @@
 >
     <div class="ai-field-header">
 
-        <label class="form-label">
+        <label class="form-label {{ $required ? 'required' : '' }}">
             {{ $label }}
         </label>
 
@@ -42,9 +43,9 @@
             data-question-key="{{ $questionKey }}"
             data-client-id="{{ $clientId }}"
             data-character-limit="{{ $max }}"
-            @if ($isDisabled || ! $hasQuestionKey)
+            data-requires-business-context="{{ $isDisabled ? '1' : '0' }}"
+            @if (! $hasQuestionKey)
                 disabled
-                title="Add a description of the business at the top of the profile to enable AI Assist."
             @endif
         >
             ✦ Help me answer this
@@ -55,6 +56,7 @@
     <textarea
         class="form-textarea"
         name="{{ $name }}"
+        @required($required)
         placeholder="{{ $placeholder }}"
         maxlength="{{ $max }}"
         data-ai-target-field
@@ -77,10 +79,5 @@
         Try refining your business context above for better drafts.
     </p>
 
-    @if ($isDisabled)
-        <p class="input-helper">
-            Add a description of the business at the top of the profile to enable AI Assist.
-        </p>
-    @endif
 
 </div>

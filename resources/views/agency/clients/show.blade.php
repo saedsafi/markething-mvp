@@ -288,15 +288,22 @@
                         </p>
                     </div>
 
-                    @if ($client->personas->where('status', 'active')->count() < $personaLimit)
-                        <button
-                            class="btn btn-primary"
-                            type="button"
+                    @php
+                    $activePersonaCount = $client->personas->where('status', 'active')->count();
+                    $personaLimitReached = $activePersonaCount >= $personaLimit;
+                    @endphp
+                    
+                    <button
+                        class="btn btn-primary"
+                        type="button"
+                        @if ($personaLimitReached)
+                            data-persona-limit-warning
+                        @else
                             data-open-modal="addPersonaModal"
-                        >
-                            + Add Persona
-                        </button>
-                    @endif
+                        @endif
+                    >
+                        + Add Persona
+                    </button>
 
                 </div>
 
@@ -380,26 +387,26 @@
                                 </div>
 
                                 <div class="persona-block">
+                                    <span>Priorities</span>
+                                    <p>{{ $displayList($answers['priorities'] ?? []) }}</p>
+                                </div>
+                                
+                                <div class="persona-block">
+                                    <span>What Makes Them Hesitate</span>
+                                    <p>{{ $answers['objection'] ?? 'Not provided' }}</p>
+                                </div>
+                                
+                                <div class="persona-block">
                                     <span>Buyer / User Relationship</span>
                                     <p>{{ $answers['buyer_is_user'] ?? 'Not provided' }}</p>
                                 </div>
-
+                                
                                 @if (!empty($answers['decider']))
                                     <div class="persona-block">
                                         <span>Who Decides or Pays</span>
                                         <p>{{ $answers['decider'] }}</p>
                                     </div>
                                 @endif
-
-                                <div class="persona-block">
-                                    <span>Priorities</span>
-                                    <p>{{ $displayList($answers['priorities'] ?? []) }}</p>
-                                </div>
-
-                                <div class="persona-block">
-                                    <span>What Makes Them Hesitate</span>
-                                    <p>{{ $answers['objection'] ?? 'Not provided' }}</p>
-                                </div>
 
                             </div>
 
@@ -419,7 +426,7 @@
                                 @method('PATCH')
 
                                 <div class="form-group">
-                                    <label class="form-label">Persona Name</label>
+                                    <label class="form-label required">Persona Name</label>
 
                                     <input
                                         type="text"
@@ -432,7 +439,7 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label class="form-label">Gender</label>
+                                    <label class="form-label required">Gender</label>
 
                                     <select name="gender" class="form-select" required>
                                         @foreach ([
@@ -451,7 +458,7 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label class="form-label">Age Range</label>
+                                    <label class="form-label required">Age Range</label>
 
                                     <select name="age_range" class="form-select" required>
                                         @foreach (['13–17', '18–24', '25–34', '35–44', '45–60', '60+', 'All ages'] as $option)
@@ -466,7 +473,7 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label class="form-label">Who is this audience, in one line?</label>
+                                    <label class="form-label required">Who is this audience, in one line?</label>
 
                                     <input
                                         type="text"
@@ -475,45 +482,6 @@
                                         maxlength="80"
                                         value="{{ $answers['who'] ?? '' }}"
                                         required
-                                    >
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="form-label">Is the buyer the same as the user?</label>
-
-                                    <select
-                                        name="buyer_is_user"
-                                        class="form-select"
-                                        data-persona-buyer-select
-                                        required
-                                    >
-                                        @foreach ([
-                                            'Yes — they buy it and use it themselves',
-                                            'No — they buy it for someone else',
-                                            'No — someone else buys it for them',
-                                        ] as $option)
-                                            <option
-                                                value="{{ $option }}"
-                                                @selected(($answers['buyer_is_user'] ?? '') === $option)
-                                            >
-                                                {{ $option }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                <div
-                                    class="form-group conditional-field"
-                                    data-persona-decider-field
-                                >
-                                    <label class="form-label">Who actually decides or pays?</label>
-
-                                    <input
-                                        type="text"
-                                        name="decider"
-                                        class="form-input"
-                                        maxlength="60"
-                                        value="{{ $answers['decider'] ?? '' }}"
                                     >
                                 </div>
 
@@ -546,6 +514,44 @@
                                     placeholder="e.g., They worry the quality won’t match the price, or they’ve been let down before."
                                     footer="What stops them from buying — price worries, trust, habit? Optional."
                                     />
+                                    <div class="form-group">
+                                        <label class="form-label required">Is the buyer the same as the user?</label>
+    
+                                        <select
+                                            name="buyer_is_user"
+                                            class="form-select"
+                                            data-persona-buyer-select
+                                            required
+                                        >
+                                            @foreach ([
+                                                'Yes — they buy it and use it themselves',
+                                                'No — they buy it for someone else',
+                                                'No — someone else buys it for them',
+                                            ] as $option)
+                                                <option
+                                                    value="{{ $option }}"
+                                                    @selected(($answers['buyer_is_user'] ?? '') === $option)
+                                                >
+                                                    {{ $option }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+    
+                                    <div
+                                        class="form-group conditional-field"
+                                        data-persona-decider-field
+                                    >
+                                        <label class="form-label">Who actually decides or pays?</label>
+    
+                                        <input
+                                            type="text"
+                                            name="decider"
+                                            class="form-input"
+                                            maxlength="60"
+                                            value="{{ $answers['decider'] ?? '' }}"
+                                        >
+                                    </div>
 
                                 <div class="modal-actions">
                                     <button class="btn btn-primary" type="submit">
@@ -669,7 +675,7 @@
         @csrf
 
         <div class="form-group">
-            <label class="form-label">Persona Name</label>
+            <label class="form-label required">Persona Name</label>
 
             <input
                 type="text"
@@ -682,7 +688,7 @@
         </div>
 
         <div class="form-group">
-            <label class="form-label">Gender</label>
+            <label class="form-label required">Gender</label>
 
             <select name="gender" class="form-select" required>
                 <option value="">Select gender</option>
@@ -693,7 +699,7 @@
         </div>
 
         <div class="form-group">
-            <label class="form-label">Age Range</label>
+            <label class="form-label required">Age Range</label>
 
             <select name="age_range" class="form-select" required>
                 <option value="">Select age range</option>
@@ -708,7 +714,7 @@
         </div>
 
         <div class="form-group">
-            <label class="form-label">Who is this audience, in one line?</label>
+            <label class="form-label required">Who is this audience, in one line?</label>
 
             <input
                 type="text"
@@ -717,37 +723,6 @@
                 maxlength="80"
                 placeholder="e.g., New mothers buying for their first baby"
                 required
-            >
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">Is the buyer the same as the user?</label>
-
-            <select
-                name="buyer_is_user"
-                class="form-select"
-                data-persona-buyer-select
-                required
-            >
-                <option value="">Select answer</option>
-                <option value="Yes — they buy it and use it themselves">Yes — they buy it and use it themselves</option>
-                <option value="No — they buy it for someone else">No — they buy it for someone else</option>
-                <option value="No — someone else buys it for them">No — someone else buys it for them</option>
-            </select>
-        </div>
-
-        <div
-            class="form-group conditional-field"
-            data-persona-decider-field
-        >
-            <label class="form-label">Who actually decides or pays?</label>
-
-            <input
-                type="text"
-                name="decider"
-                class="form-input"
-                maxlength="60"
-                placeholder="Required if buyer and user are not the same"
             >
         </div>
 
@@ -779,6 +754,37 @@
         placeholder="e.g., They worry the quality won’t match the price, or they’ve been let down before."
         footer="What stops them from buying — price worries, trust, habit? Optional."
     />
+
+    <div class="form-group">
+        <label class="form-label required">Is the buyer the same as the user?</label>
+
+        <select
+            name="buyer_is_user"
+            class="form-select"
+            data-persona-buyer-select
+            required
+        >
+            <option value="">Select answer</option>
+            <option value="Yes — they buy it and use it themselves">Yes — they buy it and use it themselves</option>
+            <option value="No — they buy it for someone else">No — they buy it for someone else</option>
+            <option value="No — someone else buys it for them">No — someone else buys it for them</option>
+        </select>
+    </div>
+
+    <div
+        class="form-group conditional-field"
+        data-persona-decider-field
+    >
+        <label class="form-label">Who actually decides or pays?</label>
+
+        <input
+            type="text"
+            name="decider"
+            class="form-input"
+            maxlength="60"
+            placeholder="Required if buyer and user are not the same"
+        >
+    </div>
         
         <div class="modal-actions">
             <button class="btn btn-primary" type="submit">
@@ -1048,5 +1054,17 @@ if (typeof showAiLoading === 'function') {
                 });
         });
         </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document
+            .querySelectorAll('[data-persona-limit-warning]')
+            .forEach((button) => {
+                button.addEventListener('click', () => {
+                    alert("You’ve reached your personas limit.");
+                });
+            });
+    });
+    </script>
 @endsection
 

@@ -13,7 +13,7 @@ class ClaudeService
 
         $config = config('ai.anthropic');
 
-        $response = Http::timeout(120)
+        $response = Http::timeout(1000)
 
             ->withHeaders([
 
