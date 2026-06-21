@@ -244,11 +244,14 @@ Use the business context below to help the user answer this field.
 BUSINESS CONTEXT:
 {{business_context}}
 
+BUSINESS INFORMATION:
+{{business_info}}
+
+BRAND INFORMATION:
+{{brand_info}}
+
 FIELD:
 {{question_label}}
-
-USER EXTRA DETAILS:
-{{extra_instructions}}
 
 Task:
 Write one clear, specific answer that explains what makes this business different from similar businesses.
@@ -274,11 +277,14 @@ Use the business context below to help the user answer this persona field.
 BUSINESS CONTEXT:
 {{business_context}}
 
+BUSINESS INFORMATION:
+{{business_info}}
+
+BRAND INFORMATION:
+{{brand_info}}
+
 FIELD:
 {{question_label}}
-
-USER EXTRA DETAILS:
-{{extra_instructions}}
 
 Task:
 Write a concise answer describing what might make this audience hesitate before buying.

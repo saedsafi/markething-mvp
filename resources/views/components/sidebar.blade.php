@@ -61,7 +61,7 @@
         @endif
 
     </nav>
-
+<!--
     <div class="sidebar-plan">
         @if(request()->is('admin*'))
             <span>Founder Admin</span>
@@ -71,7 +71,7 @@
             <p>Limit is set per agency by the founder.</p>
         @endif
     </div>
-
+-->
 </aside>
 
 <div class="sidebar-overlay" id="sidebarOverlay"></div>

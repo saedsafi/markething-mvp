@@ -97,18 +97,14 @@ class AiAssistController extends Controller
                         'business_context' =>
                             $businessContext,
 
-                        'business_info' =>
-                            json_encode(
-                                $businessInfo,
-                                JSON_PRETTY_PRINT |
-                                JSON_UNESCAPED_UNICODE
+                            'business_info' => json_encode(
+                                $request->business_info ?? [],
+                                JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
                             ),
-
-                        'brand_info' =>
-                            json_encode(
-                                $brandInfo,
-                                JSON_PRETTY_PRINT |
-                                JSON_UNESCAPED_UNICODE
+                            
+                            'brand_info' => json_encode(
+                                $request->brand_info ?? [],
+                                JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
                             ),
 
                         'question_label' =>
@@ -119,10 +115,6 @@ class AiAssistController extends Controller
 
                         'character_limit' =>
                             $characterLimit,
-
-                        'extra_instructions' =>
-                            $request->extra_instructions
-                                ?? '',
                     ]
                 );
 

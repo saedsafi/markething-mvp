@@ -216,7 +216,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label required">
+                        <label class="form-label">
                             Business Context
                         </label>
 
@@ -226,7 +226,6 @@
                             maxlength="{{ $businessContextMax }}"
                             data-business-context-source
                             placeholder="Paste a business bio, about-us text, previous captions, or your own description..."
-                            required
                             >{{ $businessContextValue }}</textarea>
 
                         <div class="ai-field-footer">
@@ -395,7 +394,7 @@
                         </div>
                         
                         <div class="form-group">
-                            <label class="form-label">City</label>
+                            <label class="form-label required">City</label>
                             <p class="input-helper">Which cities does the business serve? Pick all that apply.</p>
                         
                             <div
@@ -904,6 +903,39 @@
                     data-step-title="Persona Motivations"
                     data-step-description="Define buyer relationship, priorities, and objections."
                 >
+                    
+                    <div class="form-group">
+                        <label class="form-label required">What matters most to them?</label>
+                        <p class="input-helper">Pick up to 2. What does this audience care about most?</p>
+
+                        <div class="checkbox-grid other-option" data-max-checks="2">
+                            @foreach ($personaPriorities as $priority)
+                                <label class="checkbox-row">
+                                    <input
+                                        type="checkbox"
+                                        name="persona_priorities[]"
+                                        value="{{ $priority }}"
+                                        @checked(in_array($priority, $selectedPersonaPriorities ?? [], true))
+                                    >
+
+                                    <span>{{ $priority }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <x-ai-assist-field
+                        label="What makes them hesitate?"
+                        name="persona_objection"
+                        :value="old('persona_objection', $personaAnswers['objection'] ?? '')"
+                        question-key="persona_objection"
+                        :client-id="$editing ? $client->id : null"
+                        :max="150"
+                        :disabled="$aiDisabled"
+                        placeholder="e.g., They worry the quality won’t match the price, or they’ve been let down before."
+                        footer="What stops them from buying — price worries, trust, habit? Optional."
+                    />
+
                     <div class="form-group">
                         <label class="form-label required">Is the buyer the same as the person who uses the product?</label>
                         <p class="input-helper">Who pays and who actually uses it — are they the same person?</p>
@@ -948,37 +980,6 @@
                         >
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label required">What matters most to them?</label>
-                        <p class="input-helper">Pick up to 2. What does this audience care about most?</p>
-
-                        <div class="checkbox-grid other-option" data-max-checks="2">
-                            @foreach ($personaPriorities as $priority)
-                                <label class="checkbox-row">
-                                    <input
-                                        type="checkbox"
-                                        name="persona_priorities[]"
-                                        value="{{ $priority }}"
-                                        @checked(in_array($priority, $selectedPersonaPriorities ?? [], true))
-                                    >
-
-                                    <span>{{ $priority }}</span>
-                                </label>
-                            @endforeach
-                        </div>
-                    </div>
-
-                    <x-ai-assist-field
-                        label="What makes them hesitate?"
-                        name="persona_objection"
-                        :value="old('persona_objection', $personaAnswers['objection'] ?? '')"
-                        question-key="persona_objection"
-                        :client-id="$editing ? $client->id : null"
-                        :max="150"
-                        :disabled="$aiDisabled"
-                        placeholder="e.g., They worry the quality won’t match the price, or they’ve been let down before."
-                        footer="What stops them from buying — price worries, trust, habit? Optional."
-                    />
                 </div>
 
                 <div class="client-step-actions">
@@ -1069,7 +1070,7 @@
 <x-modal
     id="aiAssistModal"
     title="AI Assist"
-    subtitle="Add optional details to help MARKETHING draft a better answer."
+    subtitle="MARKETHING will use the Business Context and information already entered in this profile to draft an answer for:"
 >
     <div class="form-group">
         <label class="form-label" id="aiAssistLabel">
@@ -1079,13 +1080,6 @@
         <p class="input-helper" id="aiAssistHelper">
             Add extra details if needed.
         </p>
-
-        <textarea
-            class="form-textarea"
-            id="aiAssistExtraInput"
-            rows="5"
-            placeholder="Optional extra context..."
-        ></textarea>
     </div>
 
     <div class="modal-actions">
@@ -1543,7 +1537,7 @@
         const modal = document.getElementById('aiAssistModal');
         const labelEl = document.getElementById('aiAssistLabel');
         const helperEl = document.getElementById('aiAssistHelper');
-        const extraInput = document.getElementById('aiAssistExtraInput');
+        const extraInput = null;
         const runBtn = document.getElementById('runAiAssistBtn');
     
         aiButtons.forEach((button) => {
@@ -1570,7 +1564,6 @@
     
                 labelEl.textContent = button.dataset.aiLabel || 'AI Assist';
                 helperEl.textContent = button.dataset.aiHelper || 'Add extra details if needed.';
-                extraInput.value = '';
     
                 modal.classList.add('active', 'show');
     
@@ -1674,20 +1667,64 @@
                         ...(button.dataset.clientId ? { client_id: button.dataset.clientId } : {}),
                         question_key: button.dataset.questionKey,
                         question_label: button.dataset.aiLabel,
-                        input: extraInput.value,
+                        input: '',
                         character_limit: button.dataset.characterLimit,
-                        extra_instructions: extraInput.value,
+                        extra_instructions: '',
                         business_context: businessContext?.value || '',
                         business_info: {
-                            industry: document.querySelector('[name="industry"]')?.value || '',
-                            business_type: document.querySelector('[name="business_type"]')?.value || '',
-                            differentiator: document.querySelector('[name="differentiator"]')?.value || '',
+                        name: document.querySelector('[name="name"]')?.value || '',
+
+                        industry: document.querySelector('[name="industry"]')?.value || '',
+                        industry_other: document.querySelector('[name="industry_other"]')?.value || '',
+
+                        business_type: document.querySelector('[name="business_type"]')?.value || '',
+                        business_type_other: document.querySelector('[name="business_type_other"]')?.value || '',
+
+                        country: document.querySelector('[name="country"]')?.value || '',
+
+                        city: Array.from(
+                            document.querySelectorAll('[name="city[]"]:checked')
+                        ).map((input) => input.value),
+
+                        price_tier: document.querySelector('[name="price_tier"]')?.value || '',
+
+                        differentiator: document.querySelector('[name="differentiator"]')?.value || '',
+
+                        brand_positioning: Array.from(
+                            document.querySelectorAll('[name="brand_positioning[]"]:checked')
+                        ).map((input) => input.value),
+
+                        brand_avoids: Array.from(
+                            document.querySelectorAll('[name="brand_avoids[]"]:checked')
+                        ).map((input) => input.value),
+
+                        brand_avoids_other: document.querySelector('[name="brand_avoids_other"]')?.value || '',
+
+                        business_age: document.querySelector('[name="business_age"]')?.value || '',
+                    },
+
+                    brand_info: {
+                        arabic_dialect: document.querySelector('[name="arabic_dialect"]')?.value || '',
+                        emoji_usage: document.querySelector('[name="emoji_usage"]')?.value || '',
+                        english_usage: document.querySelector('[name="english_usage"]')?.value || '',
+                        words_to_avoid: document.querySelector('[name="words_to_avoid"]')?.value || '',
+                        caption_samples: document.querySelector('[name="caption_samples"]')?.value || '',
+
+                        conversion_actions: Array.from(
+                            document.querySelectorAll('[name="conversion_actions[]"]:checked')
+                        ).map((input) => input.value),
+
+                        conversion: {
+                            location: document.querySelector('[name="conversion_location"]')?.value || '',
+                            whatsapp: document.querySelector('[name="conversion_whatsapp"]')?.value || '',
+                            phone: document.querySelector('[name="conversion_phone"]')?.value || '',
+                            delivery_app: document.querySelector('[name="conversion_delivery_app"]')?.value || '',
+                            website: document.querySelector('[name="conversion_website"]')?.value || '',
+                            booking: document.querySelector('[name="conversion_booking"]')?.value || '',
+                            social_dm: document.querySelector('[name="conversion_social_dm"]')?.value || '',
+                            signup: document.querySelector('[name="conversion_signup"]')?.value || '',
                         },
-                        brand_info: {
-                            arabic_dialect: document.querySelector('[name="arabic_dialect"]')?.value || '',
-                            emoji_usage: document.querySelector('[name="emoji_usage"]')?.value || '',
-                            english_usage: document.querySelector('[name="english_usage"]')?.value || '',
-                        },
+                    },
                     }),
                 });
     
