@@ -12,7 +12,7 @@ class AppSettingSeeder extends Seeder
         AppSetting::updateOrCreate(
             ['key' => 'max_campaign_days'],
             [
-                'value' => 90,
+                'value' => 30,
                 'description' => 'Maximum campaign date range in days.',
             ]
         );

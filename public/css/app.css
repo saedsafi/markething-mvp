@@ -6461,3 +6461,40 @@ PROMPT EDITOR FINAL FIX
     color: #ef4444;
     font-weight: 900;
 }
+.pagination-wrapper {
+    margin-top: 24px;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    list-style: none;
+    padding: 0;
+}
+
+.page-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    border-radius: 10px;
+    background: #fff;
+    color: #334155;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.page-item.active .page-link {
+    background: #6d5dfc;
+    color: #fff;
+    border-color: #6d5dfc;
+}
+
+.page-item.disabled .page-link {
+    opacity: 0.45;
+    cursor: not-allowed;
+}

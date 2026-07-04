@@ -467,14 +467,18 @@ document.querySelectorAll('[data-open-log]').forEach((button) => {
 const currentPath = window.location.pathname;
 
 document.querySelectorAll('.sidebar-link[data-route]').forEach((link) => {
-    const route = link.getAttribute('data-route');
+    const route = link.dataset.route;
 
     if (!route) return;
 
-    if (currentPath === route || currentPath.startsWith(route + '/')) {
-        document.querySelectorAll('.sidebar-link').forEach((item) => {
-            item.classList.remove('active');
-        });
+    const isExact = currentPath === route;
+    const isChild =
+        currentPath.startsWith(route + '/') &&
+        !link.dataset.exact;
+
+    if (isExact || isChild) {
+        document.querySelectorAll('.sidebar-link')
+            .forEach(item => item.classList.remove('active'));
 
         link.classList.add('active');
     }

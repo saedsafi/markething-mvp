@@ -31,9 +31,9 @@
                         $fields = [
                             'max_campaign_days' => [
                                 'label' => 'Maximum Campaign Date Range',
-                                'max' => 90,
-                                'default' => 90,
-                                'helper' => 'Campaigns cannot exceed 90 days.',
+                                'max' => 30,
+                                'default' => 30,
+                                'helper' => 'Campaigns cannot exceed 30 days.',
                             ],
                             'max_personas_per_client' => [
                                 'label' => 'Maximum Personas Per Client',

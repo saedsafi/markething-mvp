@@ -36,6 +36,18 @@ class CampaignGenerationService
                 throw new \Exception('No active master prompt found.');
             }
 
+            $campaignOffer =
+                $snapshotCampaign['offer'] ?? [];
+
+            $campaignConversionMethods =
+                $snapshotCampaign['conversion_methods'] ?? [];
+
+            $campaignFormatMode =
+                $snapshotCampaign['format_mode'] ?? null;
+
+            $campaignMood =
+                $snapshotCampaign['mood'] ?? null;
+
             $compiledPrompt =
                 app(PromptCompilerService::class)
                     ->compile(
@@ -62,14 +74,37 @@ class CampaignGenerationService
                                     JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
                                 ),
 
+                            'campaign_topic' =>
+                                $snapshotCampaign['topic']
+                                ?? $snapshotCampaign['name']
+                                ?? $campaign->name,
+
                             'campaign_objective' =>
                                 $snapshotCampaign['objective'] ?? $campaign->objective,
 
                             'campaign_description' =>
                                 $snapshotCampaign['description'] ?? $campaign->description,
 
+                            'campaign_offer' =>
+                                json_encode(
+                                    $campaignOffer,
+                                    JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
+                                ),
+
+                            'conversion_methods' =>
+                                implode(', ', $campaignConversionMethods),
+
+                            'format_mode' =>
+                                $campaignFormatMode ?? 'Let the system decide',
+
+                            'campaign_mood' =>
+                                $campaignMood ?: 'Not specified',
+
                             'channels' =>
-                                implode(', ', $snapshotCampaign['channels'] ?? $campaign->channels),
+                                implode(
+                                    ', ',
+                                    $snapshotCampaign['channels'] ?? $campaign->channels
+                                ),
 
                             'posts_count' =>
                                 $snapshotCampaign['requested_posts_count']
@@ -84,6 +119,62 @@ class CampaignGenerationService
                     );
 
             $compiledPrompt .= '
+
+CAMPAIGN FORM DETAILS
+=====================
+
+Campaign topic:
+' . (
+                $snapshotCampaign['topic']
+                ?? $snapshotCampaign['name']
+                ?? $campaign->name
+            ) . '
+
+Objective:
+' . (
+                $snapshotCampaign['objective']
+                ?? $campaign->objective
+            ) . '
+
+Offer details:
+' . json_encode(
+                $campaignOffer,
+                JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
+            ) . '
+
+Conversion methods:
+' . (
+                count($campaignConversionMethods)
+                    ? implode(', ', $campaignConversionMethods)
+                    : 'Not provided'
+            ) . '
+
+Format mode:
+' . ($campaignFormatMode ?? 'Let the system decide') . '
+
+Campaign mood:
+' . ($campaignMood ?: 'Not specified') . '
+
+Use these campaign form details when deciding captions, CTAs, media type, creative direction, and post angles.
+
+FORMAT MODE RULES:
+- If format mode is Images only, every post media_type must be "image".
+- If format mode is Reels only, every post media_type must be "reel".
+- If format mode is Carousels only, every post media_type must be "carousel".
+- If format mode is Let the system decide, choose the best media_type for each post from: image, reel, carousel.
+
+CONVERSION METHOD RULES:
+- CTAs must use the selected conversion methods when relevant.
+- Do not invent conversion methods that were not selected.
+- If WhatsApp is selected, use WhatsApp CTAs when relevant.
+- If website/link is selected, use link/website CTAs when relevant.
+- If social DM is selected, use DM CTAs when relevant.
+- If store/location is selected, use visit/location CTAs when relevant.
+
+OFFER RULES:
+- If objective is Offer / promotion, use the offer details exactly as provided.
+- Do not invent discounts, deadlines, promo codes, or conditions.
+- If no offer detail is provided, do not fabricate one.
 
 IMPORTANT OUTPUT RULES:
 
@@ -162,23 +253,17 @@ Generate exactly ' .
                 'facebook',
             ];
 
-            /*
-            |--------------------------------------------------------------------------
-            | Validate generated post count
-            |--------------------------------------------------------------------------
-            */
+            $allowedMediaTypes = [
+                'image',
+                'reel',
+                'carousel',
+            ];
 
             if (count($posts) !== $requestedPostsCount) {
                 throw new \Exception(
                     'Claude returned ' . count($posts) . " posts, but {$requestedPostsCount} were requested."
                 );
             }
-
-            /*
-            |--------------------------------------------------------------------------
-            | Validate generated schedule constraints
-            |--------------------------------------------------------------------------
-            */
 
             $seenScheduleSlots = [];
 
@@ -222,13 +307,34 @@ Generate exactly ' .
                 }
 
                 $seenScheduleSlots[$slotKey] = true;
-            }
 
-            /*
-            |--------------------------------------------------------------------------
-            | Remove duplicate captions
-            |--------------------------------------------------------------------------
-            */
+                $mediaType =
+                    strtolower($post['media_type'] ?? 'image');
+
+                if (! in_array($mediaType, $allowedMediaTypes, true)) {
+                    throw new \Exception(
+                        'Generated post #' . ($index + 1) . ' has an invalid media type.'
+                    );
+                }
+
+                if ($campaignFormatMode === 'Images only' && $mediaType !== 'image') {
+                    throw new \Exception(
+                        'Generated post #' . ($index + 1) . ' violates the Images only format mode.'
+                    );
+                }
+
+                if ($campaignFormatMode === 'Reels only' && $mediaType !== 'reel') {
+                    throw new \Exception(
+                        'Generated post #' . ($index + 1) . ' violates the Reels only format mode.'
+                    );
+                }
+
+                if ($campaignFormatMode === 'Carousels only' && $mediaType !== 'carousel') {
+                    throw new \Exception(
+                        'Generated post #' . ($index + 1) . ' violates the Carousels only format mode.'
+                    );
+                }
+            }
 
             $posts = collect($posts)
                 ->unique('caption')
@@ -240,12 +346,6 @@ Generate exactly ' .
                     'Claude returned duplicate captions, causing the generated post count to be lower than requested.'
                 );
             }
-
-            /*
-            |--------------------------------------------------------------------------
-            | Persist generated posts
-            |--------------------------------------------------------------------------
-            */
 
             foreach ($posts as $index => $post) {
                 CampaignPost::create([
@@ -262,7 +362,7 @@ Generate exactly ' .
                         strtolower($post['channel']),
 
                     'media_type' =>
-                        $post['media_type'] ?? 'image',
+                        strtolower($post['media_type'] ?? 'image'),
 
                     'summary' =>
                         $post['summary'] ?? null,

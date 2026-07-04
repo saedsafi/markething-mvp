@@ -14,7 +14,7 @@ class UpdateSettingsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'max_campaign_days' => ['required', 'integer', 'min:1', 'max:90'],
+            'max_campaign_days' => ['required', 'integer', 'min:1', 'max:30'],
             'max_personas_per_client' => ['required', 'integer', 'min:1', 'max:5'],
             'max_regenerations_per_post' => ['required', 'integer', 'min:1', 'max:1'],
             'ai_assist_daily_limit' => ['required', 'integer', 'min:1', 'max:50'],
@@ -27,7 +27,7 @@ class UpdateSettingsRequest extends FormRequest
         return [
 
             'max_campaign_days.max' =>
-                'Maximum campaign range cannot exceed 90 days.',
+                'Maximum campaign range cannot exceed 30 days.',
 
         ];
     }

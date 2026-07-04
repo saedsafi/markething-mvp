@@ -131,7 +131,6 @@
                     <th>Provider</th>
                     <th>Tokens</th>
                     <th>Cost</th>
-                    <th>Retries</th>
                     <th>Latency</th>
                     <th>Status</th>
                     <th>Details</th>
@@ -139,7 +138,6 @@
             </thead>
 
             <tbody>
-
                 @forelse ($logs as $log)
 
                     <tr>
@@ -184,10 +182,6 @@
                         </td>
 
                         <td>
-                            {{ $log->retry_count ?? 0 }}
-                        </td>
-
-                        <td>
                             {{ number_format($log->latency_ms ?? 0) }} ms
                         </td>
 
@@ -217,7 +211,7 @@
                     <x-modal
                         id="logModal{{ $log->id }}"
                         title="LLM Log Detail"
-                        subtitle="Inspect request, response, cost, retry count, and errors."
+                        subtitle="Inspect request, response, cost, and errors."
                     >
 
                         <div class="llm-log-detail">
@@ -257,11 +251,6 @@
                                 <div>
                                     <span>Estimated Cost</span>
                                     <strong>${{ number_format((float) ($log->estimated_cost_usd ?? 0), 6) }}</strong>
-                                </div>
-
-                                <div>
-                                    <span>Retry Count</span>
-                                    <strong>{{ $log->retry_count ?? 0 }}</strong>
                                 </div>
 
                             </div>

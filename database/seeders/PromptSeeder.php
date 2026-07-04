@@ -53,11 +53,29 @@ class PromptSeeder extends Seeder
             CAMPAIGN INFORMATION
             ====================
             
+            CAMPAIGN INFORMATION
+            ====================
+            
+            Campaign Topic:
+            {{campaign_topic}}
+            
             Objective:
             {{campaign_objective}}
             
             Description:
             {{campaign_description}}
+            
+            Offer Details:
+            {{campaign_offer}}
+            
+            Conversion Methods:
+            {{conversion_methods}}
+            
+            Format Mode:
+            {{format_mode}}
+            
+            Campaign Mood:
+            {{campaign_mood}}
             
             Channels:
             {{channels}}
@@ -157,6 +175,18 @@ class PromptSeeder extends Seeder
             19. CTAs must align with the configured conversion goals whenever possible.
             
             20. Prioritize practical marketing performance over generic inspirational content.
+
+            21. Use the selected conversion methods when writing CTAs. Do not invent CTA methods.
+
+            22. If offer details are provided, use them exactly. Do not invent discounts, deadlines, promo codes, or conditions.
+
+            23. Follow the selected format mode:
+            - Images only: every media_type must be "image".
+            - Reels only: every media_type must be "reel".
+            - Carousels only: every media_type must be "carousel".
+            - Let the system decide: choose the best media_type from image, reel, carousel.
+
+            24. Match the campaign mood when provided.
             
             POST TYPES TO MIX
             =================

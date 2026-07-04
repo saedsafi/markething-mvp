@@ -50,11 +50,11 @@
                 Clients
             </a>
 
-            <a href="{{ url('/agency/campaigns/create') }}" class="sidebar-link" data-route="/agency/campaigns/create">
+            <a href="{{ url('/agency/campaigns/create') }}" class="sidebar-link" data-route="/agency/campaigns/create"  data-exact="true">
                 Create Campaign
             </a>
 
-            <a href="{{ route('agency.campaigns.index') }}" class="sidebar-link" data-route="/agency/campaigns">
+            <a href="{{ route('agency.campaigns.index') }}" class="sidebar-link" data-route="/agency/campaigns"  data-exact="true">
                 Campaigns
             </a>
 
