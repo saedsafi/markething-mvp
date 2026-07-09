@@ -181,9 +181,13 @@ class CampaignController extends Controller
             report($e);
         
             return redirect()
-                ->route('agency.campaigns.show', $campaign)
+                ->route('agency.campaigns.create')
+                ->withInput()
                 ->withErrors([
-                    'generation' => $e->getMessage(),
+                    'generation' =>
+                        app()->environment('local')
+                            ? $e->getMessage()
+                            : 'Campaign generation failed. Your filled data was kept. Please adjust the campaign details and try again.',
                 ]);
         }
     }
