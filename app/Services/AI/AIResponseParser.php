@@ -55,7 +55,7 @@ class AIResponseParser
 
         if (empty($matches[0])) {
             throw new Exception(
-                'No JSON array found in Claude response.'
+                'Claude response was incomplete or did not contain a complete JSON array. Try fewer posts or increase max_tokens.'
             );
         }
 

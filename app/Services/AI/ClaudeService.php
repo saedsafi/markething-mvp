@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Support\Facades\Http;
 
 class ClaudeService
+
 {
     public function generate(
         string $prompt
@@ -13,7 +14,7 @@ class ClaudeService
 
         $config = config('ai.anthropic');
 
-        $response = Http::timeout(1000)
+        $response = Http::timeout(100000)
 
             ->withHeaders([
 

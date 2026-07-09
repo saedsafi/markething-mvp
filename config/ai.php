@@ -21,7 +21,7 @@ return [
             '2023-06-01'
         ),
 
-        'max_tokens' => (int) env('ANTHROPIC_MAX_TOKENS', 8192),
+        'max_tokens' => (int) env('ANTHROPIC_MAX_TOKENS', 100000),
 
     ],
 

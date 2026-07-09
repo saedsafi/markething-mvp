@@ -177,11 +177,13 @@ class CampaignController extends Controller
                 ->route('agency.campaigns.show', $campaign)
                 ->with('success', 'Campaign generated successfully.');
         } catch (\Throwable $e) {
+
+            report($e);
+        
             return redirect()
                 ->route('agency.campaigns.show', $campaign)
                 ->withErrors([
-                    'generation' =>
-                        'Campaign generation failed. Possible reasons: Claude timed out, invalid JSON was returned, a network issue occurred, or distribution rules were violated. Please try again with fewer materials, a shorter campaign, or simplified inputs.',
+                    'generation' => $e->getMessage(),
                 ]);
         }
     }

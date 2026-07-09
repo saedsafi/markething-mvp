@@ -56,23 +56,23 @@ class CampaignGenerationService
                             'business_context' =>
                                 $snapshotClient['business_context'] ?? '',
 
-                            'business_info' =>
-                                json_encode(
-                                    $snapshotClient['business_info'] ?? [],
-                                    JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
-                                ),
+                                'business_info' =>
+                                app(PromptContextFormatterService::class)
+                                    ->businessInfo(
+                                        $snapshotClient['business_info'] ?? []
+                                    ),
 
-                            'brand_info' =>
-                                json_encode(
-                                    $snapshotClient['brand_info'] ?? [],
-                                    JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
-                                ),
+                                    'brand_info' =>
+                                    app(PromptContextFormatterService::class)
+                                        ->brandInfo(
+                                            $snapshotClient['brand_info'] ?? []
+                                        ),
 
-                            'persona' =>
-                                json_encode(
-                                    $snapshotPersona['answers'] ?? [],
-                                    JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
-                                ),
+                                        'persona' =>
+                                        app(PromptContextFormatterService::class)
+                                            ->persona(
+                                                $snapshotPersona['answers'] ?? []
+                                            ),
 
                             'campaign_topic' =>
                                 $snapshotCampaign['topic']
@@ -223,7 +223,9 @@ Generate exactly ' .
 
             $latency =
                 (int) ((microtime(true) - $startedAt) * 1000);
-
+                
+                \Log::info('=== CLAUDE RAW RESPONSE ===');
+                \Log::info($result['content']);
             $posts =
                 app(AIResponseParser::class)
                     ->parseCampaignPosts(
