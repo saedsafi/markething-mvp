@@ -11,8 +11,10 @@ use App\Services\AI\CampaignGenerationService;
 use App\Services\AI\PromptTemplateService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use App\Jobs\GenerateCampaignJob;
 
 class CampaignController extends Controller
 {
@@ -34,7 +36,7 @@ class CampaignController extends Controller
         ]);
     }
 
-    public function store(StoreCampaignRequest $request): RedirectResponse
+    public function store(StoreCampaignRequest $request): JsonResponse
     {
         $user = $request->user();
 
@@ -56,11 +58,15 @@ class CampaignController extends Controller
         $durationDays = $startDate->diffInDays($endDate) + 1;
 
         if ($durationDays > 30) {
-            return back()
-                ->withErrors([
-                    'end_date' => 'Maximum campaign date range is 30 days.',
-                ])
-                ->withInput();
+            return response()->json([
+                'success' => false,
+                'message' => 'Maximum campaign date range is 30 days.',
+                'errors' => [
+                    'end_date' => [
+                        'Maximum campaign date range is 30 days.'
+                    ]
+                ]
+            ], 422);
         }
 
         $channels = array_values(array_unique($request->channels ?? []));
@@ -68,12 +74,16 @@ class CampaignController extends Controller
         $maxPostsAllowed = $durationDays * count($channels);
 
         if ((int) $request->requested_posts_count > $maxPostsAllowed) {
-            return back()
-                ->withErrors([
-                    'requested_posts_count' =>
-                        "Too many materials. Maximum allowed for this date range and channels is {$maxPostsAllowed}.",
-                ])
-                ->withInput();
+            return response()->json([
+                'success' => false,
+                'message' =>
+                    "Too many materials. Maximum allowed for this date range and channels is {$maxPostsAllowed}.",
+                'errors' => [
+                    'requested_posts_count' => [
+                        "Too many materials. Maximum allowed for this date range and channels is {$maxPostsAllowed}."
+                    ]
+                ]
+            ], 422);
         }
 
         $savedConversionMethods =
@@ -84,12 +94,16 @@ class CampaignController extends Controller
 
         foreach ($conversionMethods as $method) {
             if (! in_array($method, $savedConversionMethods, true)) {
-                return back()
-                    ->withErrors([
-                        'conversion_methods' =>
-                            'Please select only conversion methods saved in this client profile.',
-                    ])
-                    ->withInput();
+                return response()->json([
+                    'success' => false,
+                    'message' =>
+                        'Please select only conversion methods saved in this client profile.',
+                    'errors' => [
+                        'conversion_methods' => [
+                            'Please select only conversion methods saved in this client profile.'
+                        ]
+                    ]
+                ], 422);
             }
         }
 
@@ -170,25 +184,19 @@ class CampaignController extends Controller
         ]);
 
         try {
-            app(CampaignGenerationService::class)
-                ->generate($campaign);
+            GenerateCampaignJob::dispatch($campaign);
 
-            return redirect()
-                ->route('agency.campaigns.show', $campaign)
-                ->with('success', 'Campaign generated successfully.');
+            return response()->json([
+                'success' => true,
+                'campaign_id' => $campaign->id,
+            ]);
         } catch (\Throwable $e) {
-
             report($e);
-        
-            return redirect()
-                ->route('agency.campaigns.create')
-                ->withInput()
-                ->withErrors([
-                    'generation' =>
-                        app()->environment('local')
-                            ? $e->getMessage()
-                            : 'Campaign generation failed. Your filled data was kept. Please adjust the campaign details and try again.',
-                ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Campaign generation failed.',
+            ], 500);
         }
     }
 
@@ -218,6 +226,19 @@ class CampaignController extends Controller
 
         return view('agency.campaigns.index', [
             'campaigns' => $campaigns,
+        ]);
+    }
+
+    public function status(
+    Campaign $campaign
+    ) {
+        abort_if(
+            $campaign->user_id !== auth()->id(),
+            403
+        );
+
+        return response()->json([
+            'status' => $campaign->status,
         ]);
     }
 }

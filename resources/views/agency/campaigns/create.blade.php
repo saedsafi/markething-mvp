@@ -823,10 +823,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 Math.min(loadingStepIndex + 1, loadingSteps.length - 1);
         }, 5000);
 
-        setTimeout(() => {
-            clearInterval(loadingInterval);
-            form.submit();
-        }, 60000);
+        submitCampaignAsync(form, generateButton);
 
     });
 

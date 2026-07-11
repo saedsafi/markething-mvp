@@ -362,6 +362,11 @@ Route::get('/campaigns/create', [\App\Http\Controllers\Agency\CampaignController
 Route::post('/campaigns', [\App\Http\Controllers\Agency\CampaignController::class, 'store'])
     ->name('agency.campaigns.store');
 
+Route::get(
+    '/campaigns/{campaign}/status',
+    [\App\Http\Controllers\Agency\CampaignController::class, 'status']
+)->name('agency.campaigns.status');
+
 Route::get('/campaigns/{campaign}', [\App\Http\Controllers\Agency\CampaignController::class, 'show'])
     ->name('agency.campaigns.show');
 
