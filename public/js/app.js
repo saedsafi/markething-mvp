@@ -662,7 +662,7 @@ window.hideAiLoading = function () {
     document.body.classList.remove("modal-open");
 };
 
-window.pollCampaignStatus = function (campaignId) {
+window.pollCampaignStatus = function (campaignId, generateButton) {
     const interval = setInterval(async () => {
         try {
             const response = await fetch(
@@ -723,7 +723,7 @@ window.submitCampaignAsync = async function (form, generateButton) {
             throw new Error(data.message || "Campaign failed");
         }
 
-        pollCampaignStatus(data.campaign_id);
+        pollCampaignStatus(data.campaign_id, generateButton);
     } catch (error) {
         hideAiLoading();
         alert(error.message);
