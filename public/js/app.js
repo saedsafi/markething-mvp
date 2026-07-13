@@ -682,6 +682,7 @@ window.pollCampaignStatus = function (campaignId, generateButton) {
 
                 alert("Campaign generation failed.");
 
+                hideAiLoading();
                 generateButton.disabled = false;
                 generateButton.textContent = "Generate Campaign";
             }
@@ -714,6 +715,7 @@ window.submitCampaignAsync = async function (form, generateButton) {
 
                 alert(message);
 
+                hideAiLoading();
                 generateButton.disabled = false;
                 generateButton.textContent = "Generate Campaign";
 
