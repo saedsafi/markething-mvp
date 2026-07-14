@@ -6,95 +6,318 @@ class PromptContextFormatterService
 {
     public function businessInfo(array $info): string
     {
-        $cities = $info['city'] ?? [];
-        $cities = is_array($cities) ? $cities : [$cities];
-    
-        return collect([
-    
-            "Industry: " . ($info['industry'] ?? '-'),
-    
-            "Business Type: " . ($info['business_type'] ?? '-'),
-    
-            "Country: " . ($info['country'] ?? '-'),
-    
-            "City: " . implode(', ', $cities),
-    
-            "Price Tier: " . ($info['price_tier'] ?? '-'),
-    
-            "Business Age: " . ($info['business_age'] ?? '-'),
-    
-            "Business Differentiator:\n" . ($info['differentiator'] ?? '-'),
-    
-            "Brand Positioning:\n" .
-            implode(', ', $info['brand_positioning'] ?? []),
-    
-            "Avoid:\n" .
-            implode(', ', $info['brand_avoids'] ?? []),
-    
-        ])
-        ->filter()
-        ->implode("\n\n");
+        return $this->sections([
+            'Industry' =>
+                $info['industry'] ?? null,
+
+            'Business Type' =>
+                $info['business_type'] ?? null,
+
+            'Other Business Type' =>
+                $info['business_type_other'] ?? null,
+
+            'Country' =>
+                $info['country'] ?? null,
+
+            'City / Service Area' =>
+                $this->formatList($info['city'] ?? null),
+
+            'Price Tier' =>
+                $info['price_tier'] ?? null,
+
+            'Business Age' =>
+                $info['business_age'] ?? null,
+
+            'Business Differentiator' =>
+                $info['differentiator'] ?? null,
+
+            'Brand Positioning' =>
+                $this->formatList(
+                    $info['brand_positioning'] ?? null
+                ),
+
+            'Brand Must Avoid' =>
+                $this->combineValues([
+                    $this->formatList(
+                        $info['brand_avoids'] ?? null
+                    ),
+                    $info['brand_avoids_other'] ?? null,
+                ]),
+        ]);
     }
 
     public function brandInfo(array $brand): string
     {
-        $conversion = $brand['conversion'] ?? [];
+        $conversionDetails =
+            $this->formatKeyValueList(
+                $brand['conversion'] ?? []
+            );
 
-        return collect([
+        return $this->sections([
+            /*
+            |--------------------------------------------------------------------------
+            | Put binding communication settings first
+            |--------------------------------------------------------------------------
+            */
 
-            "Arabic Dialect: " .
-            ($brand['arabic_dialect'] ?? '-'),
+            'REQUIRED Arabic Dialect / Variety' =>
+                $brand['arabic_dialect'] ?? null,
 
-            "Emoji Usage: " .
-            ($brand['emoji_usage'] ?? '-'),
+            'REQUIRED Audience Language Rule' =>
+                filled($brand['arabic_dialect'] ?? null)
+                    ? 'Every caption must use the selected Arabic dialect or variety. '
+                        . 'Reference material and caption samples must not override it.'
+                    : null,
 
-            "English Usage: " .
-            ($brand['english_usage'] ?? '-'),
+            'Emoji Usage' =>
+                $brand['emoji_usage'] ?? null,
 
-            "Words To Avoid:\n" .
-            ($brand['words_to_avoid'] ?? '-'),
+            'English Usage' =>
+                $brand['english_usage'] ?? null,
 
-            "Caption Samples:\n" .
-            ($brand['caption_samples'] ?? '-'),
+            'Words and Phrases to Avoid' =>
+                $brand['words_to_avoid'] ?? null,
 
-            "Available Conversion Methods:\n" .
-            implode(', ', $brand['conversion_actions'] ?? []),
+            /*
+            |--------------------------------------------------------------------------
+            | Samples are style references, not language instructions
+            |--------------------------------------------------------------------------
+            */
 
-            "Conversion Details:\n" .
-            collect($conversion)
-                ->filter()
-                ->map(fn($v, $k) => ucfirst($k) . ": {$v}")
-                ->implode("\n"),
+            'Caption Samples — Style Reference Only' =>
+                $brand['caption_samples'] ?? null,
 
-        ])
-        ->filter()
-        ->implode("\n\n");
+            'Caption Sample Usage Rule' =>
+                filled($brand['caption_samples'] ?? null)
+                    ? 'Use samples only for energy, rhythm, pacing, personality, '
+                        . 'sentence flow, and emoji density. Do not copy their language, '
+                        . 'dialect, audience gender, facts, or complete sentences.'
+                    : null,
+
+            /*
+            |--------------------------------------------------------------------------
+            | Conversion inventory
+            |--------------------------------------------------------------------------
+            */
+
+            'Available Conversion Methods' =>
+                $this->formatList(
+                    $brand['conversion_actions'] ?? null
+                ),
+
+            'Conversion Details' =>
+                $conversionDetails,
+        ]);
     }
 
-    public function persona(array $persona): string
+    public function persona(
+        array $persona,
+        ?string $name = null,
+        ?string $ageRange = null
+    ): string {
+        $gender = $persona['gender'] ?? null;
+
+        return $this->sections([
+            'Persona Name' =>
+                $name,
+
+            'Age Range' =>
+                $ageRange,
+
+            'REQUIRED Audience Gender / Address' =>
+                $gender,
+
+            'Audience Address Rule' =>
+                $this->audienceAddressRule($gender),
+
+            'Who They Are' =>
+                $persona['who']
+                ?? $persona['description']
+                ?? null,
+
+            'Buyer Is the User' =>
+                $persona['buyer_is_user'] ?? null,
+
+            'Decision Maker / Person Who Pays' =>
+                $persona['decider'] ?? null,
+
+            'Priorities' =>
+                $this->formatList(
+                    $persona['priorities'] ?? null
+                ),
+
+            'Objections / Reasons for Hesitation' =>
+                $persona['objection'] ?? null,
+        ]);
+    }
+
+    protected function audienceAddressRule(
+        mixed $gender
+    ): ?string {
+        if (! is_string($gender) || blank($gender)) {
+            return null;
+        }
+
+        $normalized = mb_strtolower($gender);
+
+        if (
+            str_contains($normalized, 'mixed') ||
+            str_contains($normalized, 'everyone') ||
+            str_contains($normalized, 'inclusive')
+        ) {
+            return 'Use inclusive plural forms consistently throughout every caption. '
+                . 'Do not use feminine-only or masculine-only addressing.';
+        }
+
+        if (
+            str_contains($normalized, 'women') ||
+            str_contains($normalized, 'female')
+        ) {
+            return 'Use feminine addressing consistently throughout every caption.';
+        }
+
+        if (
+            str_contains($normalized, 'men') ||
+            str_contains($normalized, 'male')
+        ) {
+            return 'Use masculine addressing consistently throughout every caption.';
+        }
+
+        return 'Use the audience address specified above consistently throughout the campaign.';
+    }
+
+    /**
+     * Format labeled sections and omit null, empty or unusable values.
+     */
+    protected function sections(array $sections): string
     {
-        return collect([
+        return collect($sections)
+            ->map(function (mixed $value, string $label) {
+                $formatted = $this->formatValue($value);
 
-            "Gender: " .
-            ($persona['gender'] ?? '-'),
+                if ($formatted === null) {
+                    return null;
+                }
 
-            "Who They Are:\n" .
-            ($persona['who'] ?? '-'),
+                return mb_strtoupper($label) . "\n"
+                    . $formatted;
+            })
+            ->filter()
+            ->implode("\n\n");
+    }
 
-            "Buyer Is User: " .
-            ($persona['buyer_is_user'] ?? '-'),
+    /**
+     * Safely format scalar, array or object values.
+     */
+    protected function formatValue(
+        mixed $value
+    ): ?string {
+        if ($value === null) {
+            return null;
+        }
 
-            "Decision Maker:\n" .
-            ($persona['decider'] ?? '-'),
+        if (is_bool($value)) {
+            return $value ? 'Yes' : 'No';
+        }
 
-            "Priorities:\n" .
-            implode(', ', $persona['priorities'] ?? []),
+        if (is_array($value)) {
+            return $this->formatList($value);
+        }
 
-            "Objections:\n" .
-            ($persona['objection'] ?? '-'),
+        if (is_object($value)) {
+            $value = (array) $value;
 
-        ])
-        ->filter()
-        ->implode("\n\n");
+            return $this->formatKeyValueList($value);
+        }
+
+        $value = trim((string) $value);
+
+        return $value !== '' ? $value : null;
+    }
+
+    /**
+     * Convert either a string or an array into a readable comma-separated list.
+     */
+    protected function formatList(
+        mixed $value
+    ): ?string {
+        if ($value === null) {
+            return null;
+        }
+
+        $items = is_array($value)
+            ? $value
+            : [$value];
+
+        $formattedItems = collect($items)
+            ->map(function (mixed $item) {
+                if (is_array($item) || is_object($item)) {
+                    return $this->formatKeyValueList(
+                        (array) $item
+                    );
+                }
+
+                return trim((string) $item);
+            })
+            ->filter(fn (?string $item) =>
+                filled($item)
+            )
+            ->unique()
+            ->values();
+
+        return $formattedItems->isNotEmpty()
+            ? $formattedItems->implode(', ')
+            : null;
+    }
+
+    /**
+     * Convert associative arrays into readable labeled lines.
+     */
+    protected function formatKeyValueList(
+        mixed $values
+    ): ?string {
+        if (! is_array($values)) {
+            return $this->formatValue($values);
+        }
+
+        $lines = collect($values)
+            ->map(function (mixed $value, mixed $key) {
+                $formatted = $this->formatValue($value);
+
+                if ($formatted === null) {
+                    return null;
+                }
+
+                $label = str($key)
+                    ->replace('_', ' ')
+                    ->title()
+                    ->toString();
+
+                return "{$label}: {$formatted}";
+            })
+            ->filter();
+
+        return $lines->isNotEmpty()
+            ? $lines->implode("\n")
+            : null;
+    }
+
+    /**
+     * Combine several optional values without leaving empty separators.
+     */
+    protected function combineValues(
+        array $values
+    ): ?string {
+        $formatted = collect($values)
+            ->map(fn (mixed $value) =>
+                $this->formatValue($value)
+            )
+            ->filter()
+            ->unique()
+            ->values();
+
+        return $formatted->isNotEmpty()
+            ? $formatted->implode(', ')
+            : null;
     }
 }

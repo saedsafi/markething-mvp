@@ -71,7 +71,9 @@ class CampaignGenerationService
                                         'persona' =>
                                         app(PromptContextFormatterService::class)
                                             ->persona(
-                                                $snapshotPersona['answers'] ?? []
+                                                $snapshotPersona['answers'] ?? [],
+                                                $snapshotPersona['name'] ?? null,
+                                                $snapshotPersona['age_range'] ?? null
                                             ),
 
                             'campaign_topic' =>

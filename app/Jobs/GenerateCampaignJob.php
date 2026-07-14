@@ -14,7 +14,7 @@ class GenerateCampaignJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public int $timeout = 300;
+    public int $timeout = 3500;
 
     public function __construct(
         public Campaign $campaign
