@@ -13,6 +13,8 @@ class CampaignGenerationService
     {
         $compiledPrompt = null;
         $promptVersion = null;
+        $result = null;
+        $latency = 0;
 
         try {
             DB::beginTransaction();
@@ -36,203 +38,81 @@ class CampaignGenerationService
                 throw new \Exception('No active master prompt found.');
             }
 
+            /*
+            |--------------------------------------------------------------------------
+            | Resolve campaign values
+            |--------------------------------------------------------------------------
+            */
+
+            $businessInfo =
+                $snapshotClient['business_info'] ?? [];
+
+            $brandInfo =
+                $snapshotClient['brand_info'] ?? [];
+
+            $personaAnswers =
+                $snapshotPersona['answers'] ?? [];
+
             $campaignOffer =
-                $snapshotCampaign['offer'] ?? [];
+                $snapshotCampaign['offer'] ?? null;
 
             $campaignConversionMethods =
                 $snapshotCampaign['conversion_methods'] ?? [];
 
+            if (! is_array($campaignConversionMethods)) {
+                $campaignConversionMethods = [
+                    $campaignConversionMethods,
+                ];
+            }
+
+            $campaignConversionMethods =
+                array_values(
+                    array_unique(
+                        array_filter(
+                            $campaignConversionMethods
+                        )
+                    )
+                );
+
+            /*
+            |--------------------------------------------------------------------------
+            | Keep the original format-mode value
+            |--------------------------------------------------------------------------
+            |
+            | This value is still used later by the application's existing
+            | media-type validation.
+            |
+            */
+
             $campaignFormatMode =
-                $snapshotCampaign['format_mode'] ?? null;
+                $snapshotCampaign['format_mode']
+                ?? $campaign->format_mode
+                ?? 'Let the system decide';
 
             $campaignMood =
-                $snapshotCampaign['mood'] ?? null;
+                $snapshotCampaign['mood']
+                ?? $campaign->mood
+                ?? null;
 
-            $compiledPrompt =
-                app(PromptCompilerService::class)
-                    ->compile(
-                        $promptVersion->content,
-                        [
-                            'business_context' =>
-                                $snapshotClient['business_context'] ?? '',
+            $campaignChannels =
+                $snapshotCampaign['channels']
+                ?? $campaign->channels
+                ?? [];
 
-                                'business_info' =>
-                                app(PromptContextFormatterService::class)
-                                    ->businessInfo(
-                                        $snapshotClient['business_info'] ?? []
-                                    ),
+            if (! is_array($campaignChannels)) {
+                $campaignChannels = [
+                    $campaignChannels,
+                ];
+            }
 
-                                    'brand_info' =>
-                                    app(PromptContextFormatterService::class)
-                                        ->brandInfo(
-                                            $snapshotClient['brand_info'] ?? []
-                                        ),
-
-                                        'persona' =>
-                                        app(PromptContextFormatterService::class)
-                                            ->persona(
-                                                $snapshotPersona['answers'] ?? [],
-                                                $snapshotPersona['name'] ?? null,
-                                                $snapshotPersona['age_range'] ?? null
-                                            ),
-
-                            'campaign_topic' =>
-                                $snapshotCampaign['topic']
-                                ?? $snapshotCampaign['name']
-                                ?? $campaign->name,
-
-                            'campaign_objective' =>
-                                $snapshotCampaign['objective'] ?? $campaign->objective,
-
-                            'campaign_description' =>
-                                $snapshotCampaign['description'] ?? $campaign->description,
-
-                            'campaign_offer' =>
-                                json_encode(
-                                    $campaignOffer,
-                                    JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
-                                ),
-
-                            'conversion_methods' =>
-                                implode(', ', $campaignConversionMethods),
-
-                            'format_mode' =>
-                                $campaignFormatMode ?? 'Let the system decide',
-
-                            'campaign_mood' =>
-                                $campaignMood ?: 'Not specified',
-
-                            'channels' =>
-                                implode(
-                                    ', ',
-                                    $snapshotCampaign['channels'] ?? $campaign->channels
-                                ),
-
-                            'posts_count' =>
-                                $snapshotCampaign['requested_posts_count']
-                                ?? $campaign->requested_posts_count,
-
-                            'start_date' =>
-                                $snapshotCampaign['start_date'] ?? $campaign->start_date,
-
-                            'end_date' =>
-                                $snapshotCampaign['end_date'] ?? $campaign->end_date,
-                        ]
-                    );
-
-            $compiledPrompt .= '
-
-CAMPAIGN FORM DETAILS
-=====================
-
-Campaign topic:
-' . (
-                $snapshotCampaign['topic']
-                ?? $snapshotCampaign['name']
-                ?? $campaign->name
-            ) . '
-
-Objective:
-' . (
-                $snapshotCampaign['objective']
-                ?? $campaign->objective
-            ) . '
-
-Offer details:
-' . json_encode(
-                $campaignOffer,
-                JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
-            ) . '
-
-Conversion methods:
-' . (
-                count($campaignConversionMethods)
-                    ? implode(', ', $campaignConversionMethods)
-                    : 'Not provided'
-            ) . '
-
-Format mode:
-' . ($campaignFormatMode ?? 'Let the system decide') . '
-
-Campaign mood:
-' . ($campaignMood ?: 'Not specified') . '
-
-Use these campaign form details when deciding captions, CTAs, media type, creative direction, and post angles.
-
-FORMAT MODE RULES:
-- If format mode is Images only, every post media_type must be "image".
-- If format mode is Reels only, every post media_type must be "reel".
-- If format mode is Carousels only, every post media_type must be "carousel".
-- If format mode is Let the system decide, choose the best media_type for each post from: image, reel, carousel.
-
-CONVERSION METHOD RULES:
-- CTAs must use the selected conversion methods when relevant.
-- Do not invent conversion methods that were not selected.
-- If WhatsApp is selected, use WhatsApp CTAs when relevant.
-- If website/link is selected, use link/website CTAs when relevant.
-- If social DM is selected, use DM CTAs when relevant.
-- If store/location is selected, use visit/location CTAs when relevant.
-
-OFFER RULES:
-- If objective is Offer / promotion, use the offer details exactly as provided.
-- Do not invent discounts, deadlines, promo codes, or conditions.
-- If no offer detail is provided, do not fabricate one.
-
-IMPORTANT OUTPUT RULES:
-
-Return ONLY valid JSON.
-
-Return an array of posts.
-
-Each post MUST contain:
-- sequence_number
-- caption
-- hashtags
-- channel
-- scheduled_date
-- creative_direction
-- media_type
-- summary
-
-Do NOT return markdown.
-Do NOT wrap JSON in code blocks.
-';
-
-            $startedAt = microtime(true);
-
-            $result =
-                app(ClaudeService::class)
-                    ->generate(
-                        $compiledPrompt . '
-
-CRITICAL OUTPUT RULES:
-
-- Return ONLY raw valid JSON.
-- Do NOT explain anything.
-- Do NOT use markdown.
-- Do NOT wrap JSON in ```json blocks.
-- Response MUST start with [.
-- Response MUST end with ].
-
-Generate exactly ' .
-                        (
-                            $snapshotCampaign['requested_posts_count']
-                            ?? $campaign->requested_posts_count
-                        ) .
-                        ' posts.
-'
-                    );
-
-            $latency =
-                (int) ((microtime(true) - $startedAt) * 1000);
-                
-                \Log::info('=== CLAUDE RAW RESPONSE ===');
-                \Log::info($result['content']);
-            $posts =
-                app(AIResponseParser::class)
-                    ->parseCampaignPosts(
-                        $result['content']
-                    );
+            $campaignChannels =
+                array_values(
+                    array_unique(
+                        array_filter(
+                            $campaignChannels
+                        )
+                    )
+                );
 
             $requestedPostsCount =
                 (int) (
@@ -252,10 +132,496 @@ Generate exactly ' .
                     ?? $campaign->end_date
                 )->toDateString();
 
-            $allowedChannels = [
-                'instagram',
-                'facebook',
+            /*
+            |--------------------------------------------------------------------------
+            | Normalize values for the owner's documented input schema
+            |--------------------------------------------------------------------------
+            */
+
+            $rawObjective =
+                $snapshotCampaign['objective']
+                ?? $campaign->objective;
+
+            $normalizedObjective =
+                match ($rawObjective) {
+                    'Awareness — get the business noticed',
+                    'awareness' =>
+                        'awareness',
+
+                    'Engagement — start conversations and comments',
+                    'engagement' =>
+                        'engagement',
+
+                    'Offer / promotion — push a specific deal',
+                    'offer' =>
+                        'offer',
+
+                    'Link clicks — send people to a link',
+                    'link_clicks' =>
+                        'link_clicks',
+
+                    'Brand — share story, values, connection',
+                    'brand' =>
+                        'brand',
+
+                    default =>
+                        $rawObjective,
+                };
+
+            $normalizedFormatMode =
+                match ($campaignFormatMode) {
+                    'Images only',
+                    'images_only' =>
+                        'images_only',
+
+                    'Reels only',
+                    'reels_only' =>
+                        'reels_only',
+
+                    'Carousels only',
+                    'carousels_only' =>
+                        'carousels_only',
+
+                    'Let the system decide',
+                    'system_decide' =>
+                        'system_decide',
+
+                    default =>
+                        'system_decide',
+                };
+
+            $normalizedMood =
+                match ($campaignMood) {
+                    'Celebratory / festive',
+                    'celebratory' =>
+                        'celebratory',
+
+                    'Urgent / limited-time',
+                    'urgent' =>
+                        'urgent',
+
+                    'Warm / heartfelt',
+                    'warm' =>
+                        'warm',
+
+                    'Exciting / hype',
+                    'exciting' =>
+                        'exciting',
+
+                    'Informative / helpful',
+                    'informative' =>
+                        'informative',
+
+                    'Inspiring / motivational',
+                    'inspiring' =>
+                        'inspiring',
+
+                    default =>
+                        null,
+                };
+
+            /*
+            |--------------------------------------------------------------------------
+            | Normalize optional arrays
+            |--------------------------------------------------------------------------
+            */
+
+            $cities =
+                $businessInfo['city'] ?? [];
+
+            if (! is_array($cities)) {
+                $cities = [$cities];
+            }
+
+            $brandPositioning =
+                $businessInfo['brand_positioning'] ?? [];
+
+            if (! is_array($brandPositioning)) {
+                $brandPositioning = [
+                    $brandPositioning,
+                ];
+            }
+
+            $brandAvoids =
+                $businessInfo['brand_avoids'] ?? [];
+
+            if (! is_array($brandAvoids)) {
+                $brandAvoids = [$brandAvoids];
+            }
+
+            if (
+                ! empty(
+                    $businessInfo['brand_avoids_other']
+                    ?? null
+                )
+            ) {
+                $brandAvoids[] =
+                    $businessInfo['brand_avoids_other'];
+            }
+
+            $personaPriorities =
+                $personaAnswers['priorities'] ?? [];
+
+            if (! is_array($personaPriorities)) {
+                $personaPriorities = [
+                    $personaPriorities,
+                ];
+            }
+
+            $availableConversionMethods =
+                $brandInfo['conversion_actions'] ?? [];
+
+            if (! is_array($availableConversionMethods)) {
+                $availableConversionMethods = [
+                    $availableConversionMethods,
+                ];
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Normalize offer
+            |--------------------------------------------------------------------------
+            */
+
+            $normalizedOffer = null;
+
+            if (
+                $normalizedObjective === 'offer' &&
+                is_array($campaignOffer)
+            ) {
+                $rawOfferType =
+                    $campaignOffer['type'] ?? null;
+
+                $normalizedOfferType =
+                    match ($rawOfferType) {
+                        'Percentage discount',
+                        'percentage' =>
+                            'percentage',
+
+                        'Fixed amount discount',
+                        'amount' =>
+                            'amount',
+
+                        'Free delivery',
+                        'free_delivery' =>
+                            'free_delivery',
+
+                        'Buy X get Y',
+                        'buy_x_get_y' =>
+                            'buy_x_get_y',
+
+                        'Free gift',
+                        'gift' =>
+                            'gift',
+
+                        'Bundle',
+                        'bundle' =>
+                            'bundle',
+
+                        'Other',
+                        'other' =>
+                            'other',
+
+                        default =>
+                            $rawOfferType,
+                    };
+
+                $normalizedOffer = [
+                    'type' =>
+                        $normalizedOfferType,
+
+                    'value' =>
+                        $campaignOffer['value'] ?? null,
+
+                    'conditions' =>
+                        $campaignOffer['conditions'] ?? null,
+
+                    'deadline' =>
+                        $campaignOffer['deadline'] ?? null,
+
+                    'code' =>
+                        $campaignOffer['code'] ?? null,
+                ];
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Build conversion inventory
+            |--------------------------------------------------------------------------
+            */
+
+            $conversionActions =
+                $brandInfo['conversion'] ?? [];
+
+            if (! is_array($conversionActions)) {
+                $conversionActions = [];
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Keep only methods available in this client profile
+            |--------------------------------------------------------------------------
+            */
+
+            foreach ($conversionActions as $method => $details) {
+                if (
+                    $details === null ||
+                    $details === '' ||
+                    $details === []
+                ) {
+                    unset($conversionActions[$method]);
+                }
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Build the owner's INPUT_JSON object
+            |--------------------------------------------------------------------------
+            */
+
+            $inputJson = [
+                'brand' => [
+                    'business_context' =>
+                        $snapshotClient['business_context']
+                        ?? null,
+
+                    'industry' =>
+                        $snapshotClient['industry']
+                        ?? $businessInfo['industry']
+                        ?? null,
+
+                    'business_type' =>
+                        $businessInfo['business_type']
+                        ?? null,
+
+                    'country' =>
+                        $businessInfo['country']
+                        ?? null,
+
+                    'city' =>
+                        array_values(
+                            array_filter($cities)
+                        ),
+
+                    'price_tier' =>
+                        $businessInfo['price_tier']
+                        ?? null,
+
+                    'differentiator' =>
+                        $businessInfo['differentiator']
+                        ?? null,
+
+                    'brand_positioning' =>
+                        array_values(
+                            array_filter(
+                                $brandPositioning
+                            )
+                        ),
+
+                    'brand_avoids' =>
+                        array_values(
+                            array_unique(
+                                array_filter(
+                                    $brandAvoids
+                                )
+                            )
+                        ),
+
+                    'business_age' =>
+                        $businessInfo['business_age']
+                        ?? null,
+
+                    'arabic_dialect' =>
+                        $brandInfo['arabic_dialect']
+                        ?? null,
+
+                    'emoji_usage' =>
+                        $brandInfo['emoji_usage']
+                        ?? null,
+
+                    'english_usage' =>
+                        $brandInfo['english_usage']
+                        ?? null,
+
+                    'words_to_avoid' =>
+                        $brandInfo['words_to_avoid']
+                        ?? null,
+
+                    'caption_samples' =>
+                        $brandInfo['caption_samples']
+                        ?? null,
+
+                    'conversion_actions' =>
+                        $conversionActions,
+                ],
+
+                'persona' => [
+                    'name' =>
+                        $snapshotPersona['name']
+                        ?? null,
+
+                    'gender' =>
+                        $personaAnswers['gender']
+                        ?? null,
+
+                    'age_range' =>
+                        $snapshotPersona['age_range']
+                        ?? null,
+
+                    'who' =>
+                        $personaAnswers['who']
+                        ?? $personaAnswers['description']
+                        ?? null,
+
+                    'buyer_is_user' =>
+                        $personaAnswers['buyer_is_user']
+                        ?? null,
+
+                    'decider' =>
+                        $personaAnswers['decider']
+                        ?? null,
+
+                    'priorities' =>
+                        array_values(
+                            array_filter(
+                                $personaPriorities
+                            )
+                        ),
+
+                    'objection' =>
+                        $personaAnswers['objection']
+                        ?? null,
+                ],
+
+                'campaign' => [
+                    'topic' =>
+                        $snapshotCampaign['topic']
+                        ?? $snapshotCampaign['name']
+                        ?? $campaign->name,
+
+                    'objective' =>
+                        $normalizedObjective,
+
+                    'description' =>
+                        $snapshotCampaign['description']
+                        ?? $campaign->description
+                        ?? null,
+
+                    'offer' =>
+                        $normalizedOffer,
+
+                    'conversion_methods' =>
+                        $campaignConversionMethods,
+
+                    'channels' =>
+                        $campaignChannels,
+
+                    'format_mode' =>
+                        $normalizedFormatMode,
+
+                    'material_count' =>
+                        $requestedPostsCount,
+
+                    'mood' =>
+                        $normalizedMood,
+
+                    'start_date' =>
+                        $campaignStartDate,
+
+                    'end_date' =>
+                        $campaignEndDate,
+                ],
+
+                /*
+                |--------------------------------------------------------------------------
+                | Full campaign generation
+                |--------------------------------------------------------------------------
+                */
+
+                'regenerate_index' => null,
             ];
+
+            /*
+            |--------------------------------------------------------------------------
+            | Compile the owner's active master prompt
+            |--------------------------------------------------------------------------
+            */
+
+            $compiledPrompt =
+                app(PromptCompilerService::class)
+                    ->compile(
+                        $promptVersion->content,
+                        [
+                            'INPUT_JSON' =>
+                                json_encode(
+                                    $inputJson,
+                                    JSON_PRETTY_PRINT
+                                    | JSON_UNESCAPED_UNICODE
+                                    | JSON_UNESCAPED_SLASHES
+                                    | JSON_THROW_ON_ERROR
+                                ),
+
+                            'regenerate_index' =>
+                                'null',
+                        ]
+                    );
+
+            $startedAt = microtime(true);
+
+            $result =
+                app(ClaudeService::class)
+                    ->generate(
+                        $compiledPrompt
+                    );
+
+            $latency =
+                (int) ((microtime(true) - $startedAt) * 1000);
+                
+                \Log::info('=== CLAUDE RAW RESPONSE ===');
+            $rawResponse =
+                $result['content'] ?? null;
+
+            if (
+                ! is_string($rawResponse) ||
+                trim($rawResponse) === ''
+            ) {
+                throw new \Exception(
+                    'Claude returned an empty response.'
+                );
+            }
+
+            \Log::info('=== CLAUDE RAW RESPONSE ===');
+            \Log::info($rawResponse);
+
+            $posts =
+                app(AIResponseParser::class)
+                    ->parseCampaignPosts(
+                        $rawResponse
+                    );
+
+                    $allowedChannels =
+                    array_values(
+                        array_intersect(
+                            [
+                                'instagram',
+                                'facebook',
+                            ],
+                            array_map(
+                                fn (mixed $channel): string =>
+                                    strtolower(
+                                        trim((string) $channel)
+                                    ),
+                                $campaignChannels
+                            )
+                        )
+                    );
+    
+                if ($allowedChannels === []) {
+                    throw new \Exception(
+                        'Campaign does not contain any valid selected channels.'
+                    );
+                }
+
 
             $allowedMediaTypes = [
                 'image',
@@ -417,7 +783,7 @@ Generate exactly ' .
                         $compiledPrompt,
 
                     'response' =>
-                        $result['content'],
+                        $rawResponse,
 
                     'input_tokens' =>
                         $result['input_tokens'] ?? 0,
@@ -469,13 +835,17 @@ Generate exactly ' .
                     'assembled_prompt' =>
                         $compiledPrompt,
 
-                    'response' => null,
+                    'response' =>
+                        $result['content'] ?? null,
 
-                    'input_tokens' => 0,
+                    'input_tokens' =>
+                        $result['input_tokens'] ?? 0,
 
-                    'output_tokens' => 0,
+                    'output_tokens' =>
+                        $result['output_tokens'] ?? 0,
 
-                    'latency_ms' => 0,
+                    'latency_ms' =>
+                        $latency,
 
                     'retry_count' => 0,
 
